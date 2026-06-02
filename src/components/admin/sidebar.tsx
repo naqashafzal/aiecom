@@ -14,13 +14,15 @@ import {
   LayoutTemplate,
   FileText,
   Bot,
-  Import
+  Import,
+  Star
 } from "lucide-react";
 
 const mainNavItems = [
   { name: "Dashboard", href: "/admin", icon: Home },
   { name: "Orders", href: "/admin/orders", icon: Inbox },
   { name: "Products", href: "/admin/products", icon: Tag },
+  { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Categories", href: "/admin/categories", icon: Tags },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Vendors", href: "/admin/vendors", icon: Store },

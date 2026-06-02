@@ -44,7 +44,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const { slug } = await params;
   const product = await db.product.findUnique({
     where: { slug },
-    include: { images: true }
+    include: { 
+      images: true,
+      store: true,
+      variants: true,
+      reviews: {
+        where: { isApproved: true },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { name: true, image: true } }
+        }
+      }
+    }
   });
 
   if (!product) {
