@@ -6,9 +6,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useCurrency } from "@/components/storefront/currency-provider";
 
 export function CartDrawer() {
   const { items, isOpen, setIsOpen, updateQuantity, removeItem, getCartTotal } = useCartStore();
+  const { formatPrice } = useCurrency();
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch
@@ -106,7 +108,7 @@ export function CartDrawer() {
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
                       </div>
                     </div>
                   </motion.div>
@@ -119,7 +121,7 @@ export function CartDrawer() {
               <div className="border-t bg-muted/20 p-6">
                 <div className="flex justify-between text-base font-medium mb-4">
                   <span>Subtotal</span>
-                  <span>${getCartTotal().toFixed(2)}</span>
+                  <span>{formatPrice(getCartTotal())}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">
                   Shipping and taxes calculated at checkout.

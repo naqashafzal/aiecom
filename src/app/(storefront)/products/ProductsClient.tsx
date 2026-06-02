@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Filter, Heart, Star, Search as SearchIcon } from "lucide-react";
+import { Filter, Heart, Star, Search as SearchIcon, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useSearchParams } from "next/navigation";
 
-export default function ProductsClient({ initialProducts, categories }: { initialProducts: any[], categories: any[] }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+export default function ProductsClient({ initialProducts, categories, initialCategory, storeCurrency = "USD" }: { initialProducts: any[], categories: any[], initialCategory?: string, storeCurrency?: string }) {
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || "All");
   const [sortOrder, setSortOrder] = useState("featured");
   const addItem = useCartStore((state) => state.addItem);
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
+  };
+
   const filteredProducts = initialProducts.filter((p) => {
-    const matchesCategory = selectedCategory === "All" || p.category.name === selectedCategory;
+    const matchesCategory = selectedCategory === "All" || p.categories?.some((c: any) => c.name === selectedCategory);
     const matchesSearch = search === "" || p.name.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   }).sort((a, b) => {
@@ -118,7 +122,7 @@ export default function ProductsClient({ initialProducts, categories }: { initia
                     <button className="absolute top-3 right-3 p-2 bg-background/80 backdrop-blur-md rounded-full text-muted-foreground hover:text-destructive hover:bg-background transition-colors z-10 opacity-0 group-hover:opacity-100 shadow-sm">
                       <Heart className="h-4 w-4" />
                     </button>
-                    <Link href={`/product/${product.slug}`}>
+                    <Link href={`/products/${product.slug}`}>
                       <img 
                         src={image} 
                         alt={product.name} 
@@ -132,18 +136,18 @@ export default function ProductsClient({ initialProducts, categories }: { initia
                       <span className="text-sm font-medium">4.8</span>
                     </div>
                     <h3 className="font-semibold text-lg line-clamp-1 mb-1 group-hover:text-primary transition-colors">
-                      <Link href={`/product/${product.slug}`}>{product.name}</Link>
+                      <Link href={`/products/${product.slug}`}>{product.name}</Link>
                     </h3>
                     <div className="mt-auto pt-4 flex items-center justify-between">
-                      <span className="font-bold text-xl">${displayPrice.toFixed(2)}</span>
+                      <span className="font-bold text-xl">{formatPrice(displayPrice)}</span>
                       <Button 
                         onClick={() => handleAddToCart(product)}
-                        variant="secondary" 
+                        variant="default" 
                         size="sm" 
-                        className="rounded-full font-semibold px-4 shadow-sm hover:shadow"
+                        className="rounded-full font-semibold px-4 shadow-md hover:shadow-lg transition-all"
                         disabled={product.stock === 0}
                       >
-                        {product.stock === 0 ? "Out" : "Add"}
+                        {product.stock === 0 ? "Out of Stock" : <><ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart</>}
                       </Button>
                     </div>
                   </div>

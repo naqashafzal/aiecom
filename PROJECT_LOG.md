@@ -56,14 +56,41 @@
   - Recent Orders table with dynamic status badges.
   - Top Products overview with low-stock warnings.
 
+### Phase 5: Admin Management & Live Data
+- Successfully migrated database to **MySQL** and ran database seeding for Categories and Products.
+- Built **Admin Products Table** (`/admin/products`) to fetch and display real inventory from the database.
+- Built **Admin Orders Table** (`/admin/orders`) featuring dynamic status badges and date formatting.
+
+### Phase 6: Shopify-Style Live Theme Editor
+- Developed an advanced **Live Theme Editor** under `/admin/online-store`.
+- Engineered a dual-pane UI:
+  - **Left Sidebar**: Dynamic input forms and toggle controls for storefront sections (Announcement, Hero, Features, Products, Stores).
+  - **Right Sidebar**: An embedded `iframe` of the storefront that instantly refreshes on save, completely bypassing Next.js caches via `force-dynamic` and URL timestamps.
+- Added **JSON Import/Export** capabilities for easy theme backups and migrations.
+- Refactored storefront pages (`page.tsx`, `product/[slug]/page.tsx`) to pull all text and visibility settings directly from the `Setting` database model instead of hardcoded strings.
+
+### Phase 7: Front-End Polish
+- Rebuilt the **Storefront Header** to feature a prominent, fully functional Search Bar, moving away from simple text links.
+- Connected the Search Bar to the `/products` grid, parsing `useSearchParams` via a React `<Suspense>` boundary to safely filter the database catalog live.
+
+### Phase 8: Authentication & Blog Engine
+- Added full `next-auth` credentials login flow.
+- Protected `/admin` routes using Next.js Middleware.
+- Added session-based logout to the Admin Header.
+- Designed and implemented a full **Blog CMS** with Create/Read/Update functionality for posts in the Admin Dashboard.
+- Built a storefront `/blog` and `/blog/[slug]` rendering pipeline for SEO traffic generation.
+
+---
+
+### Phase 9: Payments & Checkout
+- Integrated the official `stripe`, `@stripe/stripe-js`, and `@stripe/react-stripe-js` libraries.
+- Upgraded the Checkout page to dynamically generate a `clientSecret` and render the secure `PaymentElement`.
+- Updated backend actions to create live `PaymentIntents` with the correct order totals.
+
 ---
 
 ## 🚀 Next Steps / Pending Tasks
-1. **Authentication:** Implement NextAuth/Auth.js to secure the `/admin` routes and allow Customers/Vendors to log in.
-2. **Database Sync:** Connect to a live PostgreSQL database and run `npx prisma db push`.
-3. **Backend APIs:** Build server actions or API routes to fetch real products, categories, and stores from the database instead of using mock data.
-4. **Admin Management Pages:** Build out the CRUD operations for Products (`/admin/products`), Orders (`/admin/orders`), and Vendors.
-5. **Stripe Integration:** Hook up the checkout flow's payment step to Stripe Elements and Webhooks.
+1. **Admin Actions:** Finalize CRUD operations (Update Order Status) in the admin dashboard.
 
 ---
-*Note to future AI agents: When resuming this project, please review this log and the `prisma/schema.prisma` file to understand the architecture. Avoid using `tailwindcss-animate` as a `@plugin` in `globals.css` due to Turbopack resolution issues in this Next.js version.*
+*Note to future AI agents: When resuming this project, please review this log and the `prisma/schema.prisma` file to understand the architecture. The live theme editor relies heavily on the `Setting` model.*

@@ -63,9 +63,7 @@ export default async function AdminCustomersPage() {
                     {customer.points}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <span className="text-xs text-muted-foreground">-</span>
                   </td>
                 </tr>
               ))}

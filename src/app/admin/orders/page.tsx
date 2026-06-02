@@ -1,5 +1,5 @@
 import { db } from "@/lib/prisma";
-
+import Link from "next/link";
 import { Eye, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -72,11 +72,10 @@ export default async function AdminOrdersPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
-                        <MoreHorizontal className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-muted-foreground hover:text-primary">
+                        <Link href={`/admin/orders/${order.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
                       </Button>
                     </div>
                   </td>

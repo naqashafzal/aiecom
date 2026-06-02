@@ -10,7 +10,7 @@ export default async function ProductsPage() {
   const products = await db.product.findMany({
     where: { status: 'ACTIVE' },
     include: {
-      category: true,
+      categories: true,
       images: true,
     },
     orderBy: {
@@ -18,9 +18,14 @@ export default async function ProductsPage() {
     }
   });
 
+  const currencySetting = await db.setting.findUnique({
+    where: { key: "storeCurrency" }
+  });
+  const storeCurrency = currencySetting?.value || "USD";
+
   return (
     <Suspense fallback={<div className="container mx-auto py-20 text-center">Loading products...</div>}>
-      <ProductsClient initialProducts={products} categories={categories} />
+      <ProductsClient initialProducts={products} categories={categories} storeCurrency={storeCurrency} />
     </Suspense>
   );
 }

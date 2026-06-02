@@ -3,6 +3,7 @@ import { ArrowLeft, Upload, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 import { createProduct } from "../../actions";
+import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
 
 export default async function NewProductPage() {
   const categories = await db.category.findMany();
@@ -34,6 +35,11 @@ export default async function NewProductPage() {
               <label htmlFor="description" className="block text-sm font-semibold mb-2">Description</label>
               <textarea id="description" name="description" required rows={6} placeholder="Product description..." className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none resize-none"></textarea>
             </div>
+          </div>
+
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
+            <h2 className="text-lg font-bold">Media</h2>
+            <ImageUploadPreview />
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
@@ -72,11 +78,10 @@ export default async function NewProductPage() {
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Organization</h2>
             <div>
-              <label htmlFor="categoryId" className="block text-sm font-semibold mb-2">Product Category</label>
-              <select id="categoryId" name="categoryId" required className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm">
-                <option value="">Select category...</option>
+              <label htmlFor="categoryIds" className="block text-sm font-semibold mb-2">Product Categories (Hold Ctrl/Cmd to select multiple)</label>
+              <select id="categoryIds" name="categoryIds" multiple required className="w-full px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm min-h-[120px]">
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id} className="p-1">{cat.name}</option>
                 ))}
               </select>
             </div>

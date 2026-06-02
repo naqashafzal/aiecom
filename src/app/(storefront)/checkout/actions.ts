@@ -2,6 +2,26 @@
 
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import Stripe from "stripe";
+
+// Initialize Stripe with a fallback test key if env is not set
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_4eC39HqLyjWDarjtT1zdp7dc', {
+  apiVersion: "2024-06-20" as any,
+});
+
+export async function createPaymentIntent(amount: number) {
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Stripe expects cents
+      currency: "usd",
+      automatic_payment_methods: { enabled: true },
+    });
+    return { clientSecret: paymentIntent.client_secret };
+  } catch (error: any) {
+    console.error("Stripe error:", error);
+    return { error: error.message || "Failed to create payment intent" };
+  }
+}
 
 export async function processCheckout(data: {
   items: any[];
@@ -22,6 +42,7 @@ export async function processCheckout(data: {
     tax: number;
     grandTotal: number;
   };
+  paymentMethod: string;
 }) {
   try {
     // 1. Create Address
@@ -46,8 +67,8 @@ export async function processCheckout(data: {
         shippingAmount: data.totals.shipping,
         taxAmount: data.totals.tax,
         grandTotal: data.totals.grandTotal,
-        paymentMethod: "Credit Card (Mocked)",
-        paymentStatus: "PAID",
+        paymentMethod: data.paymentMethod,
+        paymentStatus: data.paymentMethod === "Manual" ? "PENDING" : "PAID",
         status: "PROCESSING",
         shippingAddressId: address.id,
       }

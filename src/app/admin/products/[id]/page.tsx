@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 import { updateProduct } from "../../actions";
 import { notFound } from "next/navigation";
+import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const categories = await db.category.findMany();
   const product = await db.product.findUnique({
-    where: { id: params.id }
+    where: { id },
+    include: { images: true, categories: true }
   });
 
   if (!product) {
@@ -17,6 +20,8 @@ export default async function EditProductPage({ params }: { params: { id: string
 
   // Need to bind the product ID to the updateProduct action
   const updateProductWithId = updateProduct.bind(null, product.id);
+
+  const primaryImageUrl = product.images?.[0]?.url;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -32,7 +37,7 @@ export default async function EditProductPage({ params }: { params: { id: string
         </div>
       </div>
 
-      <form action={updateProductWithId} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <form action={updateProduct.bind(null, id)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Main Details */}
         <div className="lg:col-span-2 space-y-6">
@@ -45,6 +50,11 @@ export default async function EditProductPage({ params }: { params: { id: string
               <label htmlFor="description" className="block text-sm font-semibold mb-2">Description</label>
               <textarea id="description" name="description" required defaultValue={product.description} rows={6} placeholder="Product description..." className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none resize-none"></textarea>
             </div>
+          </div>
+
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
+            <h2 className="text-lg font-bold">Media</h2>
+            <ImageUploadPreview defaultImageUrl={primaryImageUrl} />
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
@@ -83,11 +93,10 @@ export default async function EditProductPage({ params }: { params: { id: string
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Organization</h2>
             <div>
-              <label htmlFor="categoryId" className="block text-sm font-semibold mb-2">Product Category</label>
-              <select id="categoryId" name="categoryId" required defaultValue={product.categoryId} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm">
-                <option value="">Select category...</option>
+              <label htmlFor="categoryIds" className="block text-sm font-semibold mb-2">Product Categories (Hold Ctrl/Cmd to select multiple)</label>
+              <select id="categoryIds" name="categoryIds" multiple required defaultValue={product.categories.map(c => c.id)} className="w-full px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm min-h-[120px]">
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id} className="p-1">{cat.name}</option>
                 ))}
               </select>
             </div>

@@ -48,6 +48,7 @@ model User {
   adminProfile      AdminProfile?
   vendorProfile     VendorProfile?
   stores            Store[]
+  posts             Post[]
 }
 
 model CustomerProfile {
@@ -157,14 +158,13 @@ model Product {
   salePrice     Float?
   isFeatured    Boolean   @default(false)
   status        String    @default("ACTIVE") // DRAFT, ACTIVE, ARCHIVED
-  categoryId    String
   brandId       String?
   storeId       String?
   stock         Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  category      Category         @relation(fields: [categoryId], references: [id])
+  categories    Category[]
   brand         Brand?           @relation(fields: [brandId], references: [id])
   store         Store?           @relation(fields: [storeId], references: [id])
   images        ProductImage[]
@@ -424,4 +424,28 @@ model Setting {
   id    String @id @default(cuid())
   key   String @unique
   value String @db.Text
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String    @db.Text
+  excerpt     String?   @db.Text
+  coverImage  String?
+  published   Boolean   @default(false)
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

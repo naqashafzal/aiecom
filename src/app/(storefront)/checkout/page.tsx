@@ -6,14 +6,19 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { processCheckout } from "./actions";
+import { processCheckout, createPaymentIntent } from "./actions";
+import { StripeCheckout } from "@/components/storefront/stripe-checkout";
+import { useCurrency } from "@/components/storefront/currency-provider";
 
 export default function CheckoutPage() {
   const { items, getCartTotal, clearCart } = useCartStore();
+  const { formatPrice, currencyCode } = useCurrency();
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<"information" | "shipping" | "payment" | "success">("information");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "manual">("stripe");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -42,10 +47,14 @@ export default function CheckoutPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNextStep = async (e: React.FormEvent, nextStep: "shipping" | "payment" | "success") => {
-    e.preventDefault();
+  const handleNextStep = async (e: React.FormEvent | undefined, nextStep: "shipping" | "payment" | "success") => {
+    if (e) e.preventDefault();
     
-    if (nextStep === "success") {
+    if (nextStep === "payment") {
+      setStep(nextStep);
+      const res = await createPaymentIntent(grandTotal);
+      if (res.clientSecret) setClientSecret(res.clientSecret);
+    } else if (nextStep === "success") {
       setIsProcessing(true);
       // Process checkout via Server Action
       const result = await processCheckout({
@@ -56,7 +65,8 @@ export default function CheckoutPage() {
           shipping,
           tax: taxes,
           grandTotal
-        }
+        },
+        paymentMethod: paymentMethod === "stripe" ? "Stripe" : "Manual"
       });
 
       setIsProcessing(false);
@@ -187,7 +197,7 @@ export default function CheckoutPage() {
                         <input type="radio" name="shipping_method" defaultChecked className="h-4 w-4 text-primary focus:ring-primary" />
                         <span className="font-medium">Standard Shipping</span>
                       </div>
-                      <span className="font-semibold">{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                      <span className="font-semibold">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
                     </label>
                   </div>
                 </div>
@@ -205,10 +215,9 @@ export default function CheckoutPage() {
 
             {/* PAYMENT STEP */}
             {step === "payment" && (
-              <motion.form 
+              <motion.div 
                 key="pay"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                onSubmit={(e) => handleNextStep(e, "success")} 
                 className="space-y-8"
               >
                  <div className="border rounded-xl p-4 bg-background space-y-4">
@@ -224,36 +233,55 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Payment (Test Mode)</h2>
-                  <p className="text-sm text-muted-foreground mb-4 flex items-center">
-                    <Lock className="h-4 w-4 mr-1"/> This is a test checkout. No real cards will be charged.
-                  </p>
+                  <h2 className="text-2xl font-bold mb-4">Payment</h2>
                   
-                  <div className="border rounded-xl bg-background overflow-hidden">
-                    <div className="p-4 border-b bg-muted/20 flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                    <label className={`flex-1 border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'stripe' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                      <input type="radio" name="pm" checked={paymentMethod === 'stripe'} onChange={() => setPaymentMethod('stripe')} className="h-4 w-4 text-primary" />
                       <CreditCard className="h-5 w-5 text-primary" />
-                      <span className="font-bold">Credit Card</span>
-                    </div>
-                    <div className="p-4 space-y-4">
-                      <input type="text" required placeholder="Card number" defaultValue="4242 4242 4242 4242" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                      <input type="text" required placeholder="Name on card" defaultValue={`${formData.firstName} ${formData.lastName}`} className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                      <div className="grid grid-cols-2 gap-4">
-                        <input type="text" required placeholder="Expiration date (MM/YY)" defaultValue="12/26" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                        <input type="text" required placeholder="Security code" defaultValue="123" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                      </div>
-                    </div>
+                      <span className="font-semibold">Credit Card</span>
+                    </label>
+                    <label className={`flex-1 border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'manual' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                      <input type="radio" name="pm" checked={paymentMethod === 'manual'} onChange={() => setPaymentMethod('manual')} className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">Cash on Delivery</span>
+                    </label>
                   </div>
+                  
+                  {paymentMethod === "stripe" ? (
+                    <div className="border rounded-xl bg-background overflow-hidden p-6 shadow-sm">
+                      {clientSecret ? (
+                        <StripeCheckout 
+                          clientSecret={clientSecret} 
+                          amount={grandTotal} 
+                          onSuccess={() => handleNextStep(undefined, "success")} 
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-8">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
+                          <p className="text-sm text-muted-foreground">Loading secure payment...</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="border rounded-xl bg-background overflow-hidden p-8 text-center shadow-sm">
+                      <div className="h-12 w-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle2 className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold text-lg mb-2">Pay upon delivery</h3>
+                      <p className="text-muted-foreground mb-8 text-sm">You can pay using cash or card directly to the courier when your order arrives.</p>
+                      <Button onClick={(e) => handleNextStep(e, "success")} disabled={isProcessing} size="lg" className="rounded-full px-12 h-12 shadow-lg shadow-primary/30 w-full sm:w-auto">
+                        {isProcessing ? "Processing..." : "Complete Order"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between pt-4">
                   <button type="button" onClick={() => setStep("shipping")} className="text-primary hover:underline text-sm font-medium flex items-center">
                     <ChevronLeft className="h-4 w-4 mr-1"/> Return to shipping
                   </button>
-                  <Button type="submit" disabled={isProcessing} size="lg" className="rounded-full px-8 h-12 shadow-lg shadow-primary/30 w-full sm:w-auto">
-                    {isProcessing ? "Processing..." : "Pay Now"}
-                  </Button>
                 </div>
-              </motion.form>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -277,7 +305,7 @@ export default function CheckoutPage() {
                     {item.variant && <p className="text-xs text-muted-foreground">{item.variant.name}</p>}
                   </div>
                   <div className="text-sm font-semibold">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    {formatPrice(item.price * item.quantity)}
                   </div>
                 </div>
               ))}
@@ -286,23 +314,23 @@ export default function CheckoutPage() {
             <div className="border-t pt-4 space-y-3 text-sm mb-4">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span className="font-medium text-foreground">${total.toFixed(2)}</span>
+                <span className="font-medium text-foreground">{formatPrice(total)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Shipping</span>
-                <span className="font-medium text-foreground">{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                <span className="font-medium text-foreground">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Estimated taxes</span>
-                <span className="font-medium text-foreground">${taxes.toFixed(2)}</span>
+                <span className="font-medium text-foreground">{formatPrice(taxes)}</span>
               </div>
             </div>
 
             <div className="border-t pt-4 flex justify-between items-end">
               <span className="text-lg font-bold">Total</span>
               <div className="text-right">
-                <span className="text-xs text-muted-foreground mr-2">USD</span>
-                <span className="text-2xl font-black text-primary">${grandTotal.toFixed(2)}</span>
+                <span className="text-xs text-muted-foreground mr-2">{currencyCode}</span>
+                <span className="text-2xl font-black text-primary">{formatPrice(grandTotal)}</span>
               </div>
             </div>
           </div>

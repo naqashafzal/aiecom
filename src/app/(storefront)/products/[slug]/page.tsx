@@ -3,12 +3,15 @@ import { db } from "@/lib/prisma";
 import ProductClient from "./ProductClient";
 import { Metadata, ResolvingMetadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  const { slug } = await params;
   const product = await db.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: { images: true }
   });
 
@@ -37,9 +40,10 @@ export async function generateMetadata(
   };
 }
 
-export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const product = await db.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
     include: { images: true }
   });
 
@@ -53,6 +57,8 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
         in: [
           "storefront_policy_1_title",
           "storefront_policy_2_title",
+          "storefront_fake_sales_enabled",
+          "storeCurrency",
         ]
       }
     }

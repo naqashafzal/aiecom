@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, Truck, ShieldCheck, Heart, ArrowLeft, Minus, Plus, Share2, Store } from "lucide-react";
+import { Star, Truck, ShieldCheck, Heart, ArrowLeft, Minus, Plus, Share2, Store, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function ProductClient({ product, settings }: { product: any, settings?: Record<string, string> }) {
@@ -23,6 +24,8 @@ export default function ProductClient({ product, settings }: { product: any, set
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [quantity, setQuantity] = useState(1);
   const [mounted, setMounted] = useState(false);
+  const [fakeSales, setFakeSales] = useState({ sold: 0, hours: 0 });
+  const router = useRouter();
   
   const addItem = useCartStore((state) => state.addItem);
   const addViewedItem = useRecentlyViewedStore((state) => state.addItem);
@@ -30,6 +33,13 @@ export default function ProductClient({ product, settings }: { product: any, set
 
   const policy1Title = settings?.["storefront_policy_1_title"] || "Free Worldwide Shipping";
   const policy2Title = settings?.["storefront_policy_2_title"] || "2 Year Extended Warranty";
+  const storeCurrency = settings?.["storeCurrency"] || "USD";
+
+  const primaryImage = images[0];
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -38,9 +48,16 @@ export default function ProductClient({ product, settings }: { product: any, set
       slug: product.slug,
       name: product.name,
       price: product.salePrice || product.price,
-      image: images[0]
+      image: primaryImage
     });
-  }, [product.id, product.slug, product.name, product.price, product.salePrice, images, addViewedItem]);
+    
+    // Generate pseudo-random deterministic fake sales based on product length
+    const nameHash = product.name.length;
+    setFakeSales({
+      sold: Math.floor(Math.random() * 25) + 3 + (nameHash % 5),
+      hours: Math.floor(Math.random() * 18) + 4
+    });
+  }, [product.id, product.slug, product.name, product.price, product.salePrice, primaryImage, addViewedItem]);
 
   const handleAddToCart = () => {
     addItem({
@@ -54,7 +71,13 @@ export default function ProductClient({ product, settings }: { product: any, set
     });
   };
 
+  const handleBuyNow = () => {
+    handleAddToCart();
+    router.push("/checkout");
+  };
+
   const displayPrice = product.salePrice || product.price;
+  const showFakeSales = settings?.["storefront_fake_sales_enabled"] === "true";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -111,10 +134,18 @@ export default function ProductClient({ product, settings }: { product: any, set
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">{product.name}</h1>
+          
+          {mounted && showFakeSales && fakeSales.sold > 0 && (
+            <div className="flex items-center gap-2 text-red-500 bg-red-500/10 w-fit px-3 py-1.5 rounded-full mb-4">
+              <Flame className="h-4 w-4 fill-red-500" />
+              <span className="font-semibold text-sm">{fakeSales.sold} sold in last {fakeSales.hours} hours</span>
+            </div>
+          )}
+
           <div className="flex items-center gap-4 mb-6">
-            <div className="text-3xl font-black text-primary">${displayPrice.toFixed(2)}</div>
+            <div className="text-3xl font-black text-primary">{formatPrice(displayPrice)}</div>
             {product.salePrice && (
-              <div className="text-lg text-muted-foreground line-through">${product.price.toFixed(2)}</div>
+              <div className="text-lg text-muted-foreground line-through">{formatPrice(product.price)}</div>
             )}
             {product.salePrice && (
               <div className="bg-destructive/10 text-destructive text-xs font-bold px-2 py-1 rounded-sm uppercase tracking-wide">
@@ -142,9 +173,6 @@ export default function ProductClient({ product, settings }: { product: any, set
             <Button variant="outline" size="sm" className="rounded-full">Follow</Button>
           </div>
 
-          <p className="text-muted-foreground text-sm mb-8 leading-relaxed whitespace-pre-wrap">
-            {product.description}
-          </p>
 
           <div className="mb-8">
             <h3 className="font-semibold mb-3 flex items-center justify-between">
@@ -182,14 +210,25 @@ export default function ProductClient({ product, settings }: { product: any, set
               </button>
             </div>
             
-            <Button 
-              onClick={handleAddToCart}
-              size="lg" 
-              className="flex-1 h-14 rounded-full text-lg shadow-xl hover:shadow-primary/25 transition-all"
-              disabled={product.stock === 0}
-            >
-              {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
-            </Button>
+            <div className="flex gap-4 w-full">
+              <Button 
+                onClick={handleAddToCart}
+                size="lg" 
+                variant="outline"
+                className="flex-1 h-14 rounded-full text-lg shadow-sm hover:shadow-md transition-all border-2 border-primary/20 hover:border-primary"
+                disabled={product.stock === 0}
+              >
+                Add to Cart
+              </Button>
+              <Button 
+                onClick={handleBuyNow}
+                size="lg" 
+                className="flex-1 h-14 rounded-full text-lg shadow-xl hover:shadow-primary/25 transition-all"
+                disabled={product.stock === 0}
+              >
+                {product.stock === 0 ? "Out of Stock" : "Buy Now"}
+              </Button>
+            </div>
           </div>
 
           {/* Value Props */}
@@ -221,6 +260,23 @@ export default function ProductClient({ product, settings }: { product: any, set
         </div>
       </div>
 
+      {/* Product Description Section */}
+      {product.description && (
+        <div className="mt-16 border-t pt-12">
+          <div className="max-w-4xl">
+            <h2 className="text-2xl font-bold tracking-tight mb-6 flex items-center gap-3">
+              Product Description
+              <div className="flex-1 h-px bg-border" />
+            </h2>
+            <div className="bg-muted/20 rounded-2xl p-6 md:p-8">
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-base">
+                {product.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Recently Viewed Section */}
       {mounted && recentlyViewedItems.filter(item => item.id !== product.id).length > 0 && (
         <div className="mt-24 border-t pt-16">
@@ -228,7 +284,7 @@ export default function ProductClient({ product, settings }: { product: any, set
           <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
             {recentlyViewedItems.filter(item => item.id !== product.id).map((item) => (
               <div key={item.id} className="min-w-[200px] w-[200px] sm:min-w-[250px] sm:w-[250px] snap-start group">
-                <Link href={`/product/${item.slug}`}>
+                <Link href={`/products/${item.slug}`}>
                   <div className="aspect-[4/5] rounded-xl bg-muted overflow-hidden mb-4 relative">
                     <img 
                       src={item.image} 
@@ -237,7 +293,7 @@ export default function ProductClient({ product, settings }: { product: any, set
                     />
                   </div>
                   <h3 className="font-semibold text-sm truncate">{item.name}</h3>
-                  <p className="font-bold text-primary mt-1">${item.price.toFixed(2)}</p>
+                  <p className="font-bold text-primary mt-1">{formatPrice(item.price)}</p>
                 </Link>
               </div>
             ))}

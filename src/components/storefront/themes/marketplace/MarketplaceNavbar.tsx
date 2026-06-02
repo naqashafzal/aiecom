@@ -1,0 +1,123 @@
+"use client";
+
+import Link from "next/link";
+import { Search, ShoppingCart, User, ChevronDown, Menu, Smartphone } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import { useState, useEffect } from "react";
+
+import { StoreLogo } from "@/components/storefront/StoreLogo";
+
+export function MarketplaceNavbar({ 
+  menuLinks = [],
+  logoUrl,
+  logoText,
+  logoHeight,
+  logoAccent
+}: { 
+  menuLinks?: any[];
+  logoUrl?: string;
+  logoText?: string;
+  logoHeight?: number;
+  logoAccent?: string;
+}) {
+  const { getCartCount, toggleCart } = useCartStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return (
+    <div className="w-full">
+      {/* Top Mini-bar */}
+      <div className="bg-[#f2f2f2] text-[#4a4a4a] text-[11px] py-1.5 hidden md:block">
+        <div className="max-w-[1200px] mx-auto px-4 flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <Link href="#" className="hover:text-[#f85606] transition-colors">Save More on App</Link>
+            <Link href="#" className="hover:text-[#f85606] transition-colors">Become a Seller</Link>
+            <Link href="#" className="hover:text-[#f85606] transition-colors">Help & Support</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="#" className="flex items-center gap-1 hover:text-[#f85606] transition-colors">
+              <Smartphone className="w-3 h-3" /> App Download
+            </Link>
+            <Link href="#" className="hover:text-[#f85606] transition-colors">Login / Sign Up</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navbar */}
+      <header className="bg-[#f85606] text-white py-3 md:py-4 sticky top-0 z-50">
+        <div className="max-w-[1200px] mx-auto px-4 flex items-center justify-between gap-4 md:gap-8">
+          
+          <div className="flex items-center gap-3">
+            <button className="md:hidden"><Menu className="w-6 h-6" /></button>
+            <StoreLogo 
+              className="text-white" 
+              logoUrl={logoUrl}
+              logoText={logoText || "MARKETHUB"}
+              logoHeight={logoHeight}
+              logoAccent={logoAccent || "#fde047"}
+            />
+          </div>
+
+          <div className="hidden md:flex flex-1 max-w-2xl bg-white rounded-sm overflow-hidden flex-row items-center h-10">
+            <select className="bg-gray-100 text-gray-700 h-full px-3 text-xs border-r border-gray-300 outline-none cursor-pointer hidden lg:block">
+              <option>All Categories</option>
+              <option>Electronics</option>
+              <option>Fashion</option>
+              <option>Home & Garden</option>
+            </select>
+            <input 
+              type="text" 
+              placeholder="Search in Marketplace..." 
+              className="flex-1 h-full px-4 text-black text-sm outline-none"
+            />
+            <button className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
+              <Search className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4 md:gap-6">
+            <button className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
+              <User className="w-6 h-6" />
+              <div className="flex flex-col items-start text-xs text-left">
+                <span className="opacity-80">Hello, Sign in</span>
+                <span className="font-bold flex items-center">Account & Orders <ChevronDown className="w-3 h-3 ml-1" /></span>
+              </div>
+            </button>
+
+            <button className="flex items-center gap-2 relative hover:text-gray-200 transition-colors" onClick={toggleCart}>
+              <div className="relative">
+                <ShoppingCart className="w-7 h-7" />
+                {mounted && getCartCount() > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-yellow-400 text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {getCartCount()}
+                  </span>
+                )}
+              </div>
+              <span className="font-bold hidden md:block mt-2">Cart</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Menu Links Bar (optional) */}
+      {menuLinks && menuLinks.length > 0 && (
+        <div className="bg-white border-b border-gray-200 hidden md:block shadow-sm">
+          <div className="max-w-[1200px] mx-auto px-4 flex items-center gap-6 py-2">
+            {menuLinks.map((link, idx) => (
+              <Link 
+                key={idx} 
+                href={link.url} 
+                className={`text-sm hover:text-[#f85606] transition-colors ${link.highlight ? 'text-[#f85606] font-semibold' : 'text-gray-700'}`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -50,6 +50,11 @@ export default async function CategoriesPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
+                      <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+                        <Link href={`/admin/categories/${category.id}`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <form action={async () => {
                         "use server";
                         const { deleteCategory } = await import('@/app/admin/actions');
