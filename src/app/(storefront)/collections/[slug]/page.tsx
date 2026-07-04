@@ -19,9 +19,16 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
   });
   
   const products = await db.product.findMany({
-    where: { status: 'ACTIVE' },
+    where: { 
+      status: 'ACTIVE',
+      categories: {
+        some: {
+          slug: slug
+        }
+      }
+    },
     include: {
-      category: true,
+      categories: true,
       images: true,
     },
     orderBy: {
