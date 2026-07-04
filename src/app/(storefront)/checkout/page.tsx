@@ -50,7 +50,7 @@ export default function CheckoutPage() {
   const taxes = total * 0.08; // 8% tax rate
   const grandTotal = total + shipping + taxes;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
