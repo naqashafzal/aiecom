@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",
-    "@ai-sdk/react": "^3.0.196",
+    "@ai-sdk/react": "^3.0.197",
     "@auth/prisma-adapter": "^2.11.2",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^6.19.3",
@@ -19,7 +19,7 @@
     "@stripe/react-stripe-js": "^6.5.0",
     "@stripe/stripe-js": "^9.7.0",
     "@tanstack/react-query": "^5.100.14",
-    "ai": "^6.0.194",
+    "ai": "^6.0.195",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

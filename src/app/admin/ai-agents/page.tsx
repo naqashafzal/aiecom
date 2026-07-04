@@ -22,18 +22,18 @@ export default async function AiAgentsPage() {
       id: "aiInventoryAgent",
       name: "The AI Inventory Manager",
       role: "Backend Operations",
-      description: "Autonomously manages the catalog by connecting to supplier APIs, writing SEO-optimized descriptions, and adjusting prices based on demand.",
+      description: "Autonomously generates high-converting, SEO-optimized product descriptions directly inside the product editor to save you hours of manual data entry.",
       icon: Box,
-      status: "BETA",
+      status: "ACTIVE",
       enabled: settings.aiInventoryAgent === "true", // Default false
     },
     {
       id: "aiMarketingAgent",
       name: "The Marketing & Growth Agent",
       role: "Outbound Marketing",
-      description: "Generates daily SEO blog posts, sends personalized email campaigns to segmented lists, and manages social media auto-posting.",
+      description: "Instantly researches and writes complete, SEO-optimized blog posts formatted in markdown directly inside the blog post editor.",
       icon: PenTool,
-      status: "BETA",
+      status: "ACTIVE",
       enabled: settings.aiMarketingAgent === "true",
     },
     {

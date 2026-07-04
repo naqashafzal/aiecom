@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Star, Truck, ShieldCheck, RefreshCcw, Store, ChevronRight, Zap, User, Menu, ChevronRightCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
+import { cookies } from "next/headers";
 import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 import { MoreToLoveClient } from "@/app/(storefront)/MoreToLoveClient";
 
@@ -86,12 +87,43 @@ export default async function AliExpressHome() {
   });
 
   // Fetch More to love
-  const moreToLove = await db.product.findMany({
-    where: { status: 'ACTIVE' },
-    take: 20,
-    orderBy: { price: 'asc' }, // different sorting just to mix it up
-    include: { images: true }
-  });
+  let moreToLove = [];
+  const personalizationEnabled = settings["storefront_personalization_enabled"] === "true";
+  
+  if (personalizationEnabled) {
+    const cookieStore = await cookies();
+    const lastViewedCategory = cookieStore.get('last_viewed_category')?.value;
+
+    if (lastViewedCategory) {
+      // Fetch products from the preferred category
+      const preferredProducts = await db.product.findMany({
+        where: { status: 'ACTIVE', categories: { some: { id: lastViewedCategory } } },
+        take: 10,
+        orderBy: { price: 'asc' },
+        include: { images: true }
+      });
+
+      // Fetch other products to fill the rest
+      const otherProducts = await db.product.findMany({
+        where: { status: 'ACTIVE', id: { notIn: preferredProducts.map(p => p.id) } },
+        take: 20 - preferredProducts.length,
+        orderBy: { price: 'asc' },
+        include: { images: true }
+      });
+
+      moreToLove = [...preferredProducts, ...otherProducts];
+    }
+  }
+
+  // Fallback if personalization is disabled or no cookie found
+  if (moreToLove.length === 0) {
+    moreToLove = await db.product.findMany({
+      where: { status: 'ACTIVE' },
+      take: 20,
+      orderBy: { price: 'asc' },
+      include: { images: true }
+    });
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-[#f5f5f5]">

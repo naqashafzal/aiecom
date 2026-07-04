@@ -46,6 +46,8 @@ export async function createProduct(formData: FormData) {
     imageUrl = `/uploads/${fileName}`;
   }
 
+  const storeId = formData.get("storeId") as string;
+
   await db.product.create({
     data: {
       name,
@@ -55,6 +57,7 @@ export async function createProduct(formData: FormData) {
       salePrice,
       stock,
       status,
+      ...(storeId ? { store: { connect: { id: storeId } } } : {}),
       categories: {
         connect: categoryIds.map(id => ({ id }))
       },
@@ -121,6 +124,8 @@ export async function updateProduct(id: string, formData: FormData) {
     });
   }
 
+  const storeId = formData.get("storeId") as string;
+
   await db.product.update({
     where: { id },
     data: {
@@ -130,6 +135,7 @@ export async function updateProduct(id: string, formData: FormData) {
       salePrice,
       stock,
       status,
+      ...(storeId ? { store: { connect: { id: storeId } } } : { store: { disconnect: true } }),
       categories: {
         set: categoryIds.map(id => ({ id }))
       },

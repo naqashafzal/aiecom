@@ -61,13 +61,18 @@ export default function ProductClient({ product, settings }: { product: any, set
       image: primaryImage
     });
     
+    // Personalization Engine tracking (if categories exist)
+    if (product.categories && product.categories.length > 0) {
+      document.cookie = `last_viewed_category=${product.categories[0].id}; path=/; max-age=2592000`; // 30 days
+    }
+
     // Generate pseudo-random deterministic fake sales based on product length
     const nameHash = product.name.length;
     setFakeSales({
       sold: Math.floor(Math.random() * 25) + 3 + (nameHash % 5),
       hours: Math.floor(Math.random() * 18) + 4
     });
-  }, [product.id, product.slug, product.name, product.price, product.salePrice, primaryImage, addViewedItem]);
+  }, [product.id, product.slug, product.name, product.price, product.salePrice, primaryImage, addViewedItem, product.categories]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

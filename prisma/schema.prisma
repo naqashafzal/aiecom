@@ -259,6 +259,7 @@ model Order {
   grandTotal      Float
   paymentMethod   String
   paymentStatus   String      @default("PENDING")
+  shippingMethod  String?
   trackingNumber  String?
   shippingAddressId String
   billingAddressId  String?
@@ -448,4 +449,28 @@ model Page {
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model ShippingZone {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Domestic", "International", "Rest of World"
+  countries Json     // Array of country codes e.g. ["US", "CA"]
+  isActive  Boolean  @default(true)
+  rates     ShippingRate[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ShippingRate {
+  id              String       @id @default(cuid())
+  name            String       // e.g., "Standard", "Express"
+  price           Float
+  condition       String       // e.g., "PRICE", "WEIGHT", "NONE"
+  minCondition    Float?
+  maxCondition    Float?
+  zoneId          String
+  zone            ShippingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }

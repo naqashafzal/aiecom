@@ -15,7 +15,8 @@ import {
   FileText,
   Bot,
   Import,
-  Star
+  Star,
+  Truck
 } from "lucide-react";
 
 const mainNavItems = [
@@ -30,6 +31,7 @@ const mainNavItems = [
   { name: "Custom Pages", href: "/admin/pages", icon: FileText },
   { name: "Online Store", href: "/admin/online-store", icon: LayoutTemplate },
   { name: "Navigation", href: "/admin/navigation", icon: LayoutTemplate },
+  { name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
   { name: "AI Workforce", href: "/admin/ai-agents", icon: Bot },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
   { name: "Store Migration", href: "/admin/migration", icon: Import },

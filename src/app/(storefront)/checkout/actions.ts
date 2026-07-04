@@ -43,6 +43,7 @@ export async function processCheckout(data: {
     grandTotal: number;
   };
   paymentMethod: string;
+  shippingMethod?: string;
 }) {
   try {
     // 1. Create Address
@@ -68,6 +69,7 @@ export async function processCheckout(data: {
         taxAmount: data.totals.tax,
         grandTotal: data.totals.grandTotal,
         paymentMethod: data.paymentMethod,
+        shippingMethod: data.shippingMethod,
         paymentStatus: data.paymentMethod === "Manual" ? "PENDING" : "PAID",
         status: "PROCESSING",
         shippingAddressId: address.id,

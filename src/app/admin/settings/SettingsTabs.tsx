@@ -21,6 +21,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "general", name: "General", icon: Store },
     { id: "payments", name: "Payments", icon: CreditCard },
     { id: "storefront", name: "Storefront", icon: LayoutTemplate },
+    { id: "ai", name: "AI Models", icon: Bot },
   ];
 
   return (
@@ -204,6 +205,64 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <option value="true">Enabled</option>
                   <option value="false">Disabled</option>
                 </select>
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-indigo-50/50 border-indigo-100">
+                <div>
+                  <div className="font-semibold text-indigo-700 flex items-center gap-1.5"><Bot className="h-4 w-4" /> Personalization Engine</div>
+                  <div className="text-sm text-indigo-600/80">Rotate homepage products dynamically based on the user's browsing cookies and search history.</div>
+                </div>
+                <select key={settings.storefront_personalization_enabled} name="storefront_personalization_enabled" defaultValue={settings.storefront_personalization_enabled || "false"} className="h-10 px-3 rounded-md border bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium">
+                  <option value="true">Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "ai" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Model Configuration</h2>
+              <p className="text-sm text-muted-foreground mb-4">Configure the LLM provider and API keys used by your AI Workforce.</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">Default AI Provider</label>
+                <select key={settings.ai_provider} name="ai_provider" defaultValue={settings.ai_provider || "google"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none">
+                  <option value="google">Google Gemini (Default)</option>
+                  <option value="openai">OpenAI (ChatGPT)</option>
+                  <option value="claude">Anthropic (Claude)</option>
+                  <option value="wavespeed">Wavespeed</option>
+                </select>
+                <p className="text-xs text-muted-foreground mt-1.5">Note: Switching models requires valid API keys below.</p>
+              </div>
+
+              <div className="border-t pt-6 space-y-4">
+                <h3 className="font-semibold text-sm">Provider API Keys</h3>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">OpenAI API Key</label>
+                  <input type="password" name="ai_openai_key" defaultValue={settings.ai_openai_key || ""} placeholder="sk-proj-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Anthropic (Claude) API Key</label>
+                  <input type="password" name="ai_claude_key" defaultValue={settings.ai_claude_key || ""} placeholder="sk-ant-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Wavespeed API Key</label>
+                  <input type="password" name="ai_wavespeed_key" defaultValue={settings.ai_wavespeed_key || ""} placeholder="ws-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Google Gemini API Key (Fallback)</label>
+                  <input type="password" name="ai_google_key" defaultValue={settings.ai_google_key || ""} placeholder="AIzaSy..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                  <p className="text-xs text-muted-foreground mt-1">If empty, the system will use the GOOGLE_GENERATIVE_AI_API_KEY from your .env file.</p>
+                </div>
               </div>
             </div>
           </div>

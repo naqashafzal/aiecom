@@ -1,6 +1,7 @@
 import { db } from "@/lib/prisma";
 import { Store, MoreHorizontal, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function AdminVendorsPage() {
   const vendors = await db.store.findMany({
@@ -20,9 +21,11 @@ export default async function AdminVendorsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Vendors</h1>
           <p className="text-muted-foreground mt-1">Manage partner stores and multi-vendor accounts.</p>
         </div>
-        <Button className="rounded-full shadow-sm">
-          Invite Vendor
-        </Button>
+        <Link href="/admin/vendors/new">
+          <Button className="rounded-full shadow-sm">
+            Invite Vendor
+          </Button>
+        </Link>
       </div>
 
       <div className="bg-background rounded-xl shadow-sm border overflow-hidden">

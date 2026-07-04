@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { processCheckout, createPaymentIntent } from "./actions";
+import { getApplicableShippingRates } from "./shipping-actions";
 import { StripeCheckout } from "@/components/storefront/stripe-checkout";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
@@ -19,6 +20,13 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "manual">("stripe");
+  
+  // Shipping State
+  const [availableRates, setAvailableRates] = useState<any[]>([]);
+  const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
+  const [shippingCost, setShippingCost] = useState(0);
+  const [shippingMethodName, setShippingMethodName] = useState("Standard Shipping");
+  const [isFetchingRates, setIsFetchingRates] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -38,7 +46,7 @@ export default function CheckoutPage() {
   }, []);
 
   const total = getCartTotal();
-  const shipping = total > 100 ? 0 : 15.00;
+  const shipping = shippingCost;
   const taxes = total * 0.08; // 8% tax rate
   const grandTotal = total + shipping + taxes;
 
@@ -50,7 +58,22 @@ export default function CheckoutPage() {
   const handleNextStep = async (e: React.FormEvent | undefined, nextStep: "shipping" | "payment" | "success") => {
     if (e) e.preventDefault();
     
-    if (nextStep === "payment") {
+    if (nextStep === "shipping") {
+      setIsFetchingRates(true);
+      const res = await getApplicableShippingRates(formData.country, total);
+      setIsFetchingRates(false);
+      
+      if (res.success && res.rates && res.rates.length > 0) {
+        setAvailableRates(res.rates);
+        setSelectedRateId(res.rates[0].id);
+        setShippingCost(res.rates[0].price);
+        setShippingMethodName(res.rates[0].name);
+        setStep("shipping");
+      } else {
+        alert(res.error || "No shipping available for this region. Please try another address.");
+        return;
+      }
+    } else if (nextStep === "payment") {
       setStep(nextStep);
       const res = await createPaymentIntent(grandTotal);
       if (res.clientSecret) setClientSecret(res.clientSecret);
@@ -66,7 +89,8 @@ export default function CheckoutPage() {
           tax: taxes,
           grandTotal
         },
-        paymentMethod: paymentMethod === "stripe" ? "Stripe" : "Manual"
+        paymentMethod: paymentMethod === "stripe" ? "Stripe" : "Manual",
+        shippingMethod: shippingMethodName
       });
 
       setIsProcessing(false);
@@ -156,6 +180,14 @@ export default function CheckoutPage() {
                     <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Apartment, suite, etc. (optional)" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="city" value={formData.city} onChange={handleInputChange} required placeholder="City" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required placeholder="Postal code" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
+                    <select name="country" value={formData.country} onChange={handleInputChange} required className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
+                      <option value="US">United States</option>
+                      <option value="CA">Canada</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="AU">Australia</option>
+                      <option value="DE">Germany</option>
+                      <option value="FR">France</option>
+                    </select>
                   </div>
                 </div>
 
@@ -163,8 +195,8 @@ export default function CheckoutPage() {
                   <Link href="/cart" className="text-primary hover:underline text-sm font-medium flex items-center">
                     <ChevronLeft className="h-4 w-4 mr-1"/> Return to cart
                   </Link>
-                  <Button type="submit" size="lg" className="rounded-full px-8 h-12 shadow-md">
-                    Continue to Shipping
+                  <Button type="submit" size="lg" disabled={isFetchingRates} className="rounded-full px-8 h-12 shadow-md">
+                    {isFetchingRates ? "Calculating..." : "Continue to Shipping"}
                   </Button>
                 </div>
               </motion.form>
@@ -191,14 +223,26 @@ export default function CheckoutPage() {
 
                 <div>
                   <h2 className="text-2xl font-bold mb-4">Shipping Method</h2>
-                  <div className="border rounded-xl bg-background overflow-hidden">
-                    <label className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <input type="radio" name="shipping_method" defaultChecked className="h-4 w-4 text-primary focus:ring-primary" />
-                        <span className="font-medium">Standard Shipping</span>
-                      </div>
-                      <span className="font-semibold">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
-                    </label>
+                  <div className="border rounded-xl bg-background overflow-hidden divide-y">
+                    {availableRates.map(rate => (
+                      <label key={rate.id} className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="radio" 
+                            name="shipping_method" 
+                            checked={selectedRateId === rate.id}
+                            onChange={() => {
+                              setSelectedRateId(rate.id);
+                              setShippingCost(rate.price);
+                              setShippingMethodName(rate.name);
+                            }}
+                            className="h-4 w-4 text-primary focus:ring-primary" 
+                          />
+                          <span className="font-medium">{rate.name}</span>
+                        </div>
+                        <span className="font-semibold">{rate.price === 0 ? "Free" : formatPrice(rate.price)}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -228,7 +272,7 @@ export default function CheckoutPage() {
                     <div className="text-sm"><span className="text-muted-foreground mr-4">Ship to</span> {formData.address1}, {formData.city}, {formData.postalCode}</div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <div className="text-sm"><span className="text-muted-foreground mr-4">Method</span> Standard Shipping</div>
+                    <div className="text-sm"><span className="text-muted-foreground mr-4">Method</span> {shippingMethodName}</div>
                   </div>
                 </div>
 

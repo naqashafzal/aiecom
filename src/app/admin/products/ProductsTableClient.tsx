@@ -6,7 +6,25 @@ import { Edit, Trash2, Tag, Percent, ArrowUpCircle, PackageSearch, Search, Filte
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ProductsTableClient({ products, currentPage = 1, totalPages = 1, totalProducts = 0, currentSort = 'createdAt', currentOrder = 'desc' }: { products: any[], currentPage?: number, totalPages?: number, totalProducts?: number, currentSort?: string, currentOrder?: string }) {
+interface ProductsTableProps {
+  products: any[];
+  currentPage?: number;
+  totalPages?: number;
+  totalProducts?: number;
+  currentSort?: string;
+  currentOrder?: string;
+  storeCurrency?: string;
+}
+
+export default function ProductsTableClient({ 
+  products, 
+  currentPage = 1, 
+  totalPages = 1, 
+  totalProducts = 0, 
+  currentSort = 'createdAt', 
+  currentOrder = 'desc',
+  storeCurrency = "USD"
+}: ProductsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -154,7 +172,9 @@ export default function ProductsTableClient({ products, currentPage = 1, totalPa
                 <td className="px-6 py-4 text-muted-foreground">
                   {product.categories && product.categories.length > 0 ? product.categories.map((c: any) => c.name).join(', ') : '-'}
                 </td>
-                <td className="px-6 py-4 font-medium">${product.price.toFixed(2)}</td>
+                <td className="px-6 py-4 font-medium">
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(product.price)}
+                </td>
                 <td className="px-6 py-4">
                   <span className={`${product.stock === 0 ? 'text-destructive font-bold' : product.stock < 20 ? 'text-orange-500 font-bold' : 'text-muted-foreground'}`}>
                     {product.stock} in stock

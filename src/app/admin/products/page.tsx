@@ -3,8 +3,10 @@ import { Plus, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 import ProductsTableClient from "./ProductsTableClient";
+import { getStoreCurrency } from "@/lib/format";
 
 export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ page?: string, sort?: string, order?: 'asc' | 'desc' }> }) {
+  const storeCurrency = await getStoreCurrency();
   const params = await searchParams;
   const page = parseInt(params?.page || '1', 10);
   const pageSize = 10;
@@ -54,6 +56,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           totalProducts={totalProducts}
           currentSort={sort}
           currentOrder={order}
+          storeCurrency={storeCurrency}
         />
       </div>
     </div>

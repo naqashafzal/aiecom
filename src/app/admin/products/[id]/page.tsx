@@ -5,13 +5,17 @@ import { db } from "@/lib/prisma";
 import { updateProduct } from "../../actions";
 import { notFound } from "next/navigation";
 import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
+import { AiDescriptionButton } from "../../ai-agents/AiDescriptionButton";
+import { getStoreCurrency } from "@/lib/format";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const storeCurrency = await getStoreCurrency();
   const { id } = await params;
   const categories = await db.category.findMany();
+  const stores = await db.store.findMany();
   const product = await db.product.findUnique({
     where: { id },
-    include: { images: true, categories: true }
+    include: { images: true, categories: true, store: true }
   });
 
   if (!product) {
@@ -22,6 +26,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   const updateProductWithId = updateProduct.bind(null, product.id);
 
   const primaryImageUrl = product.images?.[0]?.url;
+
+  const aiSetting = await db.setting.findUnique({ where: { key: "aiInventoryAgent" } });
+  const aiEnabled = aiSetting?.value === "true";
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -47,7 +54,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               <input id="name" name="name" type="text" required defaultValue={product.name} placeholder="Short sleeve t-shirt" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label htmlFor="description" className="block text-sm font-semibold mb-2">Description</label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="description" className="block text-sm font-semibold">Description</label>
+                {aiEnabled && <AiDescriptionButton titleInputId="name" descInputId="description" />}
+              </div>
               <textarea id="description" name="description" required defaultValue={product.description} rows={6} placeholder="Product description..." className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none resize-none"></textarea>
             </div>
           </div>
@@ -61,11 +71,11 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             <h2 className="text-lg font-bold">Pricing</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="price" className="block text-sm font-semibold mb-2">Price ($)</label>
+                <label htmlFor="price" className="block text-sm font-semibold mb-2">Price ({storeCurrency})</label>
                 <input id="price" name="price" type="number" step="0.01" required defaultValue={product.price} placeholder="0.00" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
               </div>
               <div>
-                <label htmlFor="salePrice" className="block text-sm font-semibold mb-2">Compare at price ($) (Optional)</label>
+                <label htmlFor="salePrice" className="block text-sm font-semibold mb-2">Compare at price ({storeCurrency}) (Optional)</label>
                 <input id="salePrice" name="salePrice" type="number" step="0.01" defaultValue={product.salePrice || ''} placeholder="0.00" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
               </div>
             </div>
@@ -88,6 +98,19 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
               <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
             </select>
+          </div>
+
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
+            <h2 className="text-lg font-bold">Vendor Store</h2>
+            <div>
+              <label htmlFor="storeId" className="block text-sm font-semibold mb-2">Assign to Store (Optional)</label>
+              <select id="storeId" name="storeId" defaultValue={product.storeId || ""} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm">
+                <option value="">No Store (First-Party)</option>
+                {stores.map((store) => (
+                  <option key={store.id} value={store.id}>{store.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">

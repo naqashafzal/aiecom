@@ -2,8 +2,10 @@ import { db } from "@/lib/prisma";
 import Link from "next/link";
 import { Eye, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getFormatPrice } from "@/lib/format";
 
 export default async function AdminOrdersPage() {
+  const formatPrice = await getFormatPrice();
   const orders = await db.order.findMany({
     include: {
       shippingAddress: true,
@@ -49,7 +51,7 @@ export default async function AdminOrdersPage() {
                     <div className="text-xs text-muted-foreground">{order.shippingAddress?.city}, {order.shippingAddress?.country}</div>
                   </td>
                   <td className="px-6 py-4 font-medium text-right whitespace-nowrap">
-                    ${order.grandTotal.toFixed(2)}
+                    {formatPrice(order.grandTotal)}
                     <div className="text-xs text-muted-foreground font-normal">{order.items.length} items</div>
                   </td>
                   <td className="px-6 py-4 text-center">

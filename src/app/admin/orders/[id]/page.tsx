@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Package, Truck, CreditCard, User, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getFormatPrice } from "@/lib/format";
 
 export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
+  const formatPrice = await getFormatPrice();
   const order = await db.order.findUnique({
     where: { id: params.id },
     include: {
@@ -63,8 +65,8 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                   </div>
                   <div className="font-medium text-sm text-right">
-                    ${item.total.toFixed(2)}
-                    <div className="text-xs text-muted-foreground font-normal">${item.price.toFixed(2)} each</div>
+                    {formatPrice(item.total)}
+                    <div className="text-xs text-muted-foreground font-normal">{formatPrice(item.price)} each</div>
                   </div>
                 </div>
               ))}
@@ -73,19 +75,19 @@ export default async function AdminOrderDetailPage({ params }: { params: { id: s
             <div className="mt-6 pt-4 border-t space-y-2 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span>${(order.grandTotal - order.shippingAmount - order.taxAmount + order.discountAmount).toFixed(2)}</span>
+                <span>{formatPrice(order.grandTotal - order.shippingAmount - order.taxAmount + order.discountAmount)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Shipping</span>
-                <span>${order.shippingAmount.toFixed(2)}</span>
+                <span>{formatPrice(order.shippingAmount)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Tax</span>
-                <span>${order.taxAmount.toFixed(2)}</span>
+                <span>{formatPrice(order.taxAmount)}</span>
               </div>
               <div className="flex justify-between font-bold text-base pt-2">
                 <span>Total</span>
-                <span>${order.grandTotal.toFixed(2)}</span>
+                <span>{formatPrice(order.grandTotal)}</span>
               </div>
             </div>
           </div>

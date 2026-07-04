@@ -89,6 +89,39 @@
 
 ---
 
+### Phase 10: Multi-Theme Engine & CMS
+- Added support for multiple storefront themes (AliExpress, Elegant, Marketplace) using a dynamic theme provider.
+- Created a fully functional **Page Builder** (`/admin/pages`) to create custom storefront pages (About Us, FAQ).
+- Implemented a visual drag-and-drop **Navigation Builder** (`/admin/navigation`) to manage header menu links dynamically.
+- Built a comprehensive **Footer Editor** (`/admin/footer`) to control branding, multi-column links, and social media icons with live previews.
+- Implemented dynamic global **Store Logo** settings via the Live Theme Editor.
+
+### Phase 11: Dynamic Product Pages & Reviews
+- Refactored the `ProductClient.tsx` to read dynamic `variants`, real stock status, and multivendor `store` data instead of using UI placeholders.
+- Built a complete **Product Review System**:
+  - Implemented storefront review forms and dynamic star rating calculation based on approved reviews.
+  - Added an Admin Reviews dashboard (`/admin/reviews`) to moderate, approve, or delete user reviews.
+- Resolved `.gitignore` conflicts with `public/uploads/` via `git rm --cached`.
+
+### Phase 12: Multivendor Architecture
+- Built a secure, dedicated `/vendor` Route Group serving as an isolated portal for marketplace sellers.
+- Implemented Vendor Dashboard (`/vendor`) displaying seller-specific revenue, active products, and order statistics.
+- Developed Vendor Order Management (`/vendor/orders`) and Product Management pages so sellers can manage their own catalogs and fulfillments.
+- Added Admin controls to assign specific products to vendor `Store` profiles during product creation/editing.
+
+### Phase 13: Admin Omni-Agent (AI)
+- Built a highly capable RAG (Retrieval-Augmented Generation) Chatbot into the Admin Dashboard using `@ai-sdk/react` and Google Gemini.
+- Engineered Server-Side Tools allowing the AI to safely interact with the live Prisma database.
+- The Omni-Agent can: Check real-time store stats, look up recent orders, search inventory, update product stock levels, and fulfill/cancel orders via natural language commands.
+- Designed a sleek, expanding UI for the agent within the Admin home page, complete with a distinct purple gradient design to highlight its new capabilities.
+
+### Phase 14: Global Store Currency
+- Extracted currency formatting into a server-side utility `src/lib/format.ts`.
+- Refactored all hardcoded `$` symbols across the Admin Dashboard (Stats, Orders list, Product tables, Pricing inputs) and Storefront to use `Intl.NumberFormat`.
+- The entire platform now seamlessly reacts to changes made to the `storeCurrency` setting in the Admin Settings panel.
+
+---
+
 ## 🚀 Next Steps / Pending Tasks
 1. **Admin Actions:** Finalize CRUD operations (Update Order Status) in the admin dashboard.
 

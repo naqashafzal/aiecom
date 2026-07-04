@@ -10,8 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 import Link from "next/link";
+import AdminChatAgent from "@/components/admin/AdminChatAgent";
+import { getFormatPrice } from "@/lib/format";
 
 export default async function AdminDashboard() {
+  const formatPrice = await getFormatPrice();
   const ordersCount = await db.order.count();
   
   const revenueObj = await db.order.aggregate({
@@ -31,8 +34,23 @@ export default async function AdminDashboard() {
     include: { shippingAddress: true }
   });
 
-  // Mock sessions for realism in the Shopify layout
-  const sessions = 1032;
+  const ordersToFulfill = await db.order.count({
+    where: {
+      status: { in: ['PENDING', 'CONFIRMED', 'PROCESSING'] }
+    }
+  });
+
+  const paymentsToCapture = await db.order.count({
+    where: {
+      paymentStatus: 'PENDING'
+    }
+  });
+
+  // Since we don't have a Google Analytics integration yet for real sessions,
+  // we'll calculate a realistic mockup based on user count and orders.
+  const usersCount = await db.user.count();
+  const sessions = 1000 + (usersCount * 12) + (ordersCount * 3);
+  const conversionRate = sessions > 0 ? ((ordersCount / sessions) * 100).toFixed(2) : "0.00";
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-20">
@@ -69,7 +87,7 @@ export default async function AdminDashboard() {
           <div className="md:pl-8 pt-4 md:pt-0">
             <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 border-b border-dashed border-[#8c9196] inline-block">Total sales</h3>
             <div className="flex items-end gap-2 mt-1">
-              <span className="text-base font-semibold">${revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+              <span className="text-base font-semibold">{formatPrice(revenue)}</span>
               <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 29%</span>
             </div>
             <div className="mt-4 h-6 w-full flex items-end">
@@ -98,7 +116,7 @@ export default async function AdminDashboard() {
             </div>
             <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 border-b border-dashed border-[#8c9196] inline-block">Conversion rate</h3>
             <div className="flex items-end gap-2 mt-1">
-              <span className="text-base font-semibold">0.19%</span>
+              <span className="text-base font-semibold">{conversionRate}%</span>
               <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 28%</span>
             </div>
             <div className="mt-4 h-6 w-full flex items-end">
@@ -112,35 +130,26 @@ export default async function AdminDashboard() {
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
-          <Package className="h-4 w-4 text-[#5c5f62]" />
-          {ordersCount} order(s) to fulfill
-        </button>
-        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
-          <CreditCard className="h-4 w-4 text-[#5c5f62]" />
-          1 payment to capture
-        </button>
+        <Link href="/admin/orders">
+          <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
+            <Package className="h-4 w-4 text-[#5c5f62]" />
+            {ordersToFulfill} order(s) to fulfill
+          </button>
+        </Link>
+        <Link href="/admin/orders">
+          <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-2 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
+            <CreditCard className="h-4 w-4 text-[#5c5f62]" />
+            {paymentsToCapture} payment(s) to capture
+          </button>
+        </Link>
       </div>
 
       {/* Greeting */}
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-[#202223] mb-4">Good evening, let's get started.</h2>
         
-        {/* Agentic Ask Box */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#e1e3e5] p-3 flex items-center mb-6">
-          <input 
-            type="text" 
-            placeholder="Ask anything..." 
-            className="flex-1 border-none focus:ring-0 text-sm py-1 px-2 outline-none"
-          />
-          <div className="flex items-center gap-3 pr-2 text-[#8c9196]">
-            <Sparkles className="h-5 w-5 text-indigo-500" />
-            <span>+</span>
-            <div className="w-6 h-6 rounded bg-[#f6f6f7] flex items-center justify-center">
-              <ArrowUpRight className="h-3 w-3" />
-            </div>
-          </div>
-        </div>
+        {/* Agentic Chat Component */}
+        <AdminChatAgent />
 
         {/* Feature Cards in Shopify Style */}
         <div className="space-y-6">
@@ -183,7 +192,7 @@ export default async function AdminDashboard() {
                           Unfulfilled
                         </span>
                       </td>
-                      <td className="px-5 py-3 text-right">${order.grandTotal.toFixed(2)}</td>
+                      <td className="px-5 py-3 text-right">{formatPrice(order.grandTotal)}</td>
                     </tr>
                   ))}
                   {recentOrders.length === 0 && (
@@ -218,7 +227,7 @@ export default async function AdminDashboard() {
                     </div>
                   </div>
                   <div className="font-semibold">
-                    ${product.price.toFixed(2)}
+                    {formatPrice(product.price)}
                   </div>
                 </div>
               ))}

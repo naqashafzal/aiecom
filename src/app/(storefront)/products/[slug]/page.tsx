@@ -48,6 +48,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       images: true,
       store: true,
       variants: true,
+      categories: true,
       reviews: {
         where: { isApproved: true },
         orderBy: { createdAt: 'desc' },
