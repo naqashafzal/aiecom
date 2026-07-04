@@ -200,7 +200,7 @@ export const MarketplaceThemeSchema: SectionSchema[] = [
     name: "Vertical Menu",
     icon: "MenuSquare",
     fields: [
-      { id: "title", label: "Sidebar Title", type: "text", default: "Categories" }
+      { id: "title", label: "Sidebar Title", type: "text", default: "Categories", helpText: "To customize categories and their text, click '+ Add block' below to add 'Category Link' blocks. If no blocks are added, all categories will be shown automatically." }
     ],
     allowedBlocks: ["category_link"]
   },

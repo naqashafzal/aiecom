@@ -55,7 +55,7 @@ export async function processCheckout(data: {
         address2: data.shipping.address2 || null,
         city: data.shipping.city,
         state: data.shipping.state || "N/A",
-        postalCode: data.shipping.postalCode,
+        zipCode: data.shipping.postalCode,
         country: data.shipping.country,
         phone: data.shipping.phone,
       }

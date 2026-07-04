@@ -143,7 +143,7 @@ function MarketplaceOfficialStores({ settings, officialStores }: { settings: Rec
 
 // MAIN ENTRY
 export default async function MarketplaceHome() {
-  const categories = await db.category.findMany({ take: 12 });
+  const categories = await db.category.findMany();
   
   const configSetting = await db.setting.findUnique({
     where: { key: "storefront_theme_config_marketplace" }

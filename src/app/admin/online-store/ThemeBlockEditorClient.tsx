@@ -46,6 +46,7 @@ export function ThemeBlockEditorClient({
 
   const updateSectionSetting = (sectionId: string, key: string, value: any) => {
     const newConfig = { ...config };
+    newConfig.sections = { ...newConfig.sections };
     newConfig.sections[sectionId] = {
       ...newConfig.sections[sectionId],
       settings: {
@@ -58,6 +59,7 @@ export function ThemeBlockEditorClient({
 
   const updateBlockSetting = (sectionId: string, blockId: string, key: string, value: any) => {
     const newConfig = { ...config };
+    newConfig.sections = { ...newConfig.sections };
     newConfig.sections[sectionId] = {
       ...newConfig.sections[sectionId],
       blocks: {
@@ -92,7 +94,10 @@ export function ThemeBlockEditorClient({
 
   const removeBlock = (sectionId: string, blockId: string) => {
     const newConfig = { ...config };
+    newConfig.sections = { ...newConfig.sections };
+    newConfig.sections[sectionId] = { ...newConfig.sections[sectionId] };
     newConfig.sections[sectionId].block_order = newConfig.sections[sectionId].block_order!.filter(id => id !== blockId);
+    newConfig.sections[sectionId].blocks = { ...newConfig.sections[sectionId].blocks! };
     delete newConfig.sections[sectionId].blocks![blockId];
     saveConfig(newConfig);
     if (activeBlockId === blockId) setActiveBlockId(null);
@@ -151,8 +156,14 @@ export function ThemeBlockEditorClient({
   const addBlock = (sectionId: string, type: string) => {
     const newId = `block_${type}_${Date.now()}`;
     const newConfig = { ...config };
+    newConfig.sections = { ...newConfig.sections };
+    newConfig.sections[sectionId] = { ...newConfig.sections[sectionId] };
+    
     if (!newConfig.sections[sectionId].block_order) newConfig.sections[sectionId].block_order = [];
+    else newConfig.sections[sectionId].block_order = [...newConfig.sections[sectionId].block_order!];
+    
     if (!newConfig.sections[sectionId].blocks) newConfig.sections[sectionId].blocks = {};
+    else newConfig.sections[sectionId].blocks = { ...newConfig.sections[sectionId].blocks! };
     
     newConfig.sections[sectionId].block_order!.push(newId);
     newConfig.sections[sectionId].blocks![newId] = { type, settings: {} };
