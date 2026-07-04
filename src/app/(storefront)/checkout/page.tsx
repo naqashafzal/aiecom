@@ -130,7 +130,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (items.length === 0 && step !== "success") {
+  if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
         <h2 className="text-3xl font-bold mb-4">Your cart is empty</h2>
