@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateFooterSettings } from "./actions";
-import { Save, Facebook, Instagram, Twitter, Youtube, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Save, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 
 type LinkItem = { label: string; url: string };
 
