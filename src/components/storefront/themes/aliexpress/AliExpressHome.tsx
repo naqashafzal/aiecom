@@ -37,13 +37,10 @@ export default async function AliExpressHome() {
       case "hero":
         return <HeroSection key={id} settings={section.settings} block_order={section.block_order} blocks={section.blocks} />;
       case "deals":
-        // @ts-expect-error Async Server Component
         return <DealsSection key={id} settings={section.settings} storeCurrency={storeCurrency} />;
       case "new_arrivals":
-        // @ts-expect-error Async Server Component
         return <NewArrivalsSection key={id} settings={section.settings} storeCurrency={storeCurrency} />;
       case "more_to_love":
-        // @ts-expect-error Async Server Component
         return <MoreToLoveSection key={id} settings={section.settings} storeCurrency={storeCurrency} />;
       case "custom_builder":
         return <CustomBuilderSection key={id} settings={section.settings} block_order={section.block_order} blocks={section.blocks} storeCurrency={storeCurrency} />;

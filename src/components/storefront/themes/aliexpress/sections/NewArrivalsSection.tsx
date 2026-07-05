@@ -31,7 +31,7 @@ export async function NewArrivalsSection({ settings, storeCurrency = "USD" }: { 
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {newArrivals.map(product => {
+        {newArrivals.map((product: any) => {
           const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
           const displayPrice = product.salePrice || product.price;
           

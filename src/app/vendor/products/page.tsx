@@ -60,7 +60,7 @@ export default async function VendorProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {products.map((product) => (
+              {products.map((product: any) => (
                 <tr key={product.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap flex items-center gap-3">
                     <div className="h-10 w-10 relative rounded-md overflow-hidden bg-muted border shrink-0">
@@ -73,7 +73,7 @@ export default async function VendorProductsPage() {
                     <div>
                       <span className="font-medium text-foreground">{product.name}</span>
                       <div className="text-xs text-muted-foreground mt-0.5">
-                        {product.categories.map(c => c.name).join(", ")}
+                        {product.categories.map((c: any) => c.name).join(", ")}
                       </div>
                     </div>
                   </td>

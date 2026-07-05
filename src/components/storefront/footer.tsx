@@ -12,7 +12,7 @@ export async function Footer() {
   const settingsRecords = await db.setting.findMany({
     where: { key: { startsWith: "footer_" } },
   });
-  const s = settingsRecords.reduce((acc, r) => {
+  const s = settingsRecords.reduce((acc: Record<string, string>, r: any) => {
     acc[r.key] = r.value;
     return acc;
   }, {} as Record<string, string>);

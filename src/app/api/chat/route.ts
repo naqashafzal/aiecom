@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const { messages } = await req.json();
 
   const rawSettings = await db.setting.findMany();
-  const settings = rawSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+  const settings = rawSettings.reduce((acc: Record<string, string>, s: any) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 
   const agentName = settings.aiAgentName || "Aura";
   const defaultPrompt = `You are ${agentName}, the premier AI Sales Assistant for the Aura Ecommerce platform.
@@ -32,7 +32,7 @@ Your job is to help customers find products, answer questions, and assist with t
         parameters: z.object({
           query: z.string().describe('The search term to look for, e.g. "laptop" or "camping".'),
         }),
-        execute: async ({ query }) => {
+        execute: async ({ query }: { query: string }) => {
           const products = await db.product.findMany({
             where: {
               OR: [
@@ -64,7 +64,7 @@ Your job is to help customers find products, answer questions, and assist with t
           productId: z.string().describe('The ID of the product to add to the cart.'),
           quantity: z.number().default(1).describe('The number of items to add.'),
         }),
-        execute: async ({ productId, quantity }) => {
+        execute: async ({ productId, quantity }: { productId: string, quantity: number }) => {
           const product = await db.product.findUnique({
             where: { id: productId },
             include: { images: true }
@@ -86,8 +86,7 @@ Your job is to help customers find products, answer questions, and assist with t
         }
       })
     },
-    maxSteps: 5, // Allow the model to execute tools and then respond in the same turn
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }

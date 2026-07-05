@@ -27,8 +27,8 @@ export default async function VendorDashboardPage() {
     include: { order: true }
   });
 
-  const totalSales = orderItems.reduce((sum, item) => sum + item.total, 0);
-  const totalOrders = new Set(orderItems.map(item => item.orderId)).size;
+  const totalSales = orderItems.reduce((sum: number, item: any) => sum + item.total, 0);
+  const totalOrders = new Set(orderItems.map((item: any) => item.orderId)).size;
 
   const recentOrderItems = await db.orderItem.findMany({
     where: { storeId: store.id },
@@ -109,7 +109,7 @@ export default async function VendorDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {recentOrderItems.map(item => (
+                {recentOrderItems.map((item: any) => (
                   <tr key={item.id}>
                     <td className="px-4 py-3 font-mono text-xs">{item.orderId.substring(0, 8)}...</td>
                     <td className="px-4 py-3 font-medium">{item.product.name}</td>

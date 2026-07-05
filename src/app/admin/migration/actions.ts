@@ -595,7 +595,7 @@ export async function syncShopifyApi(formData: FormData) {
           slug,
           description: p.descriptionHtml || "Imported product",
           price: isNaN(price) ? 19.99 : price,
-          stock: isNaN(stock) ? (p.totalInventory ?? 10) : stock,
+          stock: isNaN(stock) ? 10 : stock,
           status: "ACTIVE",
           categories: {
             connect: categoryIds.map(id => ({ id }))

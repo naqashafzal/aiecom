@@ -50,7 +50,7 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
         parameters: z.object({
           limit: z.number().optional().describe('Number of orders to retrieve (default 5)')
         }),
-        execute: async ({ limit = 5 }) => {
+        execute: async ({ limit = 5 }: { limit?: number }) => {
           const orders = await db.order.findMany({
             take: limit,
             orderBy: { createdAt: 'desc' },
@@ -71,7 +71,7 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
         parameters: z.object({
           query: z.string().describe('The product name or keyword to search for')
         }),
-        execute: async ({ query }) => {
+        execute: async ({ query }: { query: string }) => {
           const products = await db.product.findMany({
             where: { name: { contains: query } },
             take: 5
@@ -91,7 +91,7 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
           productId: z.string().describe('The ID of the product'),
           newStock: z.number().describe('The new stock quantity')
         }),
-        execute: async ({ productId, newStock }) => {
+        execute: async ({ productId, newStock }: { productId: string, newStock: number }) => {
           const updated = await db.product.update({
             where: { id: productId },
             data: { stock: newStock }
@@ -105,7 +105,7 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
           orderId: z.string().describe('The ID of the order'),
           status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']).describe('The new status')
         }),
-        execute: async ({ orderId, status }) => {
+        execute: async ({ orderId, status }: { orderId: string, status: any }) => {
           const updated = await db.order.update({
             where: { id: orderId },
             data: { status }
@@ -114,8 +114,7 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
         }
       }),
     },
-    maxSteps: 5,
   });
 
-  return result.toDataStreamResponse();
+  return result.toTextStreamResponse();
 }

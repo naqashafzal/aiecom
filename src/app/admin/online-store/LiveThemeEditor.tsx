@@ -301,22 +301,22 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
         
         {/* Left Sidebar - Editor */}
         <div className="w-[320px] bg-white border-r border-[#c9cccf] flex flex-col shrink-0 overflow-y-auto">
+          <div className="flex border-b border-[#c9cccf] shrink-0">
+            <button 
+              onClick={() => setActiveTab("sections")}
+              className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "sections" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
+            >Sections</button>
+            <button 
+              onClick={() => setActiveTab("theme_settings")}
+              className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "theme_settings" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
+            >Theme settings</button>
+            <button 
+              onClick={() => setActiveTab("app_embeds")}
+              className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "app_embeds" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
+            >App embeds</button>
+          </div>
           {activeTab === "sections" ? (
             <div className="h-full flex flex-col">
-              <div className="flex border-b border-[#c9cccf] shrink-0">
-                <button 
-                  onClick={() => setActiveTab("sections")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "sections" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >Sections</button>
-                <button 
-                  onClick={() => setActiveTab("theme_settings")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "theme_settings" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >Theme settings</button>
-                <button 
-                  onClick={() => setActiveTab("app_embeds")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "app_embeds" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >App embeds</button>
-              </div>
               <div className="flex-1 overflow-hidden">
                 <ThemeBlockEditorClient 
                   key={activeTheme}
@@ -338,20 +338,6 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
             </div>
           ) : (
             <div>
-              <div className="flex border-b border-[#c9cccf]">
-                <button 
-                  onClick={() => setActiveTab("sections")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "sections" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >Sections</button>
-                <button 
-                  onClick={() => setActiveTab("theme_settings")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "theme_settings" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >Theme settings</button>
-                <button 
-                  onClick={() => setActiveTab("app_embeds")}
-                  className={`flex-1 py-3 text-sm font-semibold border-b-2 ${activeTab === "app_embeds" ? "border-black text-black" : "border-transparent text-[#5c5f62] hover:bg-[#f6f6f7]"}`}
-                >App embeds</button>
-              </div>
               
               {activeTab === "theme_settings" && (
                 <div className="animate-in fade-in duration-200">
