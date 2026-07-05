@@ -5,10 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { getFormatPrice } from "@/lib/format";
 
-export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const formatPrice = await getFormatPrice();
   const order = await db.order.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       shippingAddress: true,
       items: {

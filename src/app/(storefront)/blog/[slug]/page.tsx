@@ -4,7 +4,8 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const post = await db.post.findUnique({
     where: { slug: params.slug, published: true }
   })
@@ -17,9 +18,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const post = await db.post.findUnique({
-    where: { slug: params.slug, published: true },
+    where: { slug, published: true },
     include: { author: true }
   })
 

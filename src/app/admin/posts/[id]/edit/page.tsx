@@ -6,7 +6,8 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { revalidatePath } from "next/cache"
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
+export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth()
   
   if (!session?.user?.id) {
@@ -38,7 +39,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
     }
 
     await db.post.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         slug,

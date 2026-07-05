@@ -1,14 +1,15 @@
 import { db } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
-export default async function CustomPage({ params }: { params: { slug: string } }) {
+export default async function CustomPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   let page: any = null;
   if ((db as any).page) {
     page = await (db as any).page.findUnique({
-      where: { slug: params.slug }
+      where: { slug }
     });
   } else {
-    const pages = await db.$queryRaw`SELECT * FROM Page WHERE slug = ${params.slug} LIMIT 1`;
+    const pages = await db.$queryRaw`SELECT * FROM Page WHERE slug = ${slug} LIMIT 1`;
     page = (pages as any)[0] || null;
   }
 
