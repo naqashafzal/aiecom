@@ -176,6 +176,8 @@ model Product {
   inventoryLogs InventoryLog[]
   recentlyViewed RecentlyViewed[]
   recommendations ProductRecommendation[]
+
+  @@index([status, createdAt])
 }
 
 model ProductImage {
@@ -225,6 +227,8 @@ model CartItem {
   quantity  Int             @default(1)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+
+  @@index([cartId])
 }
 
 model Wishlist {
@@ -271,6 +275,8 @@ model Order {
   payments        Payment[]
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
 }
 
 model OrderItem {

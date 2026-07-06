@@ -3,7 +3,7 @@ import AliExpressHome from "@/components/storefront/themes/aliexpress/AliExpress
 import ElegantHome from "@/components/storefront/themes/elegant/ElegantHome";
 import MarketplaceHome from "@/components/storefront/themes/marketplace/MarketplaceHome";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function StorefrontHome() {
   const activeThemeSetting = await db.setting.findUnique({ where: { key: "storefront_active_theme" } });

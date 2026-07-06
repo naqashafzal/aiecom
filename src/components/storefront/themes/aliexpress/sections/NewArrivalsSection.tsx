@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/prisma";
 
 export async function NewArrivalsSection({ settings, storeCurrency = "USD" }: { settings: Record<string, any>, storeCurrency?: string }) {
@@ -39,7 +40,7 @@ export async function NewArrivalsSection({ settings, storeCurrency = "USD" }: { 
             <Link href={`/products/${product.slug}`} key={product.id} className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group flex flex-col">
               <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg">
                 <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm z-10">NEW</span>
-                <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 16vw" className="object-cover group-hover:scale-105 transition-transform" />
               </div>
               <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-2 group-hover:underline flex-1">{product.name}</h4>
               <span className="text-[#222] font-black text-lg">{formatPrice(displayPrice)}</span>

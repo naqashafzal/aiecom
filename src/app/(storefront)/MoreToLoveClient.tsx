@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getMoreProducts } from "./actions";
 
@@ -60,7 +61,7 @@ export function MoreToLoveClient({ initialProducts, title, storeCurrency }: { in
           return (
             <Link href={`/products/${product.slug}`} key={`${product.id}-${i}`} className="bg-white rounded-xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all group flex flex-col border border-transparent hover:border-gray-200">
               <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden">
-                <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                <Image src={image} alt={product.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="object-cover group-hover:scale-105 transition-transform" />
               </div>
               <div className="p-3 flex flex-col flex-1">
                 <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-1 group-hover:underline flex-1">{product.name}</h4>

@@ -7,14 +7,12 @@ import { MoreToLoveSection } from "./sections/MoreToLoveSection";
 import { CustomBuilderSection } from "./sections/CustomBuilderSection";
 
 export default async function AliExpressHome() {
-  // Fetch dynamic theme config
-  const configSetting = await db.setting.findUnique({
-    where: { key: "storefront_theme_config_aliexpress" }
-  });
+  // Fetch dynamic theme config and currency in parallel
+  const [configSetting, currencySetting] = await Promise.all([
+    db.setting.findUnique({ where: { key: "storefront_theme_config_aliexpress" } }),
+    db.setting.findUnique({ where: { key: "storeCurrency" } })
+  ]);
 
-  const currencySetting = await db.setting.findUnique({
-    where: { key: "storeCurrency" }
-  });
   const storeCurrency = currencySetting?.value || "USD";
 
   let themeConfig: ThemeConfig = defaultAliExpressConfig;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Star, RefreshCcw } from "lucide-react";
 import { db } from "@/lib/prisma";
 
@@ -7,27 +8,22 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
   };
 
-  // Fetch Bestsellers
-  let bestsellers = [];
-  if (settings["bestsellers_category_id"]) {
-    bestsellers = await db.product.findMany({
-      where: { status: 'ACTIVE', categories: { some: { id: settings["bestsellers_category_id"] } } },
-      take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }
-    });
-  } else {
-    bestsellers = await db.product.findMany({ where: { status: 'ACTIVE' }, take: 3, include: { images: true }, orderBy: { createdAt: 'desc' } });
-  }
+  // Fetch Bestsellers and Superdeals in parallel
+  const bestsellersPromise = settings["bestsellers_category_id"]
+    ? db.product.findMany({
+        where: { status: 'ACTIVE', categories: { some: { id: settings["bestsellers_category_id"] } } },
+        take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }
+      })
+    : db.product.findMany({ where: { status: 'ACTIVE' }, take: 3, include: { images: true }, orderBy: { createdAt: 'desc' } });
 
-  // Fetch Superdeals
-  let superdeals = [];
-  if (settings["superdeals_category_id"]) {
-    superdeals = await db.product.findMany({
-      where: { status: 'ACTIVE', categories: { some: { id: settings["superdeals_category_id"] } } },
-      take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }
-    });
-  } else {
-    superdeals = await db.product.findMany({ where: { status: 'ACTIVE' }, take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }, skip: 3 });
-  }
+  const superdealsPromise = settings["superdeals_category_id"]
+    ? db.product.findMany({
+        where: { status: 'ACTIVE', categories: { some: { id: settings["superdeals_category_id"] } } },
+        take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }
+      })
+    : db.product.findMany({ where: { status: 'ACTIVE' }, take: 3, include: { images: true }, orderBy: { createdAt: 'desc' }, skip: 3 });
+
+  const [bestsellers, superdeals] = await Promise.all([bestsellersPromise, superdealsPromise]);
 
   return (
     <section 
@@ -58,7 +54,7 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
                  return (
                    <Link href={`/products/${product.slug}`} key={product.id} className="flex flex-col group">
                      <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg">
-                       <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                       <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
                      </div>
                      <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-1 group-hover:underline">{product.name}</h4>
                      <span className="text-[#E53238] font-black text-lg mb-0.5">{formatPrice(displayPrice)}</span>
@@ -89,7 +85,7 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
                  return (
                    <Link href={`/products/${product.slug}`} key={product.id} className="flex flex-col group">
                      <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg">
-                       <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                       <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
                      </div>
                      <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-1 group-hover:underline">{product.name}</h4>
                      <span className="text-[#222] font-black text-lg mb-0.5">{formatPrice(displayPrice)}</span>
