@@ -60,5 +60,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-# Run Prisma db push to auto-migrate database on deployment, then start server
-CMD npx prisma db push --accept-data-loss --skip-generate && node server.js
+CMD ["node", "server.js"]
