@@ -15,7 +15,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   }
 
   const post = await db.post.findUnique({
-    where: { id: params.id }
+    where: { id }
   })
 
   if (!post) {
