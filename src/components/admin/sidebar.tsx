@@ -26,6 +26,7 @@ const mainNavItems = [
   { name: "Reviews", href: "/admin/reviews", icon: Star },
   { name: "Categories", href: "/admin/categories", icon: Tags },
   { name: "Customers", href: "/admin/customers", icon: Users },
+  { name: "User Management", href: "/admin/users", icon: Users },
   { name: "Vendors", href: "/admin/vendors", icon: Store },
   { name: "Blog Posts", href: "/admin/posts", icon: FileText },
   { name: "Custom Pages", href: "/admin/pages", icon: FileText },

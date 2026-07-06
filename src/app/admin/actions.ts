@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import bcrypt from "bcryptjs";
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
@@ -332,4 +333,28 @@ export async function updateOrderStatus(orderId: string, formData: FormData) {
 
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
+}
+
+export async function updateUserRole(userId: string, newRole: "USER" | "ADMIN") {
+  await db.user.update({
+    where: { id: userId },
+    data: { role: newRole }
+  });
+  revalidatePath("/admin/users");
+}
+
+export async function updateUserPassword(userId: string, newPassword: string) {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await db.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword }
+  });
+  revalidatePath("/admin/users");
+}
+
+export async function deleteUser(userId: string) {
+  await db.user.delete({
+    where: { id: userId }
+  });
+  revalidatePath("/admin/users");
 }
