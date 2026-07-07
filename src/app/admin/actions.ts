@@ -33,6 +33,7 @@ export async function createProduct(formData: FormData) {
   const imageFile = formData.get("image") as File;
   let imageUrl: string | null = null;
   
+  let uploadErrorMsg = "";
   if (imageFile && imageFile.size > 0) {
     try {
       const bytes = await imageFile.arrayBuffer();
@@ -45,10 +46,11 @@ export async function createProduct(formData: FormData) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
       
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
       imageUrl = `/uploads/${fileName}`;
-    } catch (uploadError) {
+    } catch (uploadError: any) {
       console.error("Failed to upload image during product creation:", uploadError);
+      uploadErrorMsg = `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
     }
   }
 
@@ -58,7 +60,7 @@ export async function createProduct(formData: FormData) {
     data: {
       name,
       slug,
-      description,
+      description: description + uploadErrorMsg,
       price,
       salePrice,
       stock,
@@ -106,6 +108,7 @@ export async function updateProduct(id: string, formData: FormData) {
   
   let imageUrl: string | null = null;
   
+  let uploadErrorMsg = "";
   if (imageFile && imageFile.size > 0) {
     try {
       const bytes = await imageFile.arrayBuffer();
@@ -118,10 +121,11 @@ export async function updateProduct(id: string, formData: FormData) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
       
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
       imageUrl = `/uploads/${fileName}`;
-    } catch (uploadError) {
+    } catch (uploadError: any) {
       console.error("Failed to upload image during product update:", uploadError);
+      uploadErrorMsg = `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
     }
   }
 
@@ -139,7 +143,7 @@ export async function updateProduct(id: string, formData: FormData) {
     where: { id },
     data: {
       name,
-      description,
+      description: description + uploadErrorMsg,
       price,
       salePrice,
       stock,
