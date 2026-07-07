@@ -4,6 +4,8 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
@@ -35,8 +37,6 @@ export async function createProduct(formData: FormData) {
     const buffer = Buffer.from(bytes);
     const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     
-    const fs = require('fs');
-    const path = require('path');
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     
     if (!fs.existsSync(uploadDir)) {
@@ -105,8 +105,6 @@ export async function updateProduct(id: string, formData: FormData) {
     const buffer = Buffer.from(bytes);
     const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     
-    const fs = require('fs');
-    const path = require('path');
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     
     if (!fs.existsSync(uploadDir)) {
