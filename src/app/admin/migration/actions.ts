@@ -567,7 +567,7 @@ export async function syncShopifyApi(formData: FormData) {
         counter++;
       }
 
-      // Download primary image (for now just one to keep it fast, but can be expanded)
+      // Download primary image
       let localImageUrl: string | null = null;
       const imageUrl = p.media?.edges?.find((edge) => edge.node?.mediaContentType === "IMAGE")?.node?.image?.url;
 
