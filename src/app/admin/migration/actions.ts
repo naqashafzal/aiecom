@@ -296,13 +296,12 @@ export async function importProductsCsv(formData: FormData) {
         const categoryIds: string[] = [];
         if (typeNames.length > 0) {
           for (const typeName of typeNames) {
-            let existingCat = await db.category.findFirst({ where: { name: typeName } });
-            if (!existingCat) {
-              const catSlug = typeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-              existingCat = await db.category.create({
-                data: { name: typeName, slug: catSlug }
-              });
-            }
+            const catSlug = typeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            const existingCat = await db.category.upsert({
+              where: { slug: catSlug },
+              update: {},
+              create: { name: typeName, slug: catSlug }
+            });
             categoryIds.push(existingCat.id);
           }
         } else {
@@ -310,12 +309,7 @@ export async function importProductsCsv(formData: FormData) {
         }
 
         const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-        let slug = baseSlug;
-        let counter = 1;
-        while (await db.product.findUnique({ where: { slug } })) {
-          slug = `${baseSlug}-${counter}`;
-          counter++;
-        }
+        const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
 
         // Download Image
         let localImageUrl: string | null = null;
@@ -551,27 +545,20 @@ export async function syncShopifyApi(formData: FormData) {
           for (const colEdge of collections) {
             const colName = colEdge.node?.title;
             if (!colName) continue;
-            let existingCat = await db.category.findFirst({ where: { name: colName } });
-            if (!existingCat) {
-              existingCat = await db.category.create({
-                data: { name: colName, slug: colEdge.node?.handle || slugify(colName) }
-              });
-            }
+            const catSlug = colEdge.node?.handle || slugify(colName);
+            const existingCat = await db.category.upsert({
+              where: { slug: catSlug },
+              update: {},
+              create: { name: colName, slug: catSlug }
+            });
             categoryIds.push(existingCat.id);
           }
         } else {
           categoryIds.push(defaultCategory.id);
         }
 
-        let slug = p.handle;
-        if (!slug) {
-          slug = slugify(p.title);
-        }
-        let counter = 1;
-        while (await db.product.findUnique({ where: { slug } })) {
-          slug = `${p.handle || slugify(p.title)}-${counter}`;
-          counter++;
-        }
+        let baseSlug = p.handle || slugify(p.title);
+        const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
 
         // Download primary image
         let localImageUrl: string | null = null;
