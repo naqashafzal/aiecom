@@ -327,12 +327,15 @@ export async function importProductsCsv(formData: FormData) {
 
         // Download Image
         let localImageUrl: string | null = null;
+        let imageErrorMsg = "";
         if (imgIdx !== -1 && row[imgIdx] && row[imgIdx].startsWith('http')) {
           try {
             const imageUrl = row[imgIdx];
-            const res = await fetch(imageUrl);
+            const res = await fetch(imageUrl, {
+              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+            });
             if (res.ok) {
-              const buffer = Buffer.from(await res.arrayBuffer());
+              const bytes = await res.arrayBuffer();
               const urlPath = new URL(imageUrl).pathname;
               const urlExt = path.extname(urlPath) || '.jpg';
               const fileName = `mig-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
@@ -342,11 +345,14 @@ export async function importProductsCsv(formData: FormData) {
                 fs.mkdirSync(uploadDir, { recursive: true });
               }
 
-              fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+              fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
               localImageUrl = `/uploads/${fileName}`;
+            } else {
+              imageErrorMsg = `\n\n[DEBUG IMAGE ERROR]: Failed to fetch image, HTTP ${res.status} ${res.statusText}`;
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error("Failed to download image:", err);
+            imageErrorMsg = `\n\n[DEBUG IMAGE ERROR]: ${err.message}`;
           }
         }
 
@@ -354,7 +360,7 @@ export async function importProductsCsv(formData: FormData) {
           data: {
             name,
             slug,
-            description,
+            description: description + imageErrorMsg,
             price: isNaN(price) ? 19.99 : price,
             stock: isNaN(stock) ? 10 : stock,
             status: "ACTIVE",
@@ -601,23 +607,29 @@ export async function syncShopifyApi(formData: FormData) {
 
         // Download primary image
         let localImageUrl: string | null = null;
+        let imageErrorMsg = "";
         const imageUrl = p.media?.edges?.find((edge) => edge.node?.mediaContentType === "IMAGE")?.node?.image?.url;
 
         if (imageUrl) {
           try {
-            const res = await fetch(imageUrl);
+            const res = await fetch(imageUrl, {
+              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+            });
             if (res.ok) {
-              const buffer = Buffer.from(await res.arrayBuffer());
+              const bytes = await res.arrayBuffer();
               const urlPath = new URL(imageUrl).pathname;
               const urlExt = path.extname(urlPath) || '.jpg';
               const fileName = `api-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
               const uploadDir = path.join(process.cwd(), 'public', 'uploads');
               if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-              fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+              fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
               localImageUrl = `/uploads/${fileName}`;
+            } else {
+              imageErrorMsg = `\n\n[DEBUG IMAGE ERROR]: Failed to fetch image, HTTP ${res.status} ${res.statusText}`;
             }
-          } catch (err) {
+          } catch (err: any) {
             console.error("Failed to download Shopify API image:", err);
+            imageErrorMsg = `\n\n[DEBUG IMAGE ERROR]: ${err.message}`;
           }
         }
 
@@ -625,7 +637,7 @@ export async function syncShopifyApi(formData: FormData) {
           data: {
             name: p.title,
             slug,
-            description: p.descriptionHtml || "Imported product",
+            description: (p.descriptionHtml || "Imported product") + imageErrorMsg,
             price: isNaN(price) ? 19.99 : price,
             stock: isNaN(stock) ? 10 : stock,
             status: "ACTIVE",
