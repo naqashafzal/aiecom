@@ -9,7 +9,17 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Something went wrong.";
 }
 
-export function MigrationClient() {
+export function MigrationClient({
+  savedStoreUrl = "",
+  savedAccessToken = "",
+  savedClientId = "",
+  savedClientSecret = "",
+}: {
+  savedStoreUrl?: string;
+  savedAccessToken?: string;
+  savedClientId?: string;
+  savedClientSecret?: string;
+}) {
   const [activeTab, setActiveTab] = useState<"shopify" | "shopify_api" | "woo" | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<{ success?: boolean; message?: string; count?: number } | null>(null);
@@ -172,22 +182,27 @@ export function MigrationClient() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Shopify Store URL</label>
-                  <input type="text" name="storeUrl" required placeholder="your-store.myshopify.com" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <input type="text" name="storeUrl" defaultValue={savedStoreUrl} required placeholder="your-store.myshopify.com" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Admin API Access Token</label>
-                  <input type="password" name="accessToken" placeholder="shpat_..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <input type="password" name="accessToken" defaultValue={savedAccessToken} placeholder="shpat_..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   <p className="text-xs text-muted-foreground mt-1">Use this if you already generated an Admin API access token.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Client ID</label>
-                    <input type="password" name="clientId" placeholder="App client ID" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="password" name="clientId" defaultValue={savedClientId} placeholder="App client ID" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Client Secret</label>
-                    <input type="password" name="clientSecret" placeholder="App secret" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="password" name="clientSecret" defaultValue={savedClientSecret} placeholder="App secret" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4 pt-2">
+                  <input type="checkbox" id="saveCredentials" name="saveCredentials" value="true" defaultChecked className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                  <label htmlFor="saveCredentials" className="text-sm font-medium">Save these credentials for future syncs</label>
                 </div>
 
                 <div className="bg-primary/5 border border-primary/20 rounded-md p-4 text-sm mt-4">

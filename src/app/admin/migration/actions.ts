@@ -424,6 +424,19 @@ export async function syncShopifyApi(formData: FormData) {
     }
 
     const accessToken = await getShopifyAccessToken(storeUrl, formData);
+    
+    // Save credentials if requested
+    const saveCredentials = formData.get("saveCredentials") === "true";
+    if (saveCredentials) {
+      await db.setting.upsert({ where: { key: "shopifyStoreUrl" }, update: { value: storeUrl }, create: { key: "shopifyStoreUrl", value: storeUrl } });
+      await db.setting.upsert({ where: { key: "shopifyAccessToken" }, update: { value: accessToken }, create: { key: "shopifyAccessToken", value: accessToken } });
+      
+      const clientId = formData.get("clientId") as string;
+      const clientSecret = formData.get("clientSecret") as string;
+      if (clientId) await db.setting.upsert({ where: { key: "shopifyClientId" }, update: { value: clientId }, create: { key: "shopifyClientId", value: clientId } });
+      if (clientSecret) await db.setting.upsert({ where: { key: "shopifyClientSecret" }, update: { value: clientSecret }, create: { key: "shopifyClientSecret", value: clientSecret } });
+    }
+
     const endpoint = `https://${storeUrl}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`;
 
     const query = `
