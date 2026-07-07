@@ -6,12 +6,14 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
+import { Buffer } from "buffer";
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price = parseFloat(formData.get("price") as string);
-  const salePrice = formData.get("salePrice") ? parseFloat(formData.get("salePrice") as string) : null;
+  const salePriceRaw = parseFloat(formData.get("salePrice") as string);
+  const salePrice = isNaN(salePriceRaw) ? null : salePriceRaw;
   const stock = parseInt(formData.get("stock") as string) || 0;
   const status = formData.get("status") as string;
   const categoryIds = formData.getAll("categoryIds") as string[];
@@ -35,7 +37,8 @@ export async function createProduct(formData: FormData) {
   if (imageFile && imageFile.size > 0) {
     const bytes = await imageFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+    const fileName = `${Date.now()}-${safeName}`;
     
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     
@@ -86,7 +89,8 @@ export async function updateProduct(id: string, formData: FormData) {
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price = parseFloat(formData.get("price") as string);
-  const salePrice = formData.get("salePrice") ? parseFloat(formData.get("salePrice") as string) : null;
+  const salePriceRaw = parseFloat(formData.get("salePrice") as string);
+  const salePrice = isNaN(salePriceRaw) ? null : salePriceRaw;
   const stock = parseInt(formData.get("stock") as string) || 0;
   const status = formData.get("status") as string;
   const categoryIds = formData.getAll("categoryIds") as string[];
@@ -103,7 +107,8 @@ export async function updateProduct(id: string, formData: FormData) {
   if (imageFile && imageFile.size > 0) {
     const bytes = await imageFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+    const fileName = `${Date.now()}-${safeName}`;
     
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     
