@@ -1,8 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/prisma";
 import { defaultElegantConfig, ThemeConfig } from "@/lib/themeSchemas";
 import { MoreToLoveClient } from "@/app/(storefront)/MoreToLoveClient";
-import { CustomBuilderSection } from "../aliexpress/sections/CustomBuilderSection"; // Reuse CustomBuilder
+import { CustomBuilderSection } from "../aliexpress/sections/CustomBuilderSection";
+import { getCachedLatestProducts } from "@/lib/cache";
+import { getCachedCategories } from "@/lib/cache";
 
 // 1. Elegant Hero Section
 function ElegantHeroSection({ settings }: { settings: Record<string, any> }) {
@@ -11,7 +14,7 @@ function ElegantHeroSection({ settings }: { settings: Record<string, any> }) {
 
   return (
     <div className="w-full h-[60vh] md:h-[80vh] relative mb-20">
-      <img src={heroImage} className="w-full h-full object-cover" alt="Hero" />
+      <Image src={heroImage} fill className="object-cover" alt="Hero" priority />
       <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white text-center px-4">
         <h2 className="text-4xl md:text-7xl font-serif tracking-widest uppercase mb-8">{heroTitle}</h2>
         <Link href="/products" className="bg-white text-black px-8 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-black hover:text-white transition-colors">
@@ -44,12 +47,14 @@ function ElegantCategoriesSection({ settings, categories }: { settings: Record<s
         {categories.map((cat, i) => {
           const image = cat.imageId || `https://images.unsplash.com/photo-${1500000000000 + i}?q=80&w=300`;
           return (
-            <Link href={`/products`} key={cat.id} className="flex flex-col items-center group">
-              <div className="w-full aspect-square bg-[#F5F5F5] overflow-hidden mb-3">
-                <img 
+            <Link href={`/products?category=${cat.slug}`} key={cat.id} className="flex flex-col items-center group">
+              <div className="w-full aspect-square bg-[#F5F5F5] overflow-hidden mb-3 relative">
+                <Image 
                   src={image} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500" 
                   alt={cat.name} 
+                  sizes="(max-width: 768px) 50vw, 20vw"
                 />
               </div>
               <span className="text-sm text-gray-800 text-center">{cat.name}</span>
@@ -83,7 +88,7 @@ function ElegantBestSellersSection({ settings, products, formatPrice }: { settin
                       Sale
                     </span>
                   )}
-                  <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={product.name} />
+                  <Image src={image} fill className="object-cover group-hover:scale-105 transition-transform duration-500" alt={product.name} sizes="(max-width: 768px) 50vw, 25vw" />
                 </div>
                 <h4 className="text-sm text-black font-medium tracking-wide uppercase mb-1">{product.name}</h4>
                 <div className="flex items-center gap-2">
@@ -107,7 +112,7 @@ function ElegantBestSellersSection({ settings, products, formatPrice }: { settin
 
 // MAIN ENTRY
 export default async function ElegantHome() {
-  const allCategories = await db.category.findMany({ take: 12 });
+  const allCategories = await getCachedCategories();
   
   const configSetting = await db.setting.findUnique({
     where: { key: "storefront_theme_config_elegant" }
@@ -131,8 +136,9 @@ export default async function ElegantHome() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
   };
 
-  const bestSellers = await db.product.findMany({ where: { status: 'ACTIVE' }, take: 4, include: { images: true }, orderBy: { createdAt: 'desc' } });
-  const allProducts = await db.product.findMany({ where: { status: 'ACTIVE' }, take: 20, include: { images: true }, orderBy: { createdAt: 'desc' }, skip: 4 });
+  const products = await getCachedLatestProducts(24);
+  const bestSellers = products.slice(0, 4);
+  const allProducts = products.slice(4);
 
   const renderSection = (id: string) => {
     const section = themeConfig.sections[id];

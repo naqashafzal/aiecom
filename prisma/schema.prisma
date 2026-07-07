@@ -178,6 +178,7 @@ model Product {
   recommendations ProductRecommendation[]
 
   @@index([status, createdAt])
+  @@index([status, salePrice])
 }
 
 model ProductImage {

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/prisma";
-import { ChevronRight, Star, Clock } from "lucide-react";
+import { ChevronRight, Clock } from "lucide-react";
 import { MoreToLoveClient } from "@/app/(storefront)/MoreToLoveClient";
 import { defaultMarketplaceConfig, ThemeConfig } from "@/lib/themeSchemas";
 import { CustomBuilderSection } from "../aliexpress/sections/CustomBuilderSection";
+import { getCachedLatestProducts, getCachedFlashSaleProducts, getCachedActiveProducts } from "@/lib/cache";
 
 // 1a. Marketplace Sidebar (Vertical Menu)
 function MarketplaceSidebar({ settings, blocks = {}, block_order = [], categories }: { settings: Record<string, any>, blocks?: Record<string, any>, block_order?: string[], categories: any[] }) {
@@ -53,7 +55,7 @@ function MarketplaceHero({ settings }: { settings: Record<string, any> }) {
 
   return (
     <div className="flex-1 bg-white rounded-md shadow-sm overflow-hidden relative min-h-[200px] md:min-h-[380px]">
-      <img src={heroImage} className="w-full h-full object-cover" alt="Marketplace Hero" />
+      <Image src={heroImage} fill className="object-cover" alt="Marketplace Hero" priority />
       <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center p-8 md:p-12">
         <div className="text-white max-w-md">
           <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">{title}</h1>
@@ -94,7 +96,7 @@ function MarketplaceFlashSales({ settings, deals, formatPrice }: { settings: Rec
             return (
               <Link href={`/products/${product.slug}`} key={product.id} className="group flex flex-col hover:shadow-lg transition-shadow p-2 rounded">
                 <div className="w-full aspect-square bg-gray-50 rounded mb-2 overflow-hidden relative">
-                  <img src={image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt={product.name} />
+                  <Image src={image} fill className="object-cover group-hover:scale-105 transition-transform duration-300" alt={product.name} sizes="(max-width: 768px) 50vw, 16vw" />
                   <span className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5 text-[#f85606] rounded-bl-lg">
                     -{discount}%
                   </span>
@@ -126,8 +128,10 @@ function MarketplaceOfficialStores({ settings, officialStores }: { settings: Rec
           {officialStores.map((store, i) => (
             <Link href="#" key={store.id} className="flex flex-col items-center group">
               <div className="w-full aspect-square rounded-full bg-gray-50 border border-gray-100 overflow-hidden mb-3 p-2 shadow-sm group-hover:shadow-md transition-shadow">
-                <img 
+                <Image 
                   src={store.logo || `https://images.unsplash.com/photo-${1500000000100 + i}?q=80&w=200`} 
+                  width={200}
+                  height={200}
                   className="w-full h-full object-contain rounded-full" 
                   alt={store.name} 
                 />
@@ -167,10 +171,10 @@ export default async function MarketplaceHome() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
   };
 
-  const flashSaleProducts = await db.product.findMany({ where: { status: 'ACTIVE', salePrice: { not: null } }, take: 6, include: { images: true } });
-  const deals = flashSaleProducts.length > 0 ? flashSaleProducts : await db.product.findMany({ where: { status: 'ACTIVE' }, take: 6, include: { images: true } });
+  const flashSaleProducts = await getCachedFlashSaleProducts(6);
+  const deals = flashSaleProducts.length > 0 ? flashSaleProducts : await getCachedActiveProducts(6);
   const officialStores = await db.store.findMany({ take: 6 });
-  const allProducts = await db.product.findMany({ where: { status: 'ACTIVE' }, take: 24, include: { images: true }, orderBy: { createdAt: 'desc' } });
+  const allProducts = await getCachedLatestProducts(24);
 
   const renderSection = (id: string) => {
     const section = themeConfig.sections[id];
