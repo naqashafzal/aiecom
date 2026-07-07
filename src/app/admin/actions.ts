@@ -58,7 +58,7 @@ export async function createProduct(formData: FormData) {
       salePrice,
       stock,
       status,
-      ...(storeId ? { store: { connect: { id: storeId } } } : {}),
+      storeId: storeId || null,
       categories: {
         connect: categoryIds.map(id => ({ id }))
       },
@@ -134,7 +134,7 @@ export async function updateProduct(id: string, formData: FormData) {
       salePrice,
       stock,
       status,
-      ...(storeId ? { store: { connect: { id: storeId } } } : { store: { disconnect: true } }),
+      storeId: storeId || null,
       categories: {
         set: categoryIds.map(id => ({ id }))
       },
