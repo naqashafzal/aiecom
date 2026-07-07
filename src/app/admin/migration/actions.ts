@@ -276,94 +276,95 @@ export async function importProductsCsv(formData: FormData) {
       data: { name: "Imported", slug: "imported", description: "Imported products" }
     });
 
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (!row || row.length < titleIdx) continue;
+    // Process rows in batches to prevent server timeouts when downloading images
+    const BATCH_SIZE = 20;
+    const validRows = rows.slice(1).filter(r => r && r.length >= titleIdx && r[titleIdx]);
+    
+    for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
+      const batch = validRows.slice(i, i + BATCH_SIZE);
+      
+      await Promise.all(batch.map(async (row) => {
+        const name = row[titleIdx];
+        const description = descIdx !== -1 && row[descIdx] ? row[descIdx] : "Imported product from " + platform;
+        const price = priceIdx !== -1 && row[priceIdx] ? parseFloat(row[priceIdx]) : 19.99;
+        const stock = stockIdx !== -1 && row[stockIdx] ? parseInt(row[stockIdx]) : 10;
 
-      const name = row[titleIdx];
-      if (!name) continue;
+        const typeNames = tagsIdx !== -1 && row[tagsIdx]
+          ? row[tagsIdx].split(',').map(s => s.trim()).filter(Boolean)
+          : [];
 
-      const description = descIdx !== -1 && row[descIdx] ? row[descIdx] : "Imported product from " + platform;
-      const price = priceIdx !== -1 && row[priceIdx] ? parseFloat(row[priceIdx]) : 19.99;
-      const stock = stockIdx !== -1 && row[stockIdx] ? parseInt(row[stockIdx]) : 10;
-
-      const typeNames = tagsIdx !== -1 && row[tagsIdx]
-        ? row[tagsIdx].split(',').map(s => s.trim()).filter(Boolean)
-        : [];
-
-      const categoryIds: string[] = [];
-
-      if (typeNames.length > 0) {
-        for (const typeName of typeNames) {
-          let existingCat = await db.category.findFirst({ where: { name: typeName } });
-          if (!existingCat) {
-            const catSlug = typeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-            existingCat = await db.category.create({
-              data: { name: typeName, slug: catSlug }
-            });
-          }
-          categoryIds.push(existingCat.id);
-        }
-      } else {
-        categoryIds.push(defaultCategory.id);
-      }
-
-      // Generate clean slug
-      const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      let slug = baseSlug;
-      let counter = 1;
-      while (await db.product.findUnique({ where: { slug } })) {
-        slug = `${baseSlug}-${counter}`;
-        counter++;
-      }
-
-      // Download Image
-      let localImageUrl: string | null = null;
-      if (imgIdx !== -1 && row[imgIdx] && row[imgIdx].startsWith('http')) {
-        try {
-          const imageUrl = row[imgIdx];
-          const res = await fetch(imageUrl);
-          if (res.ok) {
-            const buffer = Buffer.from(await res.arrayBuffer());
-            const urlPath = new URL(imageUrl).pathname;
-            const urlExt = path.extname(urlPath) || '.jpg';
-            const fileName = `mig-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-            if (!fs.existsSync(uploadDir)) {
-              fs.mkdirSync(uploadDir, { recursive: true });
+        const categoryIds: string[] = [];
+        if (typeNames.length > 0) {
+          for (const typeName of typeNames) {
+            let existingCat = await db.category.findFirst({ where: { name: typeName } });
+            if (!existingCat) {
+              const catSlug = typeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              existingCat = await db.category.create({
+                data: { name: typeName, slug: catSlug }
+              });
             }
-
-            fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-            localImageUrl = `/uploads/${fileName}`;
+            categoryIds.push(existingCat.id);
           }
-        } catch (err) {
-          console.error("Failed to download image:", err);
+        } else {
+          categoryIds.push(defaultCategory.id);
         }
-      }
 
-      await db.product.create({
-        data: {
-          name,
-          slug,
-          description,
-          price: isNaN(price) ? 19.99 : price,
-          stock: isNaN(stock) ? 10 : stock,
-          status: "ACTIVE",
-          categories: {
-            connect: categoryIds.map(id => ({ id }))
-          },
-          ...(localImageUrl ? {
-            images: {
-              create: {
-                url: localImageUrl,
-                isPrimary: true
+        const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        let slug = baseSlug;
+        let counter = 1;
+        while (await db.product.findUnique({ where: { slug } })) {
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
+
+        // Download Image
+        let localImageUrl: string | null = null;
+        if (imgIdx !== -1 && row[imgIdx] && row[imgIdx].startsWith('http')) {
+          try {
+            const imageUrl = row[imgIdx];
+            const res = await fetch(imageUrl);
+            if (res.ok) {
+              const buffer = Buffer.from(await res.arrayBuffer());
+              const urlPath = new URL(imageUrl).pathname;
+              const urlExt = path.extname(urlPath) || '.jpg';
+              const fileName = `mig-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
+              const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+
+              if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
               }
+
+              fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+              localImageUrl = `/uploads/${fileName}`;
             }
-          } : {})
+          } catch (err) {
+            console.error("Failed to download image:", err);
+          }
         }
-      });
-      importedCount++;
+
+        await db.product.create({
+          data: {
+            name,
+            slug,
+            description,
+            price: isNaN(price) ? 19.99 : price,
+            stock: isNaN(stock) ? 10 : stock,
+            status: "ACTIVE",
+            categories: {
+              connect: categoryIds.map(id => ({ id }))
+            },
+            ...(localImageUrl ? {
+              images: {
+                create: {
+                  url: localImageUrl,
+                  isPrimary: true
+                }
+              }
+            } : {})
+          }
+        });
+        importedCount++;
+      }));
     }
 
     revalidatePath("/admin/products");
@@ -524,93 +525,99 @@ export async function syncShopifyApi(formData: FormData) {
       data: { name: "Imported", slug: "imported", description: "Imported via API" }
     });
 
-    for (const edge of products) {
-      const p = edge.node;
+    // Process API products in batches to avoid timeout
+    const BATCH_SIZE = 20;
+    for (let i = 0; i < products.length; i += BATCH_SIZE) {
+      const batch = products.slice(i, i + BATCH_SIZE);
+      
+      await Promise.all(batch.map(async (edge) => {
+        const p = edge.node;
 
-      const priceStr = p.variants?.edges?.[0]?.node?.price || "19.99";
-      const price = Number(priceStr);
-      let stock = 10;
-      const inventoryLevels = p.variants?.edges?.[0]?.node?.inventoryItem?.inventoryLevels?.edges;
-      if (inventoryLevels && inventoryLevels.length > 0) {
-        stock = inventoryLevels.reduce((acc, levelEdge) => {
-          const availableQuantity = levelEdge.node?.quantities?.find(q => q.name === "available")?.quantity || 0;
-          return acc + availableQuantity;
-        }, 0);
-      }
-
-      const collections = p.collections?.edges || [];
-      const categoryIds: string[] = [];
-
-      if (collections.length > 0) {
-        for (const colEdge of collections) {
-          const colName = colEdge.node?.title;
-          if (!colName) continue;
-          let existingCat = await db.category.findFirst({ where: { name: colName } });
-          if (!existingCat) {
-            existingCat = await db.category.create({
-              data: { name: colName, slug: colEdge.node?.handle || slugify(colName) }
-            });
-          }
-          categoryIds.push(existingCat.id);
+        const priceStr = p.variants?.edges?.[0]?.node?.price || "19.99";
+        const price = Number(priceStr);
+        let stock = 10;
+        const inventoryLevels = p.variants?.edges?.[0]?.node?.inventoryItem?.inventoryLevels?.edges;
+        if (inventoryLevels && inventoryLevels.length > 0) {
+          stock = inventoryLevels.reduce((acc, levelEdge) => {
+            const availableQuantity = levelEdge.node?.quantities?.find(q => q.name === "available")?.quantity || 0;
+            return acc + availableQuantity;
+          }, 0);
         }
-      } else {
-        categoryIds.push(defaultCategory.id);
-      }
 
-      let slug = p.handle;
-      if (!slug) {
-        slug = slugify(p.title);
-      }
-      let counter = 1;
-      while (await db.product.findUnique({ where: { slug } })) {
-        slug = `${p.handle || slugify(p.title)}-${counter}`;
-        counter++;
-      }
+        const collections = p.collections?.edges || [];
+        const categoryIds: string[] = [];
 
-      // Download primary image
-      let localImageUrl: string | null = null;
-      const imageUrl = p.media?.edges?.find((edge) => edge.node?.mediaContentType === "IMAGE")?.node?.image?.url;
-
-      if (imageUrl) {
-        try {
-          const res = await fetch(imageUrl);
-          if (res.ok) {
-            const buffer = Buffer.from(await res.arrayBuffer());
-            const urlPath = new URL(imageUrl).pathname;
-            const urlExt = path.extname(urlPath) || '.jpg';
-            const fileName = `api-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
-            const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-            fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-            localImageUrl = `/uploads/${fileName}`;
-          }
-        } catch (err) {
-          console.error("Failed to download Shopify API image:", err);
-        }
-      }
-
-      await db.product.create({
-        data: {
-          name: p.title,
-          slug,
-          description: p.descriptionHtml || "Imported product",
-          price: isNaN(price) ? 19.99 : price,
-          stock: isNaN(stock) ? 10 : stock,
-          status: "ACTIVE",
-          categories: {
-            connect: categoryIds.map(id => ({ id }))
-          },
-          ...(localImageUrl ? {
-            images: {
-              create: {
-                url: localImageUrl,
-                isPrimary: true
-              }
+        if (collections.length > 0) {
+          for (const colEdge of collections) {
+            const colName = colEdge.node?.title;
+            if (!colName) continue;
+            let existingCat = await db.category.findFirst({ where: { name: colName } });
+            if (!existingCat) {
+              existingCat = await db.category.create({
+                data: { name: colName, slug: colEdge.node?.handle || slugify(colName) }
+              });
             }
-          } : {})
+            categoryIds.push(existingCat.id);
+          }
+        } else {
+          categoryIds.push(defaultCategory.id);
         }
-      });
-      importedCount++;
+
+        let slug = p.handle;
+        if (!slug) {
+          slug = slugify(p.title);
+        }
+        let counter = 1;
+        while (await db.product.findUnique({ where: { slug } })) {
+          slug = `${p.handle || slugify(p.title)}-${counter}`;
+          counter++;
+        }
+
+        // Download primary image
+        let localImageUrl: string | null = null;
+        const imageUrl = p.media?.edges?.find((edge) => edge.node?.mediaContentType === "IMAGE")?.node?.image?.url;
+
+        if (imageUrl) {
+          try {
+            const res = await fetch(imageUrl);
+            if (res.ok) {
+              const buffer = Buffer.from(await res.arrayBuffer());
+              const urlPath = new URL(imageUrl).pathname;
+              const urlExt = path.extname(urlPath) || '.jpg';
+              const fileName = `api-${Date.now()}-${Math.random().toString(36).substring(7)}${urlExt}`;
+              const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+              if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+              fs.writeFileSync(path.join(uploadDir, fileName), buffer);
+              localImageUrl = `/uploads/${fileName}`;
+            }
+          } catch (err) {
+            console.error("Failed to download Shopify API image:", err);
+          }
+        }
+
+        await db.product.create({
+          data: {
+            name: p.title,
+            slug,
+            description: p.descriptionHtml || "Imported product",
+            price: isNaN(price) ? 19.99 : price,
+            stock: isNaN(stock) ? 10 : stock,
+            status: "ACTIVE",
+            categories: {
+              connect: categoryIds.map(id => ({ id }))
+            },
+            ...(localImageUrl ? {
+              images: {
+                create: {
+                  url: localImageUrl,
+                  isPrimary: true
+                }
+              }
+            } : {})
+          }
+        });
+        importedCount++;
+      }));
     }
 
     revalidatePath("/admin/products");
