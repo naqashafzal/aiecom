@@ -297,11 +297,25 @@ export async function importProductsCsv(formData: FormData) {
         if (typeNames.length > 0) {
           for (const typeName of typeNames) {
             const catSlug = typeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-            const existingCat = await db.category.upsert({
-              where: { slug: catSlug },
-              update: {},
-              create: { name: typeName, slug: catSlug }
-            });
+            let existingCat;
+            try {
+              existingCat = await db.category.upsert({
+                where: { slug: catSlug },
+                update: {},
+                create: { name: typeName, slug: catSlug }
+              });
+            } catch (err: any) {
+              if (err.code === 'P2002') {
+                existingCat = await db.category.findUnique({ where: { slug: catSlug } });
+              } else {
+                throw err;
+              }
+            }
+            if (!existingCat) {
+              // Extremely rare edge case where findUnique returns null after P2002,
+              // or just a fallback.
+              existingCat = await db.category.create({ data: { name: typeName, slug: catSlug + '-' + Math.random().toString(36).substring(2, 8) } });
+            }
             categoryIds.push(existingCat.id);
           }
         } else {
@@ -546,11 +560,23 @@ export async function syncShopifyApi(formData: FormData) {
             const colName = colEdge.node?.title;
             if (!colName) continue;
             const catSlug = colEdge.node?.handle || slugify(colName);
-            const existingCat = await db.category.upsert({
-              where: { slug: catSlug },
-              update: {},
-              create: { name: colName, slug: catSlug }
-            });
+            let existingCat;
+            try {
+              existingCat = await db.category.upsert({
+                where: { slug: catSlug },
+                update: {},
+                create: { name: colName, slug: catSlug }
+              });
+            } catch (err: any) {
+              if (err.code === 'P2002') {
+                existingCat = await db.category.findUnique({ where: { slug: catSlug } });
+              } else {
+                throw err;
+              }
+            }
+            if (!existingCat) {
+              existingCat = await db.category.create({ data: { name: colName, slug: catSlug + '-' + Math.random().toString(36).substring(2, 8) } });
+            }
             categoryIds.push(existingCat.id);
           }
         } else {
