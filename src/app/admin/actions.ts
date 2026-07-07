@@ -6,7 +6,6 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
-import { Buffer } from "buffer";
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
@@ -35,19 +34,22 @@ export async function createProduct(formData: FormData) {
   let imageUrl: string | null = null;
   
   if (imageFile && imageFile.size > 0) {
-    const bytes = await imageFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-    const fileName = `${Date.now()}-${safeName}`;
-    
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    try {
+      const bytes = await imageFile.arrayBuffer();
+      const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+      const fileName = `${Date.now()}-${safeName}`;
+      
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      imageUrl = `/uploads/${fileName}`;
+    } catch (uploadError) {
+      console.error("Failed to upload image during product creation:", uploadError);
     }
-    
-    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-    imageUrl = `/uploads/${fileName}`;
   }
 
   const storeId = formData.get("storeId") as string;
@@ -105,19 +107,22 @@ export async function updateProduct(id: string, formData: FormData) {
   let imageUrl: string | null = null;
   
   if (imageFile && imageFile.size > 0) {
-    const bytes = await imageFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-    const fileName = `${Date.now()}-${safeName}`;
-    
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    try {
+      const bytes = await imageFile.arrayBuffer();
+      const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+      const fileName = `${Date.now()}-${safeName}`;
+      
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      imageUrl = `/uploads/${fileName}`;
+    } catch (uploadError) {
+      console.error("Failed to upload image during product update:", uploadError);
     }
-    
-    fs.writeFileSync(path.join(uploadDir, fileName), buffer);
-    imageUrl = `/uploads/${fileName}`;
   }
 
   // Handle image updates
