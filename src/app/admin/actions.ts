@@ -46,7 +46,7 @@ export async function createProduct(formData: FormData) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
       
-      fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
       imageUrl = `/uploads/${fileName}`;
     } catch (uploadError: any) {
       console.error("Failed to upload image during product creation:", uploadError);
@@ -121,7 +121,7 @@ export async function updateProduct(id: string, formData: FormData) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
       
-      fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
       imageUrl = `/uploads/${fileName}`;
     } catch (uploadError: any) {
       console.error("Failed to upload image during product update:", uploadError);
