@@ -41,7 +41,7 @@ export default async function AdminOrdersPage() {
               {orders.map((order) => (
                 <tr key={order.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 font-medium text-primary whitespace-nowrap">
-                    #{order.id.slice(-8).toUpperCase()}
+                    #{order.orderNumber ? order.orderNumber : order.id.slice(-8).toUpperCase()}
                   </td>
                   <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
                     {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }).format(new Date(order.createdAt))}
