@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Search, ShoppingCart, User, Menu, QrCode, ChevronDown, Check } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, QrCode, ChevronDown, Check, Package } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
@@ -92,6 +92,14 @@ export function AliExpressNavbar({
                 EN/ <br/> {mounted ? currencyCode : 'USD'}
               </div>
             </div>
+
+            {/* Track Order */}
+            <Link href="/track" className="hidden sm:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+              <Package className="h-6 w-6 text-foreground" />
+              <div className="text-[11px] leading-tight font-bold hidden sm:block">
+                Track<br/>Order
+              </div>
+            </Link>
 
             {/* Account */}
             <Link href="/login" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">

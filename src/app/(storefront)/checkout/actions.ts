@@ -100,10 +100,11 @@ export async function processCheckout(data: {
     }
 
     revalidatePath("/admin");
+    revalidatePath("/admin");
     revalidatePath("/admin/orders");
     revalidatePath("/products");
     
-    return { success: true, orderId: order.id };
+    return { success: true, orderId: order.id, orderNumber: order.orderNumber };
   } catch (error) {
     console.error("Checkout failed:", error);
     return { success: false, error: "Failed to process checkout" };

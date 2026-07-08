@@ -37,8 +37,8 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     postalCode: "",
-    country: "US",
-    phone: "000-000-0000",
+    country: "PK",
+    phone: "",
   });
   
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function CheckoutPage() {
       setIsProcessing(false);
       
       if (result.success) {
-        setOrderId(result.orderId as string);
+        setOrderId(result.orderNumber ? result.orderNumber.toString() : (result.orderId as string));
         setStep("success");
         clearCart();
       } else {
@@ -180,13 +180,17 @@ export default function CheckoutPage() {
                     <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Apartment, suite, etc. (optional)" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="city" value={formData.city} onChange={handleInputChange} required placeholder="City" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required placeholder="Postal code" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Phone number" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <select name="country" value={formData.country} onChange={handleInputChange} required className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
+                      <option value="PK">Pakistan</option>
                       <option value="US">United States</option>
                       <option value="CA">Canada</option>
                       <option value="GB">United Kingdom</option>
                       <option value="AU">Australia</option>
                       <option value="DE">Germany</option>
                       <option value="FR">France</option>
+                      <option value="AE">United Arab Emirates</option>
+                      <option value="SA">Saudi Arabia</option>
                     </select>
                   </div>
                 </div>
