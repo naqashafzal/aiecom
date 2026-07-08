@@ -9,7 +9,7 @@ import { getCachedCategories } from "@/lib/cache";
 
 // 1. Elegant Hero Section
 function ElegantHeroSection({ settings }: { settings: Record<string, any> }) {
-  const heroImage = settings["image"] || "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1500";
+  const heroImage = settings["image"] || "/placeholder.png";
   const heroTitle = settings["title"] || "LAMPS BY YZ";
 
   return (
@@ -45,7 +45,7 @@ function ElegantCategoriesSection({ settings, categories }: { settings: Record<s
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-8">
         {categories.map((cat, i) => {
-          const image = cat.imageId || `https://images.unsplash.com/photo-${1500000000000 + i}?q=80&w=300`;
+          const image = cat.imageId || "/placeholder.png";
           return (
             <Link href={`/products?category=${cat.slug}`} key={cat.id} className="flex flex-col items-center group">
               <div className="w-full aspect-square bg-[#F5F5F5] overflow-hidden mb-3 relative">
@@ -78,7 +78,7 @@ function ElegantBestSellersSection({ settings, products, formatPrice }: { settin
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12">
           {products.map((product) => {
-            const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+            const image = product.images?.[0]?.url || "/placeholder.png";
             const displayPrice = product.salePrice || product.price;
             return (
               <Link key={product.id} href={`/products/${product.slug}`} className="group flex flex-col">

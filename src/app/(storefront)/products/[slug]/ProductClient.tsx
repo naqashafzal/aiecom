@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 export default function ProductClient({ product, settings }: { product: any, settings: Record<string, string> }) {
   const images = product.images?.length > 0 
     ? product.images.map((i: any) => i.url) 
-    : ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500"];
+    : ["/placeholder.png"];
     
   // Parse variants
   const variants = product.variants?.map((v: any) => ({

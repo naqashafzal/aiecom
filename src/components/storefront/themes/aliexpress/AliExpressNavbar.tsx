@@ -79,13 +79,7 @@ export function AliExpressNavbar({
           {/* Right Actions */}
           <div className="flex items-center gap-6 shrink-0">
             
-            {/* Download App */}
-            <div className="hidden lg:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <QrCode className="h-7 w-7 text-foreground" />
-              <div className="text-[11px] leading-tight font-semibold">
-                Download the<br/>Aura app
-              </div>
-            </div>
+            {/* Download App Removed */}
 
             {/* Language / Currency */}
             <div className="hidden sm:flex items-center gap-2">

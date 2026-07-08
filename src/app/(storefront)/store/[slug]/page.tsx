@@ -75,7 +75,7 @@ export default async function VendorStorePage({ params }: { params: Promise<{ sl
         {store.products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {store.products.map(product => {
-              const primaryImage = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+              const primaryImage = product.images?.[0]?.url || "/placeholder.png";
               return (
                 <Link key={product.id} href={`/products/${product.slug}`} className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all block border">
                   <div className="relative aspect-square overflow-hidden bg-gray-100">

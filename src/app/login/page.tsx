@@ -72,7 +72,6 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold">Password</label>
-                <a href="#" className="text-xs font-semibold text-primary hover:underline">Forgot password?</a>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
@@ -94,9 +93,6 @@ export default function LoginPage() {
             </Button>
           </form>
           
-          <div className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account? <a href="#" className="font-semibold text-primary hover:underline">Register here</a>
-          </div>
         </div>
       </div>
     </div>

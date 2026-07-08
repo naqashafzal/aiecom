@@ -49,7 +49,7 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
             
             <div className="grid grid-cols-3 gap-4 flex-1">
               {bestsellers.map((product: any) => {
-                 const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+                 const image = product.images?.[0]?.url || "/placeholder.png";
                  const displayPrice = product.salePrice || product.price;
                  return (
                    <Link href={`/products/${product.slug}`} key={product.id} className="flex flex-col group">
@@ -79,7 +79,7 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
             
             <div className="grid grid-cols-3 gap-4 flex-1">
               {superdeals.map((product: any) => {
-                 const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+                 const image = product.images?.[0]?.url || "/placeholder.png";
                  const displayPrice = product.salePrice || product.price;
                  const discount = product.salePrice ? Math.round((1 - product.salePrice / product.price) * 100) : 10;
                  return (

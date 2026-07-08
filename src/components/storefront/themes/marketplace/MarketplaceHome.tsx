@@ -47,7 +47,7 @@ function MarketplaceSidebar({ settings, blocks = {}, block_order = [], categorie
 
 // 1b. Marketplace Hero
 function MarketplaceHero({ settings }: { settings: Record<string, any> }) {
-  const heroImage = settings["image"] || "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2000";
+  const heroImage = settings["image"] || "/placeholder.png";
   const title = settings["title"] || "Biggest Sale of the Year";
   const subtitle = settings["subtitle"] || "Up to 80% off on all electronics and fashion items!";
   const buttonText = settings["buttonText"] || "SHOP NOW";
@@ -88,7 +88,7 @@ function MarketplaceFlashSales({ settings, deals, formatPrice }: { settings: Rec
         </div>
         <div className="p-4 md:p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {deals.map(product => {
-            const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300";
+            const image = product.images?.[0]?.url || "/placeholder.png";
             const price = product.salePrice || product.price;
             const oldPrice = product.salePrice ? product.price : (product.price * 1.2); 
             const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
@@ -129,7 +129,7 @@ function MarketplaceOfficialStores({ settings, officialStores }: { settings: Rec
             <Link href="#" key={store.id} className="flex flex-col items-center group">
               <div className="w-full aspect-square rounded-full bg-gray-50 border border-gray-100 overflow-hidden mb-3 p-2 shadow-sm group-hover:shadow-md transition-shadow">
                 <Image 
-                  src={store.logo || `https://images.unsplash.com/photo-${1500000000100 + i}?q=80&w=200`} 
+                  src={store.logo || "/placeholder.png"} 
                   width={200}
                   height={200}
                   className="w-full h-full object-contain rounded-full" 

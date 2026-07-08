@@ -56,7 +56,7 @@ export default async function VendorOrdersPage() {
             </thead>
             <tbody className="divide-y">
               {orderItems.map((item: any) => {
-                const primaryImage = item.product.images[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+                const primaryImage = item.product.images[0]?.url || "/placeholder.png";
                 return (
                   <tr key={item.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">

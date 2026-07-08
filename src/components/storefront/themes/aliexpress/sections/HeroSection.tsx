@@ -6,7 +6,7 @@ export function HeroSection({ settings, block_order = [], blocks = {} }: { setti
   const heroBgColor = settings["bg_color"] || "#0071FF";
   const heroCountdown = settings["countdown"] || "Jun 11, 11:59 (GMT+5)";
   const heroDiscount = settings["discount"] || "UP TO 80% OFF";
-  const heroSideImage = settings["side_image"] || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=500";
+  const heroSideImage = settings["side_image"] || "/placeholder.png";
   
   return (
     <div style={{ backgroundColor: heroBgColor }} className="w-full relative overflow-hidden">

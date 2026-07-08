@@ -29,22 +29,7 @@ export function MarketplaceNavbar({
 
   return (
     <div className="w-full">
-      {/* Top Mini-bar */}
-      <div className="bg-[#f2f2f2] text-[#4a4a4a] text-[11px] py-1.5 hidden md:block">
-        <div className="max-w-[1200px] mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <Link href="#" className="hover:text-[#f85606] transition-colors">Save More on App</Link>
-            <Link href="#" className="hover:text-[#f85606] transition-colors">Become a Seller</Link>
-            <Link href="#" className="hover:text-[#f85606] transition-colors">Help & Support</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="#" className="flex items-center gap-1 hover:text-[#f85606] transition-colors">
-              <Smartphone className="w-3 h-3" /> App Download
-            </Link>
-            <Link href="#" className="hover:text-[#f85606] transition-colors">Login / Sign Up</Link>
-          </div>
-        </div>
-      </div>
+      {/* Top Mini-bar removed for production readiness */}
 
       {/* Main Navbar */}
       <header className="bg-[#f85606] text-white py-3 md:py-4 sticky top-0 z-50">
@@ -79,13 +64,13 @@ export function MarketplaceNavbar({
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
-            <button className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
+            <Link href="/login" className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
               <User className="w-6 h-6" />
               <div className="flex flex-col items-start text-xs text-left">
                 <span className="opacity-80">Hello, Sign in</span>
                 <span className="font-bold flex items-center">Account & Orders <ChevronDown className="w-3 h-3 ml-1" /></span>
               </div>
-            </button>
+            </Link>
 
             <button className="flex items-center gap-2 relative hover:text-gray-200 transition-colors" onClick={toggleCart}>
               <div className="relative">

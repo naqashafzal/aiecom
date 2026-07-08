@@ -21,7 +21,7 @@ export async function generateMetadata(
     };
   }
 
-  const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+  const image = product.images?.[0]?.url || "/placeholder.png";
 
   return {
     title: product.name,

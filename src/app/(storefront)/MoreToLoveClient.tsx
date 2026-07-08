@@ -53,7 +53,7 @@ export function MoreToLoveClient({ initialProducts, title, storeCurrency }: { in
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
         {products.map((product, i) => {
-          const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500";
+          const image = product.images?.[0]?.url || "/placeholder.png";
           const displayPrice = product.salePrice || product.price;
           // Deterministic sold count to prevent hydration mismatch
           const sold = (product.name.length * 47) % 900 + 100; 
