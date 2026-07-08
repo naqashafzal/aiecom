@@ -2,25 +2,44 @@
 
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import Stripe from "stripe";
+export async function getPaymentSettings() {
+  const settingsRecords = await db.setting.findMany({
+    where: {
+      key: {
+        in: [
+          "payment_cod_enabled",
+          "payment_bank_enabled",
+          "payment_bank_name",
+          "payment_bank_title",
+          "payment_bank_iban",
+          "payment_easypaisa_enabled",
+          "payment_easypaisa_title",
+          "payment_easypaisa_number",
+          "payment_jazzcash_enabled",
+          "payment_jazzcash_title",
+          "payment_jazzcash_number"
+        ]
+      }
+    }
+  });
 
-// Initialize Stripe with a fallback test key if env is not set
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_4eC39HqLyjWDarjtT1zdp7dc', {
-  apiVersion: "2024-06-20" as any,
-});
+  const settings: Record<string, string> = {};
+  settingsRecords.forEach(s => settings[s.key] = s.value);
 
-export async function createPaymentIntent(amount: number) {
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe expects cents
-      currency: "usd",
-      automatic_payment_methods: { enabled: true },
-    });
-    return { clientSecret: paymentIntent.client_secret };
-  } catch (error: any) {
-    console.error("Stripe error:", error);
-    return { error: error.message || "Failed to create payment intent" };
-  }
+  // Provide sensible defaults if not configured
+  return {
+    codEnabled: settings.payment_cod_enabled !== "false", // default true
+    bankEnabled: settings.payment_bank_enabled === "true",
+    bankName: settings.payment_bank_name || "",
+    bankTitle: settings.payment_bank_title || "",
+    bankIban: settings.payment_bank_iban || "",
+    easypaisaEnabled: settings.payment_easypaisa_enabled === "true",
+    easypaisaTitle: settings.payment_easypaisa_title || "",
+    easypaisaNumber: settings.payment_easypaisa_number || "",
+    jazzcashEnabled: settings.payment_jazzcash_enabled === "true",
+    jazzcashTitle: settings.payment_jazzcash_title || "",
+    jazzcashNumber: settings.payment_jazzcash_number || "",
+  };
 }
 
 export async function processCheckout(data: {
@@ -44,6 +63,7 @@ export async function processCheckout(data: {
   };
   paymentMethod: string;
   shippingMethod?: string;
+  transactionId?: string;
 }) {
   try {
     // 1. Create Address
@@ -70,11 +90,23 @@ export async function processCheckout(data: {
         grandTotal: data.totals.grandTotal,
         paymentMethod: data.paymentMethod,
         shippingMethod: data.shippingMethod,
-        paymentStatus: data.paymentMethod === "Manual" ? "PENDING" : "PAID",
+        paymentStatus: data.paymentMethod === "Cash on Delivery" ? "PENDING" : "VERIFICATION_REQUIRED",
         status: "PROCESSING",
         shippingAddressId: address.id,
       }
     });
+
+    if (data.transactionId && data.paymentMethod !== "Cash on Delivery") {
+      await db.payment.create({
+        data: {
+          orderId: order.id,
+          transactionId: data.transactionId,
+          amount: data.totals.grandTotal,
+          status: "PENDING_VERIFICATION",
+          method: data.paymentMethod,
+        }
+      });
+    }
 
     // 3. Create Order Items & Update Stock
     for (const item of data.items) {

@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { processCheckout, createPaymentIntent } from "./actions";
-import { getApplicableShippingRates } from "./shipping-actions";
-import { StripeCheckout } from "@/components/storefront/stripe-checkout";
+import { processCheckout, getPaymentSettings } from "./actions";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
 export default function CheckoutPage() {
@@ -18,8 +16,9 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<"information" | "shipping" | "payment" | "success">("information");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "manual">("stripe");
+  const [paymentMethod, setPaymentMethod] = useState<string>("Cash on Delivery");
+  const [transactionId, setTransactionId] = useState<string>("");
+  const [paymentSettings, setPaymentSettings] = useState<any>(null);
   
   // Shipping State
   const [availableRates, setAvailableRates] = useState<any[]>([]);
@@ -43,6 +42,15 @@ export default function CheckoutPage() {
   
   useEffect(() => {
     setMounted(true);
+    // Fetch payment settings
+    getPaymentSettings().then(res => {
+      setPaymentSettings(res);
+      // set default payment method
+      if (res.codEnabled) setPaymentMethod("Cash on Delivery");
+      else if (res.bankEnabled) setPaymentMethod("Bank Transfer");
+      else if (res.easypaisaEnabled) setPaymentMethod("EasyPaisa");
+      else if (res.jazzcashEnabled) setPaymentMethod("JazzCash");
+    });
   }, []);
 
   const total = getCartTotal();
@@ -75,9 +83,11 @@ export default function CheckoutPage() {
       }
     } else if (nextStep === "payment") {
       setStep(nextStep);
-      const res = await createPaymentIntent(grandTotal);
-      if (res.clientSecret) setClientSecret(res.clientSecret);
     } else if (nextStep === "success") {
+      if (paymentMethod !== "Cash on Delivery" && !transactionId) {
+        alert("Please provide the Transaction ID or Receipt Number.");
+        return;
+      }
       setIsProcessing(true);
       // Process checkout via Server Action
       const result = await processCheckout({
@@ -89,8 +99,9 @@ export default function CheckoutPage() {
           tax: taxes,
           grandTotal
         },
-        paymentMethod: paymentMethod === "stripe" ? "Stripe" : "Manual",
-        shippingMethod: shippingMethodName
+        paymentMethod,
+        shippingMethod: shippingMethodName,
+        transactionId
       });
 
       setIsProcessing(false);
@@ -100,7 +111,7 @@ export default function CheckoutPage() {
         setStep("success");
         clearCart();
       } else {
-        alert("Payment failed! Please try again.");
+        alert("Checkout failed! Please try again.");
       }
     } else {
       setStep(nextStep);
@@ -281,46 +292,100 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold mb-4">Payment</h2>
+                  <h2 className="text-2xl font-bold mb-4">Payment Method</h2>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                    <label className={`flex-1 border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'stripe' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
-                      <input type="radio" name="pm" checked={paymentMethod === 'stripe'} onChange={() => setPaymentMethod('stripe')} className="h-4 w-4 text-primary" />
-                      <CreditCard className="h-5 w-5 text-primary" />
-                      <span className="font-semibold">Credit Card</span>
-                    </label>
-                    <label className={`flex-1 border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'manual' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
-                      <input type="radio" name="pm" checked={paymentMethod === 'manual'} onChange={() => setPaymentMethod('manual')} className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">Cash on Delivery</span>
-                    </label>
-                  </div>
-                  
-                  {paymentMethod === "stripe" ? (
-                    <div className="border rounded-xl bg-background overflow-hidden p-6 shadow-sm">
-                      {clientSecret ? (
-                        <StripeCheckout 
-                          clientSecret={clientSecret} 
-                          amount={grandTotal} 
-                          onSuccess={() => handleNextStep(undefined, "success")} 
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center justify-center py-8">
-                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mb-4"></div>
-                          <p className="text-sm text-muted-foreground">Loading secure payment...</p>
-                        </div>
-                      )}
-                    </div>
+                  {!paymentSettings ? (
+                    <div className="flex justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>
                   ) : (
-                    <div className="border rounded-xl bg-background overflow-hidden p-8 text-center shadow-sm">
-                      <div className="h-12 w-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle2 className="h-6 w-6" />
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        {paymentSettings.codEnabled && (
+                          <label className={`border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'Cash on Delivery' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                            <input type="radio" name="pm" checked={paymentMethod === 'Cash on Delivery'} onChange={() => setPaymentMethod('Cash on Delivery')} className="h-4 w-4 text-primary" />
+                            <span className="font-semibold">Cash on Delivery</span>
+                          </label>
+                        )}
+                        {paymentSettings.bankEnabled && (
+                          <label className={`border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'Bank Transfer' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                            <input type="radio" name="pm" checked={paymentMethod === 'Bank Transfer'} onChange={() => setPaymentMethod('Bank Transfer')} className="h-4 w-4 text-primary" />
+                            <span className="font-semibold">Bank Transfer</span>
+                          </label>
+                        )}
+                        {paymentSettings.easypaisaEnabled && (
+                          <label className={`border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'EasyPaisa' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                            <input type="radio" name="pm" checked={paymentMethod === 'EasyPaisa'} onChange={() => setPaymentMethod('EasyPaisa')} className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-green-600">EasyPaisa</span>
+                          </label>
+                        )}
+                        {paymentSettings.jazzcashEnabled && (
+                          <label className={`border rounded-xl p-4 cursor-pointer flex items-center gap-3 transition-all ${paymentMethod === 'JazzCash' ? 'bg-primary/5 border-primary ring-1 ring-primary' : 'hover:bg-muted/50'}`}>
+                            <input type="radio" name="pm" checked={paymentMethod === 'JazzCash'} onChange={() => setPaymentMethod('JazzCash')} className="h-4 w-4 text-primary" />
+                            <span className="font-semibold text-red-600">JazzCash</span>
+                          </label>
+                        )}
                       </div>
-                      <h3 className="font-bold text-lg mb-2">Pay upon delivery</h3>
-                      <p className="text-muted-foreground mb-8 text-sm">You can pay using cash or card directly to the courier when your order arrives.</p>
-                      <Button onClick={(e) => handleNextStep(e, "success")} disabled={isProcessing} size="lg" className="rounded-full px-12 h-12 shadow-lg shadow-primary/30 w-full sm:w-auto">
-                        {isProcessing ? "Processing..." : "Complete Order"}
-                      </Button>
-                    </div>
+                      
+                      <div className="border rounded-xl bg-background overflow-hidden p-6 sm:p-8 shadow-sm">
+                        {paymentMethod === "Cash on Delivery" ? (
+                          <div className="text-center">
+                            <div className="h-12 w-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                              <CheckCircle2 className="h-6 w-6" />
+                            </div>
+                            <h3 className="font-bold text-lg mb-2">Pay upon delivery</h3>
+                            <p className="text-muted-foreground mb-8 text-sm">You can pay using cash directly to the courier when your order arrives.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-6">
+                            <div className="bg-muted/30 p-6 rounded-lg border">
+                              <h3 className="font-bold text-lg mb-4">Please transfer {formatPrice(grandTotal)} to:</h3>
+                              
+                              {paymentMethod === "Bank Transfer" && (
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Bank Name</span> <span className="font-bold">{paymentSettings.bankName}</span></div>
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Account Title</span> <span className="font-bold">{paymentSettings.bankTitle}</span></div>
+                                  <div className="flex justify-between"><span className="text-muted-foreground">IBAN / Account Number</span> <span className="font-bold font-mono text-primary">{paymentSettings.bankIban}</span></div>
+                                </div>
+                              )}
+                              
+                              {paymentMethod === "EasyPaisa" && (
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Method</span> <span className="font-bold text-green-600">EasyPaisa</span></div>
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Account Title</span> <span className="font-bold">{paymentSettings.easypaisaTitle}</span></div>
+                                  <div className="flex justify-between"><span className="text-muted-foreground">Account Number</span> <span className="font-bold font-mono text-primary">{paymentSettings.easypaisaNumber}</span></div>
+                                </div>
+                              )}
+
+                              {paymentMethod === "JazzCash" && (
+                                <div className="space-y-2 text-sm">
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Method</span> <span className="font-bold text-red-600">JazzCash</span></div>
+                                  <div className="flex justify-between border-b pb-2"><span className="text-muted-foreground">Account Title</span> <span className="font-bold">{paymentSettings.jazzcashTitle}</span></div>
+                                  <div className="flex justify-between"><span className="text-muted-foreground">Account Number</span> <span className="font-bold font-mono text-primary">{paymentSettings.jazzcashNumber}</span></div>
+                                </div>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-bold mb-2">Transaction ID / Receipt Number <span className="text-red-500">*</span></label>
+                              <p className="text-xs text-muted-foreground mb-3">After transferring the amount, please enter the Transaction ID or Reference Number below to verify your payment.</p>
+                              <input 
+                                type="text" 
+                                value={transactionId}
+                                onChange={(e) => setTransactionId(e.target.value)}
+                                placeholder="e.g. 1234567890" 
+                                required
+                                className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow font-mono" 
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="mt-8 pt-6 border-t text-center">
+                          <Button onClick={(e) => handleNextStep(e, "success")} disabled={isProcessing || (paymentMethod !== "Cash on Delivery" && !transactionId)} size="lg" className="rounded-full px-12 h-12 shadow-lg shadow-primary/30 w-full sm:w-auto">
+                            {isProcessing ? "Processing..." : "Complete Order"}
+                          </Button>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
 

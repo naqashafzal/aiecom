@@ -106,29 +106,99 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
         {activeTab === "payments" && (
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
             <div>
-              <h2 className="text-lg font-bold">Payments</h2>
-              <p className="text-sm text-muted-foreground mb-4">Configure accepted payment methods for checkout.</p>
+              <h2 className="text-lg font-bold">Advanced Manual Payments</h2>
+              <p className="text-sm text-muted-foreground mb-4">Configure your local payment methods. Customers will see your account details during checkout.</p>
             </div>
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-6">
+              {/* Cash on Delivery */}
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/20">
                 <div>
-                  <div className="font-semibold flex items-center gap-2">Stripe <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase font-bold">Active</span></div>
-                  <div className="text-sm text-muted-foreground">Accept credit cards securely.</div>
+                  <div className="font-semibold">Cash on Delivery (COD)</div>
+                  <div className="text-sm text-muted-foreground">Allow customers to pay upon receiving the order.</div>
                 </div>
-                <input type="hidden" name="stripeEnabled" value="true" />
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Manual Payments</div>
-                  <div className="text-sm text-muted-foreground">Cash on Delivery or Bank Transfer.</div>
-                </div>
-                <select key={settings.manualPaymentEnabled} name="manualPaymentEnabled" defaultValue={settings.manualPaymentEnabled || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                <select key={settings.payment_cod_enabled} name="payment_cod_enabled" defaultValue={settings.payment_cod_enabled || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
                   <option value="true">Enabled</option>
                   <option value="false">Disabled</option>
                 </select>
               </div>
+
+              {/* Bank Transfer */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b">
+                  <div>
+                    <div className="font-semibold">Bank Transfer</div>
+                    <div className="text-sm text-muted-foreground">Customers will transfer directly to your bank account.</div>
+                  </div>
+                  <select key={settings.payment_bank_enabled} name="payment_bank_enabled" defaultValue={settings.payment_bank_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Bank Name</label>
+                    <input type="text" name="payment_bank_name" defaultValue={settings.payment_bank_name || ""} placeholder="e.g. Meezan Bank" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Account Title</label>
+                    <input type="text" name="payment_bank_title" defaultValue={settings.payment_bank_title || ""} placeholder="e.g. Aura Ecom" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold mb-1">IBAN / Account Number</label>
+                    <input type="text" name="payment_bank_iban" defaultValue={settings.payment_bank_iban || ""} placeholder="e.g. PK00 MEZN 0000 0000 0000" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono" />
+                  </div>
+                </div>
+              </div>
+
+              {/* EasyPaisa */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b">
+                  <div>
+                    <div className="font-semibold text-green-600">EasyPaisa</div>
+                    <div className="text-sm text-muted-foreground">Accept payments via EasyPaisa mobile wallet.</div>
+                  </div>
+                  <select key={settings.payment_easypaisa_enabled} name="payment_easypaisa_enabled" defaultValue={settings.payment_easypaisa_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Account Title</label>
+                    <input type="text" name="payment_easypaisa_title" defaultValue={settings.payment_easypaisa_title || ""} placeholder="e.g. Muhammad Ali" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Account Number (Phone)</label>
+                    <input type="text" name="payment_easypaisa_number" defaultValue={settings.payment_easypaisa_number || ""} placeholder="e.g. 03451234567" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono" />
+                  </div>
+                </div>
+              </div>
+
+              {/* JazzCash */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between pb-4 border-b">
+                  <div>
+                    <div className="font-semibold text-red-600">JazzCash</div>
+                    <div className="text-sm text-muted-foreground">Accept payments via JazzCash mobile wallet.</div>
+                  </div>
+                  <select key={settings.payment_jazzcash_enabled} name="payment_jazzcash_enabled" defaultValue={settings.payment_jazzcash_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Account Title</label>
+                    <input type="text" name="payment_jazzcash_title" defaultValue={settings.payment_jazzcash_title || ""} placeholder="e.g. Muhammad Ali" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Account Number (Phone)</label>
+                    <input type="text" name="payment_jazzcash_number" defaultValue={settings.payment_jazzcash_number || ""} placeholder="e.g. 03001234567" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono" />
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         )}
