@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { processCheckout, getPaymentSettings } from "./actions";
+import { getApplicableShippingRates } from "./shipping-actions";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
 export default function CheckoutPage() {
