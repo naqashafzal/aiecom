@@ -3,6 +3,52 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, GripVertical, Eye, EyeOff, Trash2, LayoutGrid, Type, ImageIcon, ArrowUp, ArrowDown } from "lucide-react";
 import { ThemeConfig, BlockSchemas, SectionSchema } from "@/lib/themeSchemas";
+import { useRef } from "react";
+
+const UrlInputWithUpload = ({ value, onChange, placeholder }: { value: string, onChange: (val: string) => void, placeholder: string }) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.success && data.url) onChange(data.url);
+      else alert("Upload failed: " + data.error);
+    } catch (err) {
+      alert("Upload failed");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <input 
+        type="url" 
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-1 p-2 border border-[#c9cccf] rounded focus:outline-blue-500 text-sm min-w-0"
+        placeholder={placeholder}
+      />
+      <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleUpload} />
+      <button 
+        type="button"
+        disabled={isUploading}
+        onClick={() => fileInputRef.current?.click()}
+        className="shrink-0 px-3 border border-[#c9cccf] rounded bg-[#f6f6f7] hover:bg-[#e1e3e5] text-[#202223] text-xs font-semibold flex items-center justify-center transition-colors disabled:opacity-50"
+      >
+        {isUploading ? "Uploading..." : "Upload"}
+      </button>
+    </div>
+  );
+};
 
 export function ThemeBlockEditorClient({ 
   initialConfigStr, 
@@ -184,9 +230,15 @@ export function ThemeBlockEditorClient({
       <div key={field.id} className="mb-4">
         <label className="block text-xs font-semibold mb-1 text-gray-700">{field.label}</label>
         
-        {field.type === "text" || field.type === "url" ? (
+        {field.type === "url" ? (
+          <UrlInputWithUpload 
+            value={value !== undefined ? value : (field.default || "")}
+            onChange={onChange}
+            placeholder={field.placeholder || field.default || "https://..."}
+          />
+        ) : field.type === "text" ? (
           <input 
-            type={field.type} 
+            type="text" 
             value={value !== undefined ? value : (field.default || "")}
             onChange={(e) => onChange(e.target.value)}
             className="w-full p-2 border border-[#c9cccf] rounded focus:outline-blue-500 text-sm"
