@@ -10,7 +10,11 @@ export async function getOrderStatus(orderNumber: number, phone: string) {
         shippingAddress: true,
         items: {
           include: {
-            product: true,
+            product: {
+              include: {
+                images: true
+              }
+            },
             variant: true,
           }
         }
