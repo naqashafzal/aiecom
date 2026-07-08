@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
     // Fetch 4 active products to use as upsells.
     // In a real scenario, you could use searchParams to exclude currently carted items,
     // or use a recommendation engine based on tags. Here we grab the newest/featured ones.
-    const products = await prisma.product.findMany({
+    const products = await db.product.findMany({
       where: {
         status: 'ACTIVE',
       },
