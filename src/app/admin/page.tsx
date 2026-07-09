@@ -178,7 +178,7 @@ export default async function AdminDashboard() {
                   {recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-[#f6f6f7] transition-colors">
                       <td className="px-5 py-3 font-semibold text-blue-600 hover:underline cursor-pointer">
-                        #{order.id.slice(-8).toUpperCase()}
+                        #{order.orderNumber ? order.orderNumber : order.id.slice(-8).toUpperCase()}
                       </td>
                       <td className="px-5 py-3">{order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</td>
                       <td className="px-5 py-3 text-[#5c5f62]">{new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(order.createdAt))}</td>

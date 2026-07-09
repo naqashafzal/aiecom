@@ -61,6 +61,13 @@ export default async function StorefrontLayout({
   if (fontFamilySetting === "serif") fontClass = "font-serif";
   if (fontFamilySetting === "mono") fontClass = "font-mono";
 
+  // Advertisement Settings
+  const adHeadScript = settingsMap["ad_head_script"];
+  const adHeaderEnabled = settingsMap["ad_header_enabled"] === "true";
+  const adHeaderScript = settingsMap["ad_header_script"];
+  const adFooterEnabled = settingsMap["ad_footer_enabled"] === "true";
+  const adFooterScript = settingsMap["ad_footer_script"];
+
   // Build dynamic CSS to override common theme hardcoded values
   const dynamicCss = `
     :root {
@@ -118,10 +125,19 @@ export default async function StorefrontLayout({
           <script dangerouslySetInnerHTML={{ __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${gaId}');` }}></script>
         </>
       )}
+      {adHeadScript && (
+        <div dangerouslySetInnerHTML={{ __html: adHeadScript }} />
+      )}
       <CurrencyProvider currencyCode={storeCurrency}>
         {activeTheme === "elegant" ? <ElegantNavbar menuLinks={menuLinks} {...logoProps} /> : activeTheme === "marketplace" ? <MarketplaceNavbar menuLinks={menuLinks} {...logoProps} /> : <AliExpressNavbar menuLinks={menuLinks} {...logoProps} />}
+        {adHeaderEnabled && adHeaderScript && (
+          <div className="container mx-auto px-4 py-2 flex justify-center w-full" dangerouslySetInnerHTML={{ __html: adHeaderScript }} />
+        )}
         <CartDrawer />
         <main className="flex-1">{children}</main>
+        {adFooterEnabled && adFooterScript && (
+          <div className="container mx-auto px-4 py-4 flex justify-center w-full" dangerouslySetInnerHTML={{ __html: adFooterScript }} />
+        )}
         <Footer />
         {aiEnabled && <AiChat />}
       </CurrencyProvider>

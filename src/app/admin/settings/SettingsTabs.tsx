@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2 } from "lucide-react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
@@ -22,6 +22,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "payments", name: "Payments", icon: CreditCard },
     { id: "storefront", name: "Storefront", icon: LayoutTemplate },
     { id: "ai", name: "AI Models", icon: Bot },
+    { id: "ads", name: "Advertisements", icon: Megaphone },
   ];
 
   return (
@@ -333,6 +334,79 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <input type="password" name="ai_google_key" defaultValue={settings.ai_google_key || ""} placeholder="AIzaSy..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
                   <p className="text-xs text-muted-foreground mt-1">If empty, the system will use the GOOGLE_GENERATIVE_AI_API_KEY from your .env file.</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "ads" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Advertisement System</h2>
+              <p className="text-sm text-muted-foreground mb-4">Integrate Google AdSense or other custom ad scripts globally across your store.</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="border rounded-lg p-4 bg-muted/10 space-y-3">
+                <div className="font-semibold">1. Global Head Script (AdSense Verification)</div>
+                <p className="text-xs text-muted-foreground">Paste your main `&lt;script async src="..."&gt;&lt;/script&gt;` tag here. This loads on every page.</p>
+                <textarea 
+                  name="ad_head_script" 
+                  defaultValue={settings.ad_head_script || ""} 
+                  placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'></script>"
+                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                />
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">2. Header Ad Slot</div>
+                  <select key={settings.ad_header_enabled} name="ad_header_enabled" defaultValue={settings.ad_header_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground">Displays directly below the navigation bar.</p>
+                <textarea 
+                  name="ad_header_script" 
+                  defaultValue={settings.ad_header_script || ""} 
+                  placeholder="<!-- Header Ad Unit --> <ins class='adsbygoogle' ...></ins>"
+                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                />
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">3. Footer Ad Slot</div>
+                  <select key={settings.ad_footer_enabled} name="ad_footer_enabled" defaultValue={settings.ad_footer_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground">Displays directly above the footer.</p>
+                <textarea 
+                  name="ad_footer_script" 
+                  defaultValue={settings.ad_footer_script || ""} 
+                  placeholder="<!-- Footer Ad Unit -->"
+                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                />
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">4. Product Page Ad Slot</div>
+                  <select key={settings.ad_product_enabled} name="ad_product_enabled" defaultValue={settings.ad_product_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground">Displays on individual product pages, usually below the product description.</p>
+                <textarea 
+                  name="ad_product_script" 
+                  defaultValue={settings.ad_product_script || ""} 
+                  placeholder="<!-- Product Page Ad Unit -->"
+                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                />
               </div>
             </div>
           </div>

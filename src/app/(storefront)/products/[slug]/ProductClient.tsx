@@ -115,6 +115,10 @@ export default function ProductClient({ product, settings }: { product: any, set
   const basePrice = product.price;
   const showFakeSales = settings?.["storefront_fake_sales_enabled"] === "true";
   
+  // Advertisement Settings
+  const adProductEnabled = settings?.["ad_product_enabled"] === "true";
+  const adProductScript = settings?.["ad_product_script"];
+  
   // Store info
   const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "Aura Official Store");
   const storeRating = product.store ? (product.store.rating || 5.0) : 4.9;
@@ -308,6 +312,11 @@ export default function ProductClient({ product, settings }: { product: any, set
           )}
         </div>
       </div>
+
+      {/* Product Page Advertisement Slot */}
+      {adProductEnabled && adProductScript && (
+        <div className="mt-8 flex justify-center w-full overflow-hidden" dangerouslySetInnerHTML={{ __html: adProductScript }} />
+      )}
 
       {/* Product Description Section */}
       {product.description && (

@@ -71,6 +71,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           "storefront_policy_2_title",
           "storefront_fake_sales_enabled",
           "storeCurrency",
+          "ad_product_enabled",
+          "ad_product_script"
         ]
       }
     }
