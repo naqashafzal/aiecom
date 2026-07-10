@@ -10,8 +10,9 @@ import { useRouter } from "next/navigation";
 import { useCurrency } from "@/components/storefront/currency-provider";
 import { submitProductReview } from "./actions";
 import { motion } from "framer-motion";
+import { WishlistButton } from "@/components/storefront/WishlistButton";
 
-export default function ProductClient({ product, settings }: { product: any, settings: Record<string, string> }) {
+export default function ProductClient({ product, settings, initialIsWishlisted }: { product: any, settings: Record<string, string>, initialIsWishlisted?: boolean }) {
   const images = product.images?.length > 0 
     ? product.images.map((i: any) => i.url) 
     : ["/placeholder.png"];
@@ -174,11 +175,9 @@ export default function ProductClient({ product, settings }: { product: any, set
                 ({product.reviews?.length || 0} reviews)
               </span>
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-destructive">
-                <Heart className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+            <div className="flex gap-2 relative">
+              <WishlistButton productId={product.id} initialIsWishlisted={initialIsWishlisted} className="rounded-full shadow-sm" />
+              <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground bg-muted/50 hover:bg-muted">
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>

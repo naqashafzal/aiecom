@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone } from "lucide-react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
@@ -21,6 +21,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "general", name: "General", icon: Store },
     { id: "payments", name: "Payments", icon: CreditCard },
     { id: "storefront", name: "Storefront", icon: LayoutTemplate },
+    { id: "emails", name: "Emails", icon: Mail },
     { id: "ai", name: "AI Models", icon: Bot },
     { id: "ads", name: "Advertisements", icon: Megaphone },
   ];
@@ -287,6 +288,59 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <option value="true">Enabled</option>
                   <option value="false">Disabled</option>
                 </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "emails" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><Mail className="h-5 w-5 text-primary" /> Email Configuration</h2>
+              <p className="text-sm text-muted-foreground mb-4">Configure your Resend API settings to send order confirmations and abandoned cart recovery emails.</p>
+            </div>
+            
+            <div className="space-y-4 border-b pb-6 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">Resend API Key</label>
+                <input type="password" name="resend_api_key" defaultValue={settings.resend_api_key || ""} placeholder="re_..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                <p className="text-xs text-muted-foreground mt-1.5">If left blank, the system will use the RESEND_API_KEY from your .env file.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Sender 'From' Address</label>
+                <input type="email" name="email_from_address" defaultValue={settings.email_from_address || "onboarding@resend.dev"} placeholder="sales@yourstore.com" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                <p className="text-xs text-muted-foreground mt-1.5">Must be a verified domain in your Resend dashboard (or onboarding@resend.dev for testing).</p>
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-sm">Abandoned Cart Template</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Available variables: <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{"{{customerName}}"}</code>, <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{"{{storeName}}"}</code>, <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{"{{checkoutUrl}}"}</code>, <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{"{{cartTotal}}"}</code>, <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{"{{itemsList}}"}</code>
+              </p>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email Subject</label>
+                  <input 
+                    type="text" 
+                    name="email_abandoned_subject" 
+                    defaultValue={settings.email_abandoned_subject || "Did you forget something at {{storeName}}?"} 
+                    className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" 
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Email Body (HTML or Text)</label>
+                  <textarea 
+                    name="email_abandoned_body" 
+                    defaultValue={settings.email_abandoned_body || `<h1>Did you forget something?</h1>\n<p>Hi {{customerName}},</p>\n<p>We noticed you left some great items in your cart at {{storeName}}. Don't worry, we've saved them for you!</p>\n<hr/>\n<p><strong>Your Items:</strong><br/>{{itemsList}}</p>\n<p><strong>Total:</strong> {{cartTotal}}</p>\n<a href="{{checkoutUrl}}" style="background: black; color: white; padding: 10px 20px; text-decoration: none;">Complete Your Purchase</a>`}
+                    className="w-full h-48 p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                  />
+                </div>
               </div>
             </div>
           </div>

@@ -67,14 +67,14 @@ export function ElegantNavbar({
         <div className="flex items-center justify-end gap-4 md:gap-6 shrink-0 order-3 md:order-3 w-1/3 md:w-auto">
           
           {/* Mobile User Icon */}
-          <Link href="/login" className="md:hidden flex flex-col items-center hover:text-gray-300 transition-colors">
+          <Link href="/account" className="md:hidden flex flex-col items-center hover:text-gray-300 transition-colors">
             <User className="w-5 h-5 font-light" strokeWidth={1.5} />
           </Link>
           <Link href="/wishlist" className="hidden md:flex flex-col items-center hover:text-gray-300 transition-colors">
             <Heart className="w-6 h-6 mb-1 font-light" strokeWidth={1.5} />
             <span className="text-[10px]">Wish Lists</span>
           </Link>
-          <Link href="/login" className="hidden md:flex flex-col items-center hover:text-gray-300 transition-colors">
+          <Link href="/account" className="hidden md:flex flex-col items-center hover:text-gray-300 transition-colors">
             <User className="w-6 h-6 mb-1 font-light" strokeWidth={1.5} />
             <span className="text-[10px]">Sign In</span>
           </Link>
@@ -135,8 +135,8 @@ export function ElegantNavbar({
           <Link href="/wishlist" className="text-sm pb-2 border-b border-[#333] flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
             <Heart className="w-4 h-4" /> Wish Lists
           </Link>
-          <Link href="/login" className="text-sm flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-            <User className="w-4 h-4" /> Sign In
+          <Link href="/account" className="text-sm flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+            <User className="w-4 h-4" /> Sign In / Account
           </Link>
         </div>
       )}
@@ -155,7 +155,7 @@ export function ElegantNavbar({
           <LayoutGrid className="w-5 h-5 mb-1" strokeWidth={1.5} />
           <span className="text-[10px]">Collection</span>
         </Link>
-        <Link href="/login" className="flex flex-col items-center text-gray-600 hover:text-black">
+        <Link href="/account" className="flex flex-col items-center text-gray-600 hover:text-black">
           <User className="w-5 h-5 mb-1" strokeWidth={1.5} />
           <span className="text-[10px]">Account</span>
         </Link>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { WishlistButton } from "../../WishlistButton";
 
 export function ElegantHeroSection({ settings }: { settings: Record<string, any> }) {
   const heroImage = settings["image"] || "/placeholder.png";
@@ -128,7 +129,7 @@ export function ElegantBestSellersSection({ settings, products, storeCurrency }:
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Link href={`/products/${product.slug}`} className="group flex flex-col">
+                <Link href={`/products/${product.slug}`} className="group flex flex-col relative">
                   <div className="relative aspect-[3/4] bg-[#f9f9f9] overflow-hidden mb-5">
                     {product.salePrice && (
                       <span className="absolute top-4 left-4 bg-black text-white text-[9px] px-2 py-1 z-10 tracking-[0.2em] uppercase">
@@ -136,6 +137,11 @@ export function ElegantBestSellersSection({ settings, products, storeCurrency }:
                       </span>
                     )}
                     <Image src={image} fill className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" alt={product.name} sizes="(max-width: 768px) 50vw, 25vw" />
+                    
+                    {/* Wishlist Button - Overlayed on image */}
+                    <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <WishlistButton productId={product.id} className="bg-white/90 hover:bg-white shadow-sm" />
+                    </div>
                   </div>
                   <h4 className="text-[13px] text-gray-900 font-medium tracking-wider uppercase mb-2 leading-relaxed">{product.name}</h4>
                   <div className="flex items-center gap-3">

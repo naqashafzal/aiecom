@@ -18,7 +18,7 @@ export async function getApplicableShippingRates(countryCode: string, cartTotal:
 
     // 1. Try to find a zone that explicitly includes this country
     for (const zone of allZones) {
-      const countries = JSON.parse(zone.countries as string);
+      const countries = Array.isArray(zone.countries) ? zone.countries : [];
       if (countries.includes(countryCode.toUpperCase())) {
         matchedZone = zone;
         break;
@@ -28,7 +28,7 @@ export async function getApplicableShippingRates(countryCode: string, cartTotal:
     // 2. Fallback to a "Rest of World" zone if configured (e.g. wildcard "*")
     if (!matchedZone) {
       for (const zone of allZones) {
-        const countries = JSON.parse(zone.countries as string);
+        const countries = Array.isArray(zone.countries) ? zone.countries : [];
         if (countries.includes("*")) {
           matchedZone = zone;
           break;

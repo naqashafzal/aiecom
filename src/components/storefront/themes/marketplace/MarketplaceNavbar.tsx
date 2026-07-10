@@ -81,7 +81,7 @@ export function MarketplaceNavbar({
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
-            <Link href="/login" className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
+            <Link href="/account" className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
               <User className="w-6 h-6" />
               <div className="flex flex-col items-start text-xs text-left">
                 <span className="opacity-80">Hello, Sign in</span>
@@ -141,7 +141,7 @@ export function MarketplaceNavbar({
               {link.name}
             </Link>
           ))}
-          <Link href="/login" className="text-sm flex items-center gap-2 mt-2 text-gray-700 hover:text-[#f85606]" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link href="/account" className="text-sm flex items-center gap-2 mt-2 text-gray-700 hover:text-[#f85606]" onClick={() => setIsMobileMenuOpen(false)}>
             <User className="w-4 h-4" /> Account & Orders
           </Link>
         </div>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { processCheckout, getPaymentSettings } from "./actions";
+import { processCheckout, getPaymentSettings, validateCoupon, saveAbandonedCart } from "./actions";
 import { getApplicableShippingRates } from "./shipping-actions";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
@@ -27,6 +27,12 @@ export default function CheckoutPage() {
   const [shippingCost, setShippingCost] = useState(0);
   const [shippingMethodName, setShippingMethodName] = useState("Standard Shipping");
   const [isFetchingRates, setIsFetchingRates] = useState(false);
+
+  // Discount State
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -57,7 +63,40 @@ export default function CheckoutPage() {
   const total = getCartTotal();
   const shipping = shippingCost;
   const taxes = total * 0.08; // 8% tax rate
-  const grandTotal = total + shipping + taxes;
+  
+  let discountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "PERCENTAGE") {
+      discountAmount = total * (appliedCoupon.value / 100);
+    } else if (appliedCoupon.type === "FIXED") {
+      discountAmount = appliedCoupon.value;
+    } else if (appliedCoupon.type === "FREE_SHIPPING") {
+      discountAmount = shipping; // We'll just discount the shipping cost from total
+    }
+  }
+  
+  const grandTotal = Math.max(0, total + shipping + taxes - discountAmount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setIsApplyingCoupon(true);
+    setCouponError("");
+    
+    const res = await validateCoupon(couponCode, total);
+    setIsApplyingCoupon(false);
+    
+    if (res.success && res.coupon) {
+      setAppliedCoupon(res.coupon);
+      setCouponCode("");
+    } else {
+      setCouponError(res.error || "Invalid coupon");
+      setAppliedCoupon(null);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -68,6 +107,10 @@ export default function CheckoutPage() {
     if (e) e.preventDefault();
     
     if (nextStep === "shipping") {
+      // 1. Save abandoned cart (fire and forget)
+      saveAbandonedCart(formData.email, items, total).catch(console.error);
+
+      // 2. Fetch shipping rates
       setIsFetchingRates(true);
       const res = await getApplicableShippingRates(formData.country, total);
       setIsFetchingRates(false);
@@ -102,7 +145,9 @@ export default function CheckoutPage() {
         },
         paymentMethod,
         shippingMethod: shippingMethodName,
-        transactionId
+        transactionId,
+        currencyCode,
+        couponId: appliedCoupon?.id
       });
 
       setIsProcessing(false);
@@ -425,6 +470,43 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Discount Code Section */}
+            <div className="border-t pt-4 mb-4">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Discount code or gift card" 
+                  className="flex-1 h-10 px-3 rounded-md border bg-background text-sm focus:ring-2 focus:ring-primary outline-none transition-shadow uppercase"
+                  disabled={appliedCoupon || isApplyingCoupon}
+                />
+                <Button 
+                  onClick={handleApplyCoupon} 
+                  disabled={!couponCode.trim() || appliedCoupon || isApplyingCoupon}
+                  className="h-10"
+                >
+                  {isApplyingCoupon ? "..." : "Apply"}
+                </Button>
+              </div>
+              {couponError && <p className="text-destructive text-xs mt-2 font-medium">{couponError}</p>}
+              
+              {appliedCoupon && (
+                <div className="mt-3 flex items-center justify-between bg-muted/50 px-3 py-2 rounded-md border text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-primary">{appliedCoupon.code}</span>
+                    <span className="text-muted-foreground text-xs">
+                      ({appliedCoupon.type === 'PERCENTAGE' ? `${appliedCoupon.value}% off` : 
+                        appliedCoupon.type === 'FIXED' ? `${formatPrice(appliedCoupon.value)} off` : 'Free Shipping'})
+                    </span>
+                  </div>
+                  <button onClick={handleRemoveCoupon} className="text-muted-foreground hover:text-destructive shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div className="border-t pt-4 space-y-3 text-sm mb-4">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
@@ -438,6 +520,12 @@ export default function CheckoutPage() {
                 <span>Estimated taxes</span>
                 <span className="font-medium text-foreground">{formatPrice(taxes)}</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-primary">
+                  <span>Discount</span>
+                  <span className="font-medium">-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
             </div>
 
             <div className="border-t pt-4 flex justify-between items-end">

@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 export async function getPaymentSettings() {
   const settingsRecords = await db.setting.findMany({
     where: {
@@ -42,6 +43,64 @@ export async function getPaymentSettings() {
   };
 }
 
+export async function saveAbandonedCart(email: string, items: any[], total: number) {
+  try {
+    const order = await db.order.create({
+      data: {
+        email,
+        total,
+        subtotal: total,
+        tax: 0,
+        shippingFee: 0,
+        grandTotal: total,
+        status: "PENDING",
+        paymentStatus: "UNPAID",
+        paymentMethod: "NOT_SELECTED",
+        shippingMethod: "NOT_SELECTED",
+        items: {
+          create: items.map(i => ({
+            productId: i.productId,
+            quantity: i.quantity,
+            price: i.price,
+            variantId: i.variant?.id || null,
+          }))
+        }
+      }
+    });
+    return { success: true, orderId: order.id };
+  } catch (error) {
+    console.error("Failed to save abandoned cart:", error);
+    return { success: false };
+  }
+}
+
+export async function validateCoupon(code: string, subtotal: number) {
+  try {
+    const coupon = await db.coupon.findUnique({
+      where: { code: code.toUpperCase() }
+    });
+
+    if (!coupon) return { success: false, error: "Invalid discount code" };
+    if (!coupon.isActive) return { success: false, error: "This discount code is inactive" };
+    if (coupon.expiresAt && new Date() > coupon.expiresAt) return { success: false, error: "This discount code has expired" };
+    if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) return { success: false, error: "This discount code has reached its usage limit" };
+    if (coupon.minOrderValue && subtotal < coupon.minOrderValue) return { success: false, error: `Minimum order value of ${coupon.minOrderValue} required` };
+
+    return { 
+      success: true, 
+      coupon: {
+        id: coupon.id,
+        code: coupon.code,
+        type: coupon.type,
+        value: coupon.value
+      } 
+    };
+  } catch (error) {
+    console.error("Coupon validation error:", error);
+    return { success: false, error: "Failed to validate coupon" };
+  }
+}
+
 export async function processCheckout(data: {
   items: any[];
   shipping: {
@@ -65,6 +124,8 @@ export async function processCheckout(data: {
   paymentMethod: string;
   shippingMethod?: string;
   transactionId?: string;
+  currencyCode: string;
+  couponId?: string;
 }) {
   try {
     // 1. Create Address
@@ -134,11 +195,37 @@ export async function processCheckout(data: {
       });
     }
 
+    if (data.couponId) {
+      await db.coupon.update({
+        where: { id: data.couponId },
+        data: { usageCount: { increment: 1 } }
+      });
+      
+      // We also need to link the coupon to the order
+      await db.order.update({
+        where: { id: order.id },
+        data: { couponId: data.couponId }
+      });
+    }
+
     revalidatePath("/admin");
     revalidatePath("/admin");
     revalidatePath("/admin/orders");
     revalidatePath("/products");
     
+    // 4. Send Confirmation Email
+    // Background operation so it doesn't block the checkout response
+    sendOrderConfirmationEmail({
+      email: data.shipping.email,
+      orderNumber: order.orderNumber ? order.orderNumber.toString() : order.id,
+      customerName: data.shipping.firstName,
+      items: data.items,
+      total: data.totals.grandTotal,
+      shippingAddress: `${data.shipping.address1}, ${data.shipping.city}, ${data.shipping.country}`,
+      paymentMethod: data.paymentMethod,
+      currencyCode: data.currencyCode
+    });
+
     return { success: true, orderId: order.id, orderNumber: order.orderNumber };
   } catch (error) {
     console.error("Checkout failed:", error);

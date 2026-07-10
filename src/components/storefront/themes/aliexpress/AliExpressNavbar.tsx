@@ -102,7 +102,7 @@ export function AliExpressNavbar({
             </Link>
 
             {/* Account */}
-            <Link href="/login" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <Link href="/account" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
               <User className="h-7 w-7 text-foreground" />
               <div className="text-[11px] leading-tight font-bold hidden sm:block">
                 Hi, Welcome<br/>Account

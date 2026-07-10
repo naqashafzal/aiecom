@@ -370,3 +370,101 @@ export async function deleteUser(userId: string) {
   });
   revalidatePath("/admin/users");
 }
+
+export async function createCoupon(formData: FormData) {
+  const code = formData.get("code") as string;
+  const type = formData.get("type") as string;
+  const value = parseFloat(formData.get("value") as string);
+  const minOrderValue = parseFloat(formData.get("minOrderValue") as string) || null;
+  const usageLimitRaw = parseInt(formData.get("usageLimit") as string);
+  const usageLimit = isNaN(usageLimitRaw) ? null : usageLimitRaw;
+  const expiresAtStr = formData.get("expiresAt") as string;
+  const expiresAt = expiresAtStr ? new Date(expiresAtStr) : null;
+  const isActive = formData.get("isActive") === "true";
+
+  if (!code || !type || isNaN(value)) {
+    throw new Error("Missing required fields");
+  }
+
+  await db.coupon.create({
+    data: {
+      code: code.toUpperCase(),
+      type,
+      value,
+      minOrderValue,
+      usageLimit,
+      expiresAt,
+      isActive
+    }
+  });
+
+  revalidatePath("/admin/discounts");
+  redirect("/admin/discounts");
+}
+
+export async function deleteCoupon(id: string) {
+  await db.coupon.delete({ where: { id } });
+  revalidatePath("/admin/discounts");
+}
+
+export async function createShippingZone(formData: FormData) {
+  const name = formData.get("name") as string;
+  const countriesRaw = formData.get("countries") as string;
+  
+  if (!name || !countriesRaw) {
+    throw new Error("Missing required fields");
+  }
+
+  // Expecting countries to be a comma-separated list of country codes, e.g., "US,CA,GB"
+  const countries = countriesRaw.split(",").map(c => c.trim().toUpperCase()).filter(c => c);
+
+  await db.shippingZone.create({
+    data: {
+      name,
+      countries,
+      isActive: true
+    }
+  });
+
+  revalidatePath("/admin/shipping");
+  redirect("/admin/shipping");
+}
+
+export async function deleteShippingZone(id: string) {
+  await db.shippingZone.delete({ where: { id } });
+  revalidatePath("/admin/shipping");
+}
+
+export async function createShippingRate(zoneId: string, formData: FormData) {
+  const name = formData.get("name") as string;
+  const price = parseFloat(formData.get("price") as string);
+  const condition = formData.get("condition") as string; // "NONE", "PRICE", "WEIGHT"
+  const minConditionRaw = parseFloat(formData.get("minCondition") as string);
+  const maxConditionRaw = parseFloat(formData.get("maxCondition") as string);
+  
+  const minCondition = isNaN(minConditionRaw) ? null : minConditionRaw;
+  const maxCondition = isNaN(maxConditionRaw) ? null : maxConditionRaw;
+
+  if (!name || isNaN(price) || !condition) {
+    throw new Error("Missing required fields");
+  }
+
+  await db.shippingRate.create({
+    data: {
+      name,
+      price,
+      condition,
+      minCondition,
+      maxCondition,
+      zoneId,
+      isActive: true
+    }
+  });
+
+  revalidatePath(`/admin/shipping/${zoneId}`);
+}
+
+export async function deleteShippingRate(id: string, zoneId: string) {
+  await db.shippingRate.delete({ where: { id } });
+  revalidatePath(`/admin/shipping/${zoneId}`);
+}
