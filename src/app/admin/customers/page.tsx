@@ -11,7 +11,8 @@ export default async function AdminCustomersPage() {
         select: { orders: true }
       }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    take: 100 // Prevent server crash on large amount of users
   });
 
   return (

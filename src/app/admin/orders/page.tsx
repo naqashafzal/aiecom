@@ -11,7 +11,8 @@ export default async function AdminOrdersPage() {
       shippingAddress: true,
       items: true
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    take: 100 // Prevent server crash on large amount of orders
   });
 
   return (
