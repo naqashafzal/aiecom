@@ -23,27 +23,44 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Aura | Premium Ecommerce",
-    template: "%s | Aura",
-  },
-  description: "Experience the next generation of modern, fast, and engaging ecommerce. Shop premium products directly from top vendors.",
-  keywords: ["ecommerce", "shopping", "premium", "electronics", "fashion"],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://aura-ecom.vercel.app",
-    title: "Aura | Premium Ecommerce",
-    description: "Experience the next generation of modern, fast, and engaging ecommerce.",
-    siteName: "Aura",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Aura | Premium Ecommerce",
-    description: "Experience the next generation of modern, fast, and engaging ecommerce.",
-  },
-};
+import { db } from "@/lib/prisma";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let faviconUrl = "/favicon.ico";
+  try {
+    const faviconSetting = await db.setting.findUnique({ where: { key: "storeFavicon" } });
+    if (faviconSetting?.value) faviconUrl = faviconSetting.value;
+  } catch (e) {
+    console.error("Failed to fetch favicon", e);
+  }
+
+  return {
+    title: {
+      default: "Aura | Premium Ecommerce",
+      template: "%s | Aura",
+    },
+    description: "Experience the next generation of modern, fast, and engaging ecommerce. Shop premium products directly from top vendors.",
+    keywords: ["ecommerce", "shopping", "premium", "electronics", "fashion"],
+    icons: {
+      icon: faviconUrl,
+      shortcut: faviconUrl,
+      apple: faviconUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: "https://aura-ecom.vercel.app",
+      title: "Aura | Premium Ecommerce",
+      description: "Experience the next generation of modern, fast, and engaging ecommerce.",
+      siteName: "Aura",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Aura | Premium Ecommerce",
+      description: "Experience the next generation of modern, fast, and engaging ecommerce.",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

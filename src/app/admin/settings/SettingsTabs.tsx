@@ -72,6 +72,11 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     <input type="tel" name="supportPhone" defaultValue={settings.supportPhone || "+1 (800) 123-4567"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Favicon URL</label>
+                  <input type="text" name="storeFavicon" defaultValue={settings.storeFavicon || "/favicon.ico"} placeholder="e.g. /favicon.ico or https://.../icon.png" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  <p className="text-xs text-muted-foreground mt-1">Provide a URL for the browser tab icon. (Must be .ico or .png format)</p>
+                </div>
               </div>
             </div>
 
