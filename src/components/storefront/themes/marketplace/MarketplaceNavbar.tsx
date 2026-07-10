@@ -98,6 +98,7 @@ export function MarketplaceNavbar({
               <span className="font-bold hidden md:block mt-2">Cart</span>
             </button>
           </div>
+          </div>
           
           {/* Mobile Search Row */}
           <form 
