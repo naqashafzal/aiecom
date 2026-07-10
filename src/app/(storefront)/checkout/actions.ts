@@ -56,6 +56,19 @@ export async function saveAbandonedCart(email: string, items: any[], total: numb
         paymentStatus: "UNPAID",
         paymentMethod: "NOT_SELECTED",
         shippingMethod: "NOT_SELECTED",
+        shippingAddress: {
+          create: {
+            firstName: "Abandoned",
+            lastName: "Cart",
+            address1: "N/A",
+            city: "N/A",
+            state: "N/A",
+            country: "N/A",
+            zipCode: "N/A",
+            phone: "N/A",
+            email: email
+          }
+        },
         items: {
           create: items.map(i => ({
             productId: i.productId,
