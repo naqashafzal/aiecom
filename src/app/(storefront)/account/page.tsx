@@ -24,7 +24,11 @@ export default async function AccountPage() {
     },
     include: {
       items: {
-        include: { product: true }
+        include: { 
+          product: {
+            include: { images: true }
+          } 
+        }
       }
     },
     orderBy: { createdAt: 'desc' }
