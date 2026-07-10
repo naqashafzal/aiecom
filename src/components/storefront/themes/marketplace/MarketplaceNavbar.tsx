@@ -33,7 +33,10 @@ export function MarketplaceNavbar({
 
       {/* Main Navbar */}
       <header className="bg-[#f85606] text-white py-3 md:py-4 sticky top-0 z-50">
-        <div className="max-w-[1200px] mx-auto px-4 flex items-center justify-between gap-4 md:gap-8">
+        <div className="max-w-[1200px] mx-auto px-4 flex flex-col gap-3">
+          
+          {/* Top Row */}
+          <div className="flex items-center justify-between gap-4 md:gap-8">
           
           <div className="flex items-center gap-3">
             <button className="md:hidden"><Menu className="w-6 h-6" /></button>
@@ -46,21 +49,32 @@ export function MarketplaceNavbar({
             />
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-2xl bg-white rounded-sm overflow-hidden flex-row items-center h-10">
+          <div className="hidden md:flex flex-1 max-w-2xl bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner">
             <select className="bg-gray-100 text-gray-700 h-full px-3 text-xs border-r border-gray-300 outline-none cursor-pointer hidden lg:block">
               <option>All Categories</option>
               <option>Electronics</option>
               <option>Fashion</option>
               <option>Home & Garden</option>
             </select>
-            <input 
-              type="text" 
-              placeholder="Search in Marketplace..." 
-              className="flex-1 h-full px-4 text-black text-sm outline-none"
-            />
-            <button className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
-              <Search className="w-5 h-5" />
-            </button>
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const q = formData.get("q");
+                if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
+              }}
+              className="flex flex-1 h-full"
+            >
+              <input 
+                type="text" 
+                name="q"
+                placeholder="Search in Marketplace..." 
+                className="flex-1 h-full px-4 text-black text-sm outline-none"
+              />
+              <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
+                <Search className="w-5 h-5" />
+              </button>
+            </form>
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
@@ -84,6 +98,28 @@ export function MarketplaceNavbar({
               <span className="font-bold hidden md:block mt-2">Cart</span>
             </button>
           </div>
+          
+          {/* Mobile Search Row */}
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const q = formData.get("q");
+              if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
+            }}
+            className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner"
+          >
+            <input 
+              type="text" 
+              name="q"
+              placeholder="Search in Marketplace..." 
+              className="flex-1 h-full px-4 text-black text-sm outline-none"
+            />
+            <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
+              <Search className="w-5 h-5" />
+            </button>
+          </form>
+
         </div>
       </header>
 

@@ -185,15 +185,15 @@ export default function CheckoutPage() {
 
                 <div>
                   <h2 className="text-2xl font-bold mb-4">Shipping Address</h2>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} required placeholder="First name" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} required placeholder="Last name" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} required placeholder="Address" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Apartment, suite, etc. (optional)" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
+                    <input type="text" name="address1" value={formData.address1} onChange={handleInputChange} required placeholder="Address" className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
+                    <input type="text" name="address2" value={formData.address2} onChange={handleInputChange} placeholder="Apartment, suite, etc. (optional)" className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="city" value={formData.city} onChange={handleInputChange} required placeholder="City" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required placeholder="Postal code" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Phone number" className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <select name="country" value={formData.country} onChange={handleInputChange} required className="col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
+                    <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Phone number" className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
+                    <select name="country" value={formData.country} onChange={handleInputChange} required className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
                       <option value="PK">Pakistan</option>
                       <option value="US">United States</option>
                       <option value="CA">Canada</option>

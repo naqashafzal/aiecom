@@ -130,6 +130,32 @@ export function AliExpressNavbar({
           </div>
         </div>
 
+        {/* Mobile Search Bar Row */}
+        <div className="md:hidden pb-3">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const q = formData.get("q");
+              if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
+            }}
+            className="flex w-full items-center relative"
+          >
+            <input 
+              type="search" 
+              name="q"
+              placeholder="Search products..." 
+              className="w-full h-11 pl-5 pr-14 rounded-full border-2 border-foreground bg-background focus:outline-none focus:border-foreground focus:ring-0 text-sm font-medium"
+            />
+            <button 
+              type="submit" 
+              className="absolute right-1 top-1 bottom-1 w-14 bg-foreground flex items-center justify-center text-background rounded-full hover:bg-foreground/90 transition-colors"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          </form>
+        </div>
+
         {/* Bottom Nav Row */}
         <div className="flex items-center gap-6 pb-3 pt-1 overflow-x-auto no-scrollbar">
           
