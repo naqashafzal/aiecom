@@ -51,7 +51,7 @@ export default async function AliExpressHome() {
   return (
     <div className="flex flex-col min-h-screen bg-[#f5f5f5]">
       <div className="w-full flex flex-col">
-        {themeConfig.order.map((id) => renderSection(id))}
+        {themeConfig.order?.map((id) => renderSection(id))}
       </div>
     </div>
   );

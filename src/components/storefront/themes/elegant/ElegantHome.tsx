@@ -68,7 +68,7 @@ export default async function ElegantHome() {
     <div className="bg-white min-h-screen font-sans text-black">
       
       {/* Dynamic Sections */}
-      {themeConfig.order.map((id) => renderSection(id))}
+      {themeConfig.order?.map((id) => renderSection(id))}
 
       {/* Infinite Scroll Products using MoreToLoveClient */}
       <div className="bg-[#fcfcfc] py-20 border-t border-gray-100">

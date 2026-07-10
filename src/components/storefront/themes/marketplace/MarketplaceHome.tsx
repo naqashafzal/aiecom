@@ -220,7 +220,8 @@ export default async function MarketplaceHome() {
       <div className="flex flex-col w-full">
         {(() => {
           const renderedSections = [];
-          for (let i = 0; i < themeConfig.order.length; i++) {
+          const orderLength = themeConfig.order?.length || 0;
+          for (let i = 0; i < orderLength; i++) {
             const id = themeConfig.order[i];
             const section = themeConfig.sections[id];
             if (!section || section.settings["hidden"]) continue;
