@@ -46,6 +46,7 @@ export async function toggleWishlist(productId: string) {
       // Add it
       await db.wishlistItem.create({
         data: {
+          userId,
           wishlistId: wishlist.id,
           productId
         }

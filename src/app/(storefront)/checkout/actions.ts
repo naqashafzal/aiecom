@@ -48,10 +48,9 @@ export async function saveAbandonedCart(email: string, items: any[], total: numb
     const order = await db.order.create({
       data: {
         email,
-        total,
-        subtotal: total,
-        tax: 0,
-        shippingFee: 0,
+        totalAmount: total,
+        taxAmount: 0,
+        shippingAmount: 0,
         grandTotal: total,
         status: "PENDING",
         paymentStatus: "UNPAID",
@@ -62,6 +61,7 @@ export async function saveAbandonedCart(email: string, items: any[], total: numb
             productId: i.productId,
             quantity: i.quantity,
             price: i.price,
+            total: i.price * i.quantity,
             variantId: i.variant?.id || null,
           }))
         }

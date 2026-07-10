@@ -11,7 +11,11 @@ export async function sendAbandonedCartEmail(orderId: string) {
       where: { id: orderId },
       include: {
         items: {
-          include: { product: true }
+          include: { 
+            product: {
+              include: { images: true }
+            } 
+          }
         }
       }
     });
@@ -41,7 +45,7 @@ export async function sendAbandonedCartEmail(orderId: string) {
     }));
 
     const checkoutUrl = `${appUrl}/cart`;
-    const cartTotalStr = formatPrice(order.total);
+    const cartTotalStr = formatPrice(order.totalAmount);
     const customerName = order.email.split('@')[0];
 
     // Build the items list HTML

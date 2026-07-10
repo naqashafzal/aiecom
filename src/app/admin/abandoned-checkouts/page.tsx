@@ -16,7 +16,11 @@ export default async function AdminAbandonedCheckoutsPage() {
     },
     include: {
       items: {
-        include: { product: true }
+        include: { 
+          product: {
+            include: { images: true }
+          } 
+        }
       }
     },
     orderBy: { createdAt: 'desc' }
@@ -83,7 +87,7 @@ export default async function AdminAbandonedCheckoutsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 font-medium whitespace-nowrap">
-                    {formatPrice(cart.total)}
+                    {formatPrice(cart.totalAmount)}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <form action={async () => {
