@@ -32,11 +32,15 @@ export function ElegantNavbar({
       {/* Top Bar (Black) */}
       <header className="bg-black text-white py-3 md:py-4 px-4 md:px-12 flex flex-wrap items-center justify-between gap-y-3">
         
-        {/* Logo */}
-        <div className="flex items-center gap-3 md:gap-4 shrink-0 order-1">
-          <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+        {/* Mobile Menu Button (Left) */}
+        <div className="flex items-center md:hidden shrink-0 order-1 w-1/3">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             <Menu className="w-6 h-6" />
           </button>
+        </div>
+
+        {/* Logo (Center on Mobile, Left on Desktop) */}
+        <div className="flex items-center justify-center md:justify-start shrink-0 order-2 md:order-1 w-1/3 md:w-auto">
           <StoreLogo 
             className="text-white" 
             logoUrl={logoUrl}
@@ -47,7 +51,7 @@ export function ElegantNavbar({
         </div>
 
         {/* Icons */}
-        <div className="flex items-center gap-4 md:gap-6 shrink-0 order-2 md:order-3">
+        <div className="flex items-center justify-end gap-4 md:gap-6 shrink-0 order-3 md:order-3 w-1/3 md:w-auto">
           <Link href="/wishlist" className="hidden md:flex flex-col items-center hover:text-gray-300 transition-colors">
             <Heart className="w-6 h-6 mb-1 font-light" strokeWidth={1.5} />
             <span className="text-[10px]">Wish Lists</span>

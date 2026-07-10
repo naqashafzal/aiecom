@@ -13,7 +13,7 @@ function ElegantHeroSection({ settings }: { settings: Record<string, any> }) {
   const heroTitle = settings["title"] || "LAMPS BY YZ";
 
   return (
-    <div className="w-full h-[60vh] md:h-[80vh] relative mb-20">
+    <div className="w-full h-[40vh] md:h-[50vh] relative mb-12">
       <Image src={heroImage} fill className="object-cover" alt="Hero" priority />
       <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white text-center px-4">
         <h2 className="text-4xl md:text-7xl font-serif tracking-widest uppercase mb-8">{heroTitle}</h2>
