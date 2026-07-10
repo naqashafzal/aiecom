@@ -3,7 +3,7 @@ import { OrderConfirmationEmail } from '@/components/emails/OrderConfirmationEma
 import * as React from 'react';
 
 // Make sure to add RESEND_API_KEY to your .env file
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_do_not_use');
+export const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_do_not_use');
 
 export async function sendOrderConfirmationEmail(orderData: {
   email: string;
