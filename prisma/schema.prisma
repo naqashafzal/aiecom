@@ -257,6 +257,7 @@ model Order {
   orderNumber     Int         @unique @default(autoincrement())
   userId          String?
   user            User?       @relation(fields: [userId], references: [id])
+  email           String?
   status          OrderStatus @default(PENDING)
   totalAmount     Float
   discountAmount  Float       @default(0)
@@ -301,6 +302,7 @@ model Address {
   id        String   @id @default(cuid())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String?
   firstName String
   lastName  String
   address1  String

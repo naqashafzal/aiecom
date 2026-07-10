@@ -28,14 +28,14 @@ export function AiChat() {
       {/* Floating Action Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl transition-transform hover:scale-105 z-50 ${isOpen ? 'scale-0' : 'scale-100'}`}
+        className={`fixed bottom-[80px] md:bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl transition-transform hover:scale-105 z-50 ${isOpen ? 'scale-0' : 'scale-100'}`}
       >
         <MessageSquare className="h-6 w-6" />
       </Button>
 
       {/* Chat Window */}
       <div 
-        className={`fixed bottom-6 right-6 w-[350px] sm:w-[400px] h-[600px] max-h-[80vh] bg-background border shadow-2xl rounded-2xl flex flex-col z-50 transition-all duration-300 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}
+        className={`fixed bottom-[80px] md:bottom-6 right-6 w-[350px] sm:w-[400px] h-[600px] max-h-[70vh] md:max-h-[80vh] bg-background border shadow-2xl rounded-2xl flex flex-col z-50 transition-all duration-300 origin-bottom-right ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-2xl">

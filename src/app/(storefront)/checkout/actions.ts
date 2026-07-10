@@ -45,6 +45,7 @@ export async function getPaymentSettings() {
 export async function processCheckout(data: {
   items: any[];
   shipping: {
+    email: string;
     firstName: string;
     lastName: string;
     address1: string;
@@ -69,6 +70,7 @@ export async function processCheckout(data: {
     // 1. Create Address
     const address = await db.address.create({
       data: {
+        email: data.shipping.email,
         firstName: data.shipping.firstName,
         lastName: data.shipping.lastName,
         address1: data.shipping.address1,
@@ -84,6 +86,7 @@ export async function processCheckout(data: {
     // 2. Create Order
     const order = await db.order.create({
       data: {
+        email: data.shipping.email,
         totalAmount: data.totals.subtotal,
         shippingAmount: data.totals.shipping,
         taxAmount: data.totals.tax,

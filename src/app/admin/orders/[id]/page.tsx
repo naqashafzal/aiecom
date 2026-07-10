@@ -146,7 +146,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               </div>
               <div>
                 <span className="text-muted-foreground block text-xs">Email</span>
-                <span>{order.user?.email || "Guest Checkout"}</span>
+                <span>{order.email || order.user?.email || "No email provided"}</span>
               </div>
               <div>
                 <span className="text-muted-foreground block text-xs">Phone</span>
