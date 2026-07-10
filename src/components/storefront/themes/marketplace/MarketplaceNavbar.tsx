@@ -22,6 +22,7 @@ export function MarketplaceNavbar({
 }) {
   const { getCartCount, toggleCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -39,7 +40,9 @@ export function MarketplaceNavbar({
           <div className="flex items-center justify-between gap-4 md:gap-8">
           
           <div className="flex items-center gap-3">
-            <button className="md:hidden"><Menu className="w-6 h-6" /></button>
+            <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              <Menu className="w-6 h-6" />
+            </button>
             <StoreLogo 
               className="text-white" 
               logoUrl={logoUrl}
@@ -123,6 +126,26 @@ export function MarketplaceNavbar({
 
         </div>
       </header>
+
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white text-black px-4 py-4 flex flex-col gap-4 border-b border-gray-200 shadow-md absolute w-full left-0 z-40">
+          <div className="font-bold text-gray-800 mb-2">Categories</div>
+          {menuLinks && menuLinks.map((link, idx) => (
+            <Link 
+              key={idx} 
+              href={link.url} 
+              className={`text-sm pb-2 border-b border-gray-100 ${link.highlight ? 'text-[#f85606] font-bold' : 'text-gray-700'}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <Link href="/login" className="text-sm flex items-center gap-2 mt-2 text-gray-700 hover:text-[#f85606]" onClick={() => setIsMobileMenuOpen(false)}>
+            <User className="w-4 h-4" /> Account & Orders
+          </Link>
+        </div>
+      )}
 
       {/* Menu Links Bar (optional) */}
       {menuLinks && menuLinks.length > 0 && (
