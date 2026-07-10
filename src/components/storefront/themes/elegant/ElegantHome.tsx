@@ -65,7 +65,7 @@ export default async function ElegantHome() {
   };
 
   return (
-    <div className="bg-white min-h-screen font-sans text-black">
+    <div className="bg-white min-h-screen font-elegant-sans text-black">
       
       {/* Dynamic Sections */}
       {themeConfig.order?.map((id) => renderSection(id))}

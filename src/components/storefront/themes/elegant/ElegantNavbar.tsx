@@ -28,7 +28,7 @@ export function ElegantNavbar({
   }, []);
 
   return (
-    <div className="w-full sticky top-0 z-50">
+    <div className="w-full sticky top-0 z-50 font-elegant-sans">
       {/* Top Bar (Black) */}
       <header className="bg-black text-white py-3 md:py-4 px-4 md:px-12 flex flex-wrap items-center justify-between gap-y-3">
         
