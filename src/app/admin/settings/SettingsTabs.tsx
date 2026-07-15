@@ -34,8 +34,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "payments", name: "Payments", icon: CreditCard },
     { id: "storefront", name: "Storefront", icon: LayoutTemplate },
     { id: "emails", name: "Emails", icon: Mail },
-    { id: "ai", name: "AI Models", icon: Bot },
-    { id: "ads", name: "Advertisements", icon: Megaphone },
   ];
 
   return (
@@ -230,60 +228,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
             </div>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Top Announcement Bar</div>
-                  <div className="text-sm text-muted-foreground">Show the promotional banner at the very top.</div>
-                </div>
-                <select key={settings.storefront_show_announcement} name="storefront_show_announcement" defaultValue={settings.storefront_show_announcement || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Hero Banner Section</div>
-                  <div className="text-sm text-muted-foreground">Show the main large image banner and welcome panel.</div>
-                </div>
-                <select key={settings.storefront_show_hero} name="storefront_show_hero" defaultValue={settings.storefront_show_hero || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Value Props Features</div>
-                  <div className="text-sm text-muted-foreground">Show the 4 boxes below hero (Fast Delivery, Buyer Protection, etc).</div>
-                </div>
-                <select key={settings.storefront_show_features} name="storefront_show_features" defaultValue={settings.storefront_show_features || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Latest Products</div>
-                  <div className="text-sm text-muted-foreground">Show the grid of the newest products.</div>
-                </div>
-                <select key={settings.storefront_show_products} name="storefront_show_products" defaultValue={settings.storefront_show_products || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold">Premium Stores</div>
-                  <div className="text-sm text-muted-foreground">Show the list of top-rated stores.</div>
-                </div>
-                <select key={settings.storefront_show_stores} name="storefront_show_stores" defaultValue={settings.storefront_show_stores || "true"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
 
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div>
@@ -308,17 +252,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     <input type="text" name="storefront_policy_2_title" defaultValue={settings.storefront_policy_2_title || "2 Year Extended Warranty"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
                   </div>
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg bg-indigo-50/50 border-indigo-100">
-                <div>
-                  <div className="font-semibold text-indigo-700 flex items-center gap-1.5"><Bot className="h-4 w-4" /> Personalization Engine</div>
-                  <div className="text-sm text-indigo-600/80">Rotate homepage products dynamically based on the user's browsing cookies and search history.</div>
-                </div>
-                <select key={settings.storefront_personalization_enabled} name="storefront_personalization_enabled" defaultValue={settings.storefront_personalization_enabled || "false"} className="h-10 px-3 rounded-md border bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
               </div>
 
               <div className="border rounded-lg p-4 space-y-4">
@@ -467,126 +400,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     className="w-full h-48 p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
                   />
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "ai" && (
-          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h2 className="text-lg font-bold flex items-center gap-2"><Bot className="h-5 w-5 text-primary" /> AI Model Configuration</h2>
-              <p className="text-sm text-muted-foreground mb-4">Configure the LLM provider and API keys used by your AI Workforce.</p>
-            </div>
-            
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">Default AI Provider</label>
-                <select key={settings.ai_provider} name="ai_provider" defaultValue={settings.ai_provider || "google"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none">
-                  <option value="google">Google Gemini (Default)</option>
-                  <option value="openai">OpenAI (ChatGPT)</option>
-                  <option value="claude">Anthropic (Claude)</option>
-                  <option value="wavespeed">Wavespeed</option>
-                </select>
-                <p className="text-xs text-muted-foreground mt-1.5">Note: Switching models requires valid API keys below.</p>
-              </div>
-
-              <div className="border-t pt-6 space-y-4">
-                <h3 className="font-semibold text-sm">Provider API Keys</h3>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">OpenAI API Key</label>
-                  <input type="password" name="ai_openai_key" defaultValue={settings.ai_openai_key || ""} placeholder="sk-proj-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Anthropic (Claude) API Key</label>
-                  <input type="password" name="ai_claude_key" defaultValue={settings.ai_claude_key || ""} placeholder="sk-ant-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-1">Wavespeed API Key</label>
-                  <input type="password" name="ai_wavespeed_key" defaultValue={settings.ai_wavespeed_key || ""} placeholder="ws-..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Google Gemini API Key (Fallback)</label>
-                  <input type="password" name="ai_google_key" defaultValue={settings.ai_google_key || ""} placeholder="AIzaSy..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
-                  <p className="text-xs text-muted-foreground mt-1">If empty, the system will use the GOOGLE_GENERATIVE_AI_API_KEY from your .env file.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === "ads" && (
-          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
-            <div>
-              <h2 className="text-lg font-bold flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary" /> Advertisement System</h2>
-              <p className="text-sm text-muted-foreground mb-4">Integrate Google AdSense or other custom ad scripts globally across your store.</p>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="border rounded-lg p-4 bg-muted/10 space-y-3">
-                <div className="font-semibold">1. Global Head Script (AdSense Verification)</div>
-                <p className="text-xs text-muted-foreground">Paste your main `&lt;script async src="..."&gt;&lt;/script&gt;` tag here. This loads on every page.</p>
-                <textarea 
-                  name="ad_head_script" 
-                  defaultValue={settings.ad_head_script || ""} 
-                  placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'></script>"
-                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
-                />
-              </div>
-
-              <div className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">2. Header Ad Slot</div>
-                  <select key={settings.ad_header_enabled} name="ad_header_enabled" defaultValue={settings.ad_header_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
-                    <option value="true">Enabled</option>
-                    <option value="false">Disabled</option>
-                  </select>
-                </div>
-                <p className="text-xs text-muted-foreground">Displays directly below the navigation bar.</p>
-                <textarea 
-                  name="ad_header_script" 
-                  defaultValue={settings.ad_header_script || ""} 
-                  placeholder="<!-- Header Ad Unit --> <ins class='adsbygoogle' ...></ins>"
-                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
-                />
-              </div>
-
-              <div className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">3. Footer Ad Slot</div>
-                  <select key={settings.ad_footer_enabled} name="ad_footer_enabled" defaultValue={settings.ad_footer_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
-                    <option value="true">Enabled</option>
-                    <option value="false">Disabled</option>
-                  </select>
-                </div>
-                <p className="text-xs text-muted-foreground">Displays directly above the footer.</p>
-                <textarea 
-                  name="ad_footer_script" 
-                  defaultValue={settings.ad_footer_script || ""} 
-                  placeholder="<!-- Footer Ad Unit -->"
-                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
-                />
-              </div>
-
-              <div className="border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">4. Product Page Ad Slot</div>
-                  <select key={settings.ad_product_enabled} name="ad_product_enabled" defaultValue={settings.ad_product_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
-                    <option value="true">Enabled</option>
-                    <option value="false">Disabled</option>
-                  </select>
-                </div>
-                <p className="text-xs text-muted-foreground">Displays on individual product pages, usually below the product description.</p>
-                <textarea 
-                  name="ad_product_script" 
-                  defaultValue={settings.ad_product_script || ""} 
-                  placeholder="<!-- Product Page Ad Unit -->"
-                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
-                />
               </div>
             </div>
           </div>
