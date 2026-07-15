@@ -274,11 +274,24 @@ export async function createCategory(formData: FormData) {
     counter++;
   }
 
+  let imageId = null;
+  const imageFile = formData.get("image") as File;
+  if (imageFile && imageFile.size > 0) {
+    const bytes = await imageFile.arrayBuffer();
+    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+    const fileName = `${Date.now()}-cat-${safeName}`;
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
+    imageId = `/uploads/${fileName}`;
+  }
+
   await db.category.create({
     data: {
       name,
       slug,
       description,
+      imageId,
     }
   });
 
@@ -292,12 +305,29 @@ export async function updateCategory(id: string, formData: FormData) {
 
   if (!name) throw new Error("Name is required");
 
+  const imageFile = formData.get("image") as File;
+  const removeImage = formData.get("removeImage") === "true";
+  
+  const updateData: any = {
+    name,
+    description,
+  };
+
+  if (removeImage) {
+    updateData.imageId = null;
+  } else if (imageFile && imageFile.size > 0) {
+    const bytes = await imageFile.arrayBuffer();
+    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+    const fileName = `${Date.now()}-cat-${safeName}`;
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
+    updateData.imageId = `/uploads/${fileName}`;
+  }
+
   await db.category.update({
     where: { id },
-    data: {
-      name,
-      description,
-    }
+    data: updateData
   });
 
   revalidatePath("/admin/categories");

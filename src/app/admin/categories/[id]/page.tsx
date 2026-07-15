@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,7 +36,9 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
           await updateCategory(category.id, formData);
         }} className="space-y-6">
           
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <ImageUploadPreview label="Category Featured Image" defaultImageUrl={category.imageId || undefined} />
+            
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">Category Name</label>
               <input 

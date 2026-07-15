@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createCategory } from "../../actions";
+import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
 
 export default function NewCategoryPage() {
   return (
@@ -20,6 +21,8 @@ export default function NewCategoryPage() {
 
       <form action={createCategory} className="space-y-6">
         <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
+          <ImageUploadPreview label="Category Featured Image" />
+          
           <div>
             <label htmlFor="name" className="block text-sm font-semibold mb-2">Name</label>
             <input id="name" name="name" type="text" required placeholder="e.g. Electronics" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />

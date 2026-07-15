@@ -6,9 +6,10 @@ import Image from "next/image";
 
 interface ImageUploadPreviewProps {
   defaultImageUrl?: string;
+  label?: string;
 }
 
-export function ImageUploadPreview({ defaultImageUrl }: ImageUploadPreviewProps) {
+export function ImageUploadPreview({ defaultImageUrl, label = "Product Image" }: ImageUploadPreviewProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(defaultImageUrl || null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +29,7 @@ export function ImageUploadPreview({ defaultImageUrl }: ImageUploadPreviewProps)
 
   return (
     <div className="relative">
-      <label htmlFor="image" className="block text-sm font-semibold mb-2 cursor-pointer">Product Image</label>
+      <label htmlFor="image" className="block text-sm font-semibold mb-2 cursor-pointer">{label}</label>
       
       {/* 
         CRITICAL: The file input must remain in the DOM without being destroyed/recreated. 
