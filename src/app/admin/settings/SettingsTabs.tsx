@@ -32,7 +32,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
   const tabs = [
     { id: "general", name: "General", icon: Store },
     { id: "payments", name: "Payments", icon: CreditCard },
-    { id: "storefront", name: "Storefront", icon: LayoutTemplate },
+    { id: "storefront", name: "Product Pages", icon: LayoutTemplate },
     { id: "emails", name: "Emails", icon: Mail },
     { id: "ads", name: "Advertisements", icon: Megaphone },
   ];
@@ -224,7 +224,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
         {activeTab === "storefront" && (
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
             <div>
-              <h2 className="text-lg font-bold">Storefront Features</h2>
+              <h2 className="text-lg font-bold">Product Page Features</h2>
               <p className="text-sm text-muted-foreground mb-4">Toggle various features on the storefront product pages.</p>
             </div>
             
@@ -255,59 +255,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </div>
               </div>
 
-              <div className="border rounded-lg p-4 space-y-4">
-                <div className="font-semibold border-b pb-4">Main Menu Navigation</div>
-                <div className="text-sm text-muted-foreground">Manage the navigation links shown in the sub-header.</div>
-                <div className="space-y-3 pt-2">
-                  {menuLinks.map((link, idx) => (
-                    <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:items-center bg-muted/30 p-2 rounded-md">
-                      <input 
-                        type="text" 
-                        value={link.name} 
-                        onChange={(e) => {
-                          const newLinks = [...menuLinks];
-                          newLinks[idx].name = e.target.value;
-                          setMenuLinks(newLinks);
-                        }} 
-                        placeholder="Link Name" 
-                        className="flex-1 h-10 px-3 rounded-md border text-sm" 
-                      />
-                      <input 
-                        type="text" 
-                        value={link.url} 
-                        onChange={(e) => {
-                          const newLinks = [...menuLinks];
-                          newLinks[idx].url = e.target.value;
-                          setMenuLinks(newLinks);
-                        }} 
-                        placeholder="URL (e.g., /products)" 
-                        className="flex-1 h-10 px-3 rounded-md border text-sm" 
-                      />
-                      <div className="flex items-center justify-between sm:justify-start gap-4 px-2">
-                        <label className="flex items-center gap-2 text-sm font-medium whitespace-nowrap">
-                          <input 
-                            type="checkbox" 
-                            checked={link.highlight || false} 
-                            onChange={(e) => {
-                              const newLinks = [...menuLinks];
-                              newLinks[idx].highlight = e.target.checked;
-                              setMenuLinks(newLinks);
-                            }} 
-                            className="rounded border-gray-300"
-                          /> Highlight
-                        </label>
-                        <Button type="button" variant="ghost" size="sm" onClick={() => {
-                          setMenuLinks(menuLinks.filter((_, i) => i !== idx));
-                        }} className="text-red-500 hover:text-red-600 hover:bg-red-50">Remove</Button>
-                      </div>
-                    </div>
-                  ))}
-                  <Button type="button" variant="outline" size="sm" onClick={() => setMenuLinks([...menuLinks, { name: "New Link", url: "/" }])} className="mt-2">
-                    + Add Link
-                  </Button>
-                </div>
-                <input type="hidden" name="storefront_main_menu" value={JSON.stringify(menuLinks)} />
-              </div>
 
             </div>
           </div>
