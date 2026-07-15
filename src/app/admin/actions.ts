@@ -468,3 +468,30 @@ export async function deleteShippingRate(id: string, zoneId: string) {
   await db.shippingRate.delete({ where: { id } });
   revalidatePath(`/admin/shipping/${zoneId}`);
 }
+
+import { Resend } from "resend";
+
+export async function testResendApi(apiKey: string, fromAddress: string, toAddress: string) {
+  try {
+    const keyToUse = apiKey || process.env.RESEND_API_KEY;
+    if (!keyToUse) {
+      return { success: false, error: "No API key provided or found in environment variables." };
+    }
+
+    const resend = new Resend(keyToUse);
+    const { data, error } = await resend.emails.send({
+      from: fromAddress || "onboarding@resend.dev",
+      to: [toAddress],
+      subject: "Test Email from Aura Ecom",
+      html: "<p>If you are receiving this, your Resend API configuration is working perfectly!</p>",
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message || "An unknown error occurred" };
+  }
+}

@@ -328,8 +328,48 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
 
               <div>
                 <label className="block text-sm font-medium mb-1">Sender 'From' Address</label>
-                <input type="email" name="email_from_address" defaultValue={settings.email_from_address || "onboarding@resend.dev"} placeholder="sales@yourstore.com" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                <input type="email" name="email_from_address" id="email_from_address" defaultValue={settings.email_from_address || "onboarding@resend.dev"} placeholder="sales@yourstore.com" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
                 <p className="text-xs text-muted-foreground mt-1.5">Must be a verified domain in your Resend dashboard (or onboarding@resend.dev for testing).</p>
+              </div>
+
+              <div className="p-4 bg-muted/30 rounded-lg border">
+                <h3 className="font-semibold text-sm mb-2">Test Resend API</h3>
+                <div className="flex gap-2">
+                  <input type="email" id="test_email_to" placeholder="Enter your email to test" className="flex-1 h-9 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    className="h-9"
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      const toEmail = (document.getElementById('test_email_to') as HTMLInputElement).value;
+                      const apiKey = (document.querySelector('input[name="resend_api_key"]') as HTMLInputElement).value;
+                      const fromAddress = (document.getElementById('email_from_address') as HTMLInputElement).value;
+                      
+                      if (!toEmail) return alert("Please enter an email to send the test to.");
+                      
+                      btn.disabled = true;
+                      btn.innerText = "Sending...";
+                      
+                      try {
+                        const { testResendApi } = await import('../actions');
+                        const res = await testResendApi(apiKey, fromAddress, toEmail);
+                        if (res.success) {
+                          alert("Test email sent successfully! Please check your inbox.");
+                        } else {
+                          alert("Error sending test email: " + res.error);
+                        }
+                      } catch (err: any) {
+                        alert("Error: " + err.message);
+                      } finally {
+                        btn.disabled = false;
+                        btn.innerText = "Send Test Email";
+                      }
+                    }}
+                  >
+                    Send Test Email
+                  </Button>
+                </div>
               </div>
             </div>
 
