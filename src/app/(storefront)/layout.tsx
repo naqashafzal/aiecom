@@ -41,7 +41,12 @@ export default async function StorefrontLayout({
   const activeTheme = themeSetting?.value || "aliexpress";
 
   const allSettings = await db.setting.findMany({
-    where: { key: { startsWith: "storefront_" } }
+    where: {
+      OR: [
+        { key: { startsWith: "storefront_" } },
+        { key: { startsWith: "ad_" } }
+      ]
+    }
   });
   
   const settingsMap = allSettings.reduce((acc, curr) => {
