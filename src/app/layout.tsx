@@ -28,17 +28,30 @@ import { auth } from "@/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl = "/favicon.ico";
+  let storeName = "Aura";
+  let fullTitle = "Aura | Premium Ecommerce";
+
   try {
-    const faviconSetting = await db.setting.findUnique({ where: { key: "storeFavicon" } });
+    const allSettings = await db.setting.findMany({
+      where: { key: { in: ["storeFavicon", "storeName"] } }
+    });
+    
+    const faviconSetting = allSettings.find(s => s.key === "storeFavicon");
+    const nameSetting = allSettings.find(s => s.key === "storeName");
+
     if (faviconSetting?.value) faviconUrl = faviconSetting.value;
+    if (nameSetting?.value) {
+      storeName = nameSetting.value;
+      fullTitle = `${storeName} | Premium Ecommerce`;
+    }
   } catch (e) {
-    console.error("Failed to fetch favicon", e);
+    console.error("Failed to fetch settings for metadata", e);
   }
 
   return {
     title: {
-      default: "Aura | Premium Ecommerce",
-      template: "%s | Aura",
+      default: fullTitle,
+      template: `%s | ${storeName}`,
     },
     description: "Experience the next generation of modern, fast, and engaging ecommerce. Shop premium products directly from top vendors.",
     keywords: ["ecommerce", "shopping", "premium", "electronics", "fashion"],
@@ -51,13 +64,13 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       locale: "en_US",
       url: "https://aura-ecom.vercel.app",
-      title: "Aura | Premium Ecommerce",
+      title: fullTitle,
       description: "Experience the next generation of modern, fast, and engaging ecommerce.",
-      siteName: "Aura",
+      siteName: storeName,
     },
     twitter: {
       card: "summary_large_image",
-      title: "Aura | Premium Ecommerce",
+      title: fullTitle,
       description: "Experience the next generation of modern, fast, and engaging ecommerce.",
     },
   };
