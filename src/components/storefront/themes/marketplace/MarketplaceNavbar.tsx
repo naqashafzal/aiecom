@@ -143,8 +143,6 @@ export function MarketplaceNavbar({
               <Search className="w-5 h-5" />
             </button>
           </form>
-
-        </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
