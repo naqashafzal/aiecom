@@ -8,6 +8,18 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [menuLinks, setMenuLinks] = useState<Array<{name: string, url: string, highlight?: boolean}>>(() => {
+    try {
+      return settings.storefront_main_menu ? JSON.parse(settings.storefront_main_menu) : [
+        { name: "Bundle deals", url: "/products", highlight: true },
+        { name: "Choice", url: "/products" },
+        { name: "Automotive", url: "/products" },
+        { name: "Appliances", url: "/products" },
+      ];
+    } catch {
+      return [];
+    }
+  });
 
   const handleSubmit = async (formData: FormData) => {
     setIsSaving(true);
@@ -308,6 +320,61 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <option value="false">Disabled</option>
                 </select>
               </div>
+
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="font-semibold border-b pb-4">Main Menu Navigation</div>
+                <div className="text-sm text-muted-foreground">Manage the navigation links shown in the sub-header.</div>
+                <div className="space-y-3 pt-2">
+                  {menuLinks.map((link, idx) => (
+                    <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:items-center bg-muted/30 p-2 rounded-md">
+                      <input 
+                        type="text" 
+                        value={link.name} 
+                        onChange={(e) => {
+                          const newLinks = [...menuLinks];
+                          newLinks[idx].name = e.target.value;
+                          setMenuLinks(newLinks);
+                        }} 
+                        placeholder="Link Name" 
+                        className="flex-1 h-10 px-3 rounded-md border text-sm" 
+                      />
+                      <input 
+                        type="text" 
+                        value={link.url} 
+                        onChange={(e) => {
+                          const newLinks = [...menuLinks];
+                          newLinks[idx].url = e.target.value;
+                          setMenuLinks(newLinks);
+                        }} 
+                        placeholder="URL (e.g., /products)" 
+                        className="flex-1 h-10 px-3 rounded-md border text-sm" 
+                      />
+                      <div className="flex items-center justify-between sm:justify-start gap-4 px-2">
+                        <label className="flex items-center gap-2 text-sm font-medium whitespace-nowrap">
+                          <input 
+                            type="checkbox" 
+                            checked={link.highlight || false} 
+                            onChange={(e) => {
+                              const newLinks = [...menuLinks];
+                              newLinks[idx].highlight = e.target.checked;
+                              setMenuLinks(newLinks);
+                            }} 
+                            className="rounded border-gray-300"
+                          /> Highlight
+                        </label>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => {
+                          setMenuLinks(menuLinks.filter((_, i) => i !== idx));
+                        }} className="text-red-500 hover:text-red-600 hover:bg-red-50">Remove</Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={() => setMenuLinks([...menuLinks, { name: "New Link", url: "/" }])} className="mt-2">
+                    + Add Link
+                  </Button>
+                </div>
+                <input type="hidden" name="storefront_main_menu" value={JSON.stringify(menuLinks)} />
+              </div>
+
             </div>
           </div>
         )}
