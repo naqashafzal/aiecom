@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Search, ShoppingCart, User, Menu, QrCode, ChevronDown, Check, Package } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrency } from "@/components/storefront/currency-provider";
+import { useSession } from "next-auth/react";
 
 import { StoreLogo } from "@/components/storefront/StoreLogo";
 
@@ -24,6 +25,7 @@ export function AliExpressNavbar({
   const { getCartCount, toggleCart } = useCartStore();
   const { currencyCode } = useCurrency();
   const [mounted, setMounted] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
@@ -105,7 +107,7 @@ export function AliExpressNavbar({
             <Link href="/account" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
               <User className="h-7 w-7 text-foreground" />
               <div className="text-[11px] leading-tight font-bold hidden sm:block">
-                Hi, Welcome<br/>Account
+                {session?.user ? `Hi, ${session.user.name?.split(" ")[0] || 'User'}` : 'Hi, Welcome'}<br/>Account
               </div>
             </Link>
 

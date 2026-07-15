@@ -5,6 +5,7 @@ import { Search, ShoppingCart, User, Menu, Heart, Home, LayoutGrid } from "lucid
 import { useCartStore } from "@/store/useCartStore";
 import { StoreLogo } from "@/components/storefront/StoreLogo";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export function ElegantNavbar({ 
   menuLinks = [],
@@ -22,6 +23,7 @@ export function ElegantNavbar({
   const { getCartCount, toggleCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
@@ -69,7 +71,7 @@ export function ElegantNavbar({
           </Link>
           <Link href="/account" className="hidden md:flex flex-col items-center hover:text-gray-300 transition-colors">
             <User className="w-6 h-6 mb-1 font-light" strokeWidth={1.5} />
-            <span className="text-[10px]">Sign In</span>
+            <span className="text-[10px] truncate max-w-[60px] text-center">{session?.user ? session.user.name?.split(" ")[0] || 'Account' : 'Sign In'}</span>
           </Link>
           <button className="flex flex-col items-center relative hover:text-gray-300 transition-colors" onClick={toggleCart}>
             <div className="relative md:mb-1">
@@ -129,7 +131,7 @@ export function ElegantNavbar({
             <Heart className="w-4 h-4" /> Wish Lists
           </Link>
           <Link href="/account" className="text-sm flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-            <User className="w-4 h-4" /> Sign In / Account
+            <User className="w-4 h-4" /> {session?.user ? session.user.name || 'Account' : 'Sign In / Account'}
           </Link>
         </div>
       )}

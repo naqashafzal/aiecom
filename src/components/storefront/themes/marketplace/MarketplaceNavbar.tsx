@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, ShoppingCart, User, ChevronDown, Menu, Smartphone } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 import { StoreLogo } from "@/components/storefront/StoreLogo";
 
@@ -23,26 +24,45 @@ export function MarketplaceNavbar({
   const { getCartCount, toggleCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   return (
-    <div className="w-full">
-      {/* Top Mini-bar removed for production readiness */}
+    <div className="w-full relative z-50">
+      {/* Top Banner */}
+      <div className="bg-gray-100 border-b border-gray-200 text-gray-500 text-[11px] py-1.5 hidden md:block">
+        <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
+          <div className="flex gap-4">
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors text-red-500">Save more on app</span>
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Sell on Aura Marketplace</span>
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Customer Care</span>
+          </div>
+          <div className="flex gap-4 items-center">
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Track my order</span>
+            {session?.user ? (
+              <span className="hover:text-[#f85606] cursor-pointer transition-colors">{session.user.name}</span>
+            ) : (
+              <span className="hover:text-[#f85606] cursor-pointer transition-colors">Login / Signup</span>
+            )}
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Change Language</span>
+          </div>
+        </div>
+      </div>
 
-      {/* Main Navbar */}
-      <header className="bg-[#f85606] text-white py-3 md:py-4 sticky top-0 z-50">
-        <div className="max-w-[1200px] mx-auto px-4 flex flex-col gap-3">
+      {/* Main Header (Orange Theme) */}
+      <header className="bg-[#f85606] text-white py-3 md:py-4 px-4 w-full">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
           
-          {/* Top Row */}
-          <div className="flex items-center justify-between gap-4 md:gap-8">
-          
-          <div className="flex items-center gap-3">
-            <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <div className="flex items-center gap-3 md:hidden">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               <Menu className="w-6 h-6" />
             </button>
+          </div>
+
+          <div className="shrink-0 flex items-center">
             <StoreLogo 
               className="text-white" 
               logoUrl={logoUrl}
@@ -84,7 +104,7 @@ export function MarketplaceNavbar({
             <Link href="/account" className="hidden md:flex items-center gap-2 hover:text-gray-200 transition-colors">
               <User className="w-6 h-6" />
               <div className="flex flex-col items-start text-xs text-left">
-                <span className="opacity-80">Hello, Sign in</span>
+                <span className="opacity-80">{session?.user ? `Hello, ${session.user.name || 'User'}` : 'Hello, Sign in'}</span>
                 <span className="font-bold flex items-center">Account & Orders <ChevronDown className="w-3 h-3 ml-1" /></span>
               </div>
             </Link>
