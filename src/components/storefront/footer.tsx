@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/prisma";
+import { StoreLogo } from "@/components/storefront/StoreLogo";
 
 type LinkItem = { label: string; url: string };
 
@@ -10,19 +11,30 @@ function parseLinks(raw: string | undefined): LinkItem[] {
 export async function Footer() {
   // Fetch all footer settings from DB
   const settingsRecords = await db.setting.findMany({
-    where: { key: { startsWith: "footer_" } },
+    where: {
+      OR: [
+        { key: { startsWith: "footer_" } },
+        { key: { startsWith: "storefront_logo_" } },
+        { key: "storeName" }
+      ]
+    },
   });
   const s = settingsRecords.reduce((acc: Record<string, string>, r: any) => {
     acc[r.key] = r.value;
     return acc;
   }, {} as Record<string, string>);
 
-  const storeName   = s["footer_store_name"] || "Aura";
+  const storeName   = s["footer_store_name"] || s["storeName"] || "Aura";
   const tagline     = s["footer_tagline"]    || "Experience the next generation of modern, fast, and engaging ecommerce. Premium products at your fingertips.";
   const copyright   = (s["footer_copyright"] || "© {year} Aura Store. All rights reserved.").replace("{year}", String(new Date().getFullYear()));
   const bgColor     = s["footer_bg_color"]   || "";
   const textColor   = s["footer_text_color"] || "";
   const showNewsletter = s["footer_show_newsletter"] !== "false";
+
+  const logoUrl = s["storefront_logo_url"];
+  const logoText = s["storefront_logo_text"] || storeName;
+  const logoHeight = parseInt(s["storefront_logo_height"] || "40", 10);
+  const logoAccent = s["storefront_logo_accent"];
 
   const col1Title = s["footer_col1_title"] || "Shop";
   const col2Title = s["footer_col2_title"] || "Support";
@@ -72,9 +84,13 @@ export async function Footer() {
 
           {/* Branding */}
           <div>
-            <Link href="/" className="font-bold text-2xl tracking-tighter" style={{ color: textColor ? "#fff" : undefined }}>
-              {storeName}<span className="text-primary">.</span>
-            </Link>
+            <StoreLogo 
+              logoUrl={logoUrl}
+              logoText={logoText}
+              logoHeight={logoHeight}
+              logoAccent={logoAccent}
+              className={textColor ? "text-white" : ""}
+            />
             <p className="mt-4 text-sm" style={{ color: textColor || undefined, opacity: textColor ? 0.7 : undefined }}>
               {tagline}
             </p>
