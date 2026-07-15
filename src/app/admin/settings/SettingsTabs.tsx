@@ -284,6 +284,20 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </select>
               </div>
 
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="font-semibold border-b pb-4">Product Page Badges / Policies</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Policy 1 (e.g. Shipping)</label>
+                    <input type="text" name="storefront_policy_1_title" defaultValue={settings.storefront_policy_1_title || "Free Worldwide Shipping"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Policy 2 (e.g. Warranty)</label>
+                    <input type="text" name="storefront_policy_2_title" defaultValue={settings.storefront_policy_2_title || "2 Year Extended Warranty"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between p-4 border rounded-lg bg-indigo-50/50 border-indigo-100">
                 <div>
                   <div className="font-semibold text-indigo-700 flex items-center gap-1.5"><Bot className="h-4 w-4" /> Personalization Engine</div>
