@@ -24,6 +24,7 @@ const montserrat = Montserrat({
 });
 
 import { db } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl = "/favicon.ico";
@@ -62,18 +63,20 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );
