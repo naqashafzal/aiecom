@@ -45,13 +45,6 @@ export function ElegantNavbar({
           </button>
         </div>
 
-        {/* Desktop Menu Button (Left) */}
-        <div className="hidden md:flex items-center shrink-0 order-1">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <Menu className="w-6 h-6" />
-          </button>
-        </div>
-
         {/* Logo (Center on Mobile, Left on Desktop) */}
         <div className="flex items-center justify-center md:justify-start shrink-0 order-2 md:order-1 w-1/3 md:w-auto">
           <StoreLogo 
