@@ -31,8 +31,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Failed to fetch random product" }, { status: 500 });
     }
 
+    // Construct base URL respecting reverse proxies
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+    const protocol = request.headers.get("x-forwarded-proto") || "http";
+    const baseUrl = `${protocol}://${host}`;
+
     // Redirect to the random product with the query parameters
-    const redirectUrl = new URL(`/products/${randomProduct.slug}`, request.url);
+    const redirectUrl = new URL(`/products/${randomProduct.slug}`, baseUrl);
     redirectUrl.searchParams.set("downloadUrl", downloadUrl);
     if (duration) {
       redirectUrl.searchParams.set("duration", duration);
