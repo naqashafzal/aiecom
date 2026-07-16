@@ -30,6 +30,8 @@ export function DownloadTimerClient({
     return () => clearInterval(timer);
   }, [skipTimer, durationSeconds]);
 
+  const mainSiteUrl = process.env.NEXT_PUBLIC_MAIN_SITE_URL || "https://nullpk.com";
+
   if (timeLeft > 0) {
     return (
       <div className="flex flex-col items-center justify-center space-y-8 py-4">
@@ -65,8 +67,7 @@ export function DownloadTimerClient({
             <p className="text-sm font-black uppercase tracking-wider">Hate waiting?</p>
             <p className="text-xs font-medium mt-1">Premium members skip all timers instantly.</p>
           </div>
-          {/* Note: since this is in e-commerce, it should point back to the download site or be fully removed. For now, assuming download site is on localhost:3000 */}
-          <a href="http://localhost:3000/membership" className="w-full md:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-xs transition-colors rounded-xl text-center shadow-lg shadow-amber-500/20 active:scale-95">
+          <a href={`${mainSiteUrl}/membership`} className="w-full md:w-auto px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest text-xs transition-colors rounded-xl text-center shadow-lg shadow-amber-500/20 active:scale-95">
             Upgrade
           </a>
         </div>
@@ -88,7 +89,7 @@ export function DownloadTimerClient({
       </div>
 
       <a 
-        href={`http://localhost:3000${targetUrl}`} // Assuming targetUrl is relative to download site
+        href={`${mainSiteUrl}${targetUrl}`}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative inline-flex flex-col items-center justify-center gap-2 px-12 py-6 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-black uppercase tracking-widest transition-all rounded-3xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:translate-y-1 overflow-hidden mt-4 w-full md:w-auto"
