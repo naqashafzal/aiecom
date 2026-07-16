@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import helloWorldPlugin from "@/plugins/hello-world";
+import nullpkDownloadPlugin from "@/plugins/nullpk-download";
 
 // Static mapping for client-side components
 const clientRegistry: Record<string, any> = {
-  "hello-world": helloWorldPlugin
+  "hello-world": helloWorldPlugin,
+  "nullpk-download": nullpkDownloadPlugin
 };
 
 export function PluginSlot({ name }: { name: string }) {

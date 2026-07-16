@@ -336,6 +336,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               </p>
             </div>
           </div>
+          <PluginSlot name="product_description_bottom" />
         </div>
       )}
 
