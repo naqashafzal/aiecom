@@ -75,6 +75,9 @@ export function DownloadTimerClient({
     );
   }
 
+  const isAbsoluteUrl = targetUrl.startsWith('http://') || targetUrl.startsWith('https://') || targetUrl.startsWith('magnet:');
+  const finalDownloadUrl = isAbsoluteUrl ? targetUrl : `${mainSiteUrl}${targetUrl}`;
+
   return (
     <div className="flex flex-col items-center justify-center space-y-6 py-4 animate-in fade-in zoom-in duration-500">
       <div className="w-24 h-24 bg-green-50 dark:bg-green-900/20 rounded-[2rem] flex items-center justify-center mb-2 text-green-600 dark:text-green-400 shadow-inner border border-green-100 dark:border-green-800/30">
@@ -89,7 +92,7 @@ export function DownloadTimerClient({
       </div>
 
       <a 
-        href={`${mainSiteUrl}${targetUrl}`}
+        href={finalDownloadUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative inline-flex flex-col items-center justify-center gap-2 px-12 py-6 bg-zinc-900 dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-100 text-white dark:text-zinc-900 font-black uppercase tracking-widest transition-all rounded-3xl shadow-2xl hover:shadow-3xl hover:-translate-y-1 active:translate-y-1 overflow-hidden mt-4 w-full md:w-auto"
