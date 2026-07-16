@@ -336,9 +336,12 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               </p>
             </div>
           </div>
-          <PluginSlot name="product_description_bottom" />
         </div>
       )}
+
+      <div className="mt-8">
+        <PluginSlot name="product_description_bottom" />
+      </div>
 
       {/* Reviews Section */}
       <div className="mt-16 border-t pt-12" id="reviews">
