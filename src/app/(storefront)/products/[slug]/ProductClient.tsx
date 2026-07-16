@@ -331,9 +331,10 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               <div className="flex-1 h-px bg-border" />
             </h2>
             <div className="bg-muted/20 rounded-2xl p-6 md:p-8">
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-base">
-                {product.description}
-              </p>
+              <div 
+                className="text-muted-foreground leading-relaxed text-base prose prose-sm sm:prose-base dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
             </div>
           </div>
         </div>
