@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useCurrency } from "@/components/storefront/currency-provider";
 import { formatDistanceToNow } from "date-fns";
 import { PluginSlot } from "@/components/plugins/PluginSlot";
@@ -43,6 +43,8 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
   const [reviewMessage, setReviewMessage] = useState<{type: "success" | "error", text: string} | null>(null);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isTimerActive = !!searchParams.get("downloadUrl");
   
   const addItem = useCartStore((state) => state.addItem);
   const addViewedItem = useRecentlyViewedStore((state) => state.addItem);
@@ -121,6 +123,8 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
   // Advertisement Settings
   const adProductEnabled = settings?.["ad_product_enabled"] === "true";
   const adProductScript = settings?.["ad_product_script"];
+  const adTimerEnabled = settings?.["ad_timer_enabled"] === "true";
+  const adTimerScript = settings?.["ad_timer_script"];
   
   // Store info
   const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "Aura Official Store");
@@ -340,8 +344,16 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
         </div>
       )}
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-col gap-6">
+        {isTimerActive && adTimerEnabled && adTimerScript && (
+          <div className="flex justify-center w-full overflow-hidden" dangerouslySetInnerHTML={{ __html: adTimerScript }} />
+        )}
+        
         <PluginSlot name="product_description_bottom" />
+
+        {isTimerActive && adTimerEnabled && adTimerScript && (
+          <div className="flex justify-center w-full overflow-hidden" dangerouslySetInnerHTML={{ __html: adTimerScript }} />
+        )}
       </div>
 
       {/* Reviews Section */}
