@@ -494,3 +494,15 @@ model ContactMessage {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Plugin {
+  id          String   @id @default(cuid())
+  identifier  String   @unique
+  name        String
+  description String?
+  version     String   @default("1.0.0")
+  isActive    Boolean  @default(false)
+  settings    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

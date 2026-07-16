@@ -8,6 +8,8 @@ import { useRecentlyViewedStore } from "@/store/useRecentlyViewedStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCurrency } from "@/components/storefront/currency-provider";
+import { formatDistanceToNow } from "date-fns";
+import { PluginSlot } from "@/components/plugins/PluginSlot";
 import { submitProductReview } from "./actions";
 import { motion } from "framer-motion";
 import { WishlistButton } from "@/components/storefront/WishlistButton";
@@ -222,6 +224,9 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
             </div>
             <Button variant="outline" size="sm" className="rounded-full">Visit Store</Button>
           </div>
+
+          {/* Dynamic Plugin Slot */}
+          <PluginSlot name="product_sidebar" />
 
           {/* Variants */}
           {variants.length > 0 && (
