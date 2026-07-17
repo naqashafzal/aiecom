@@ -11,6 +11,9 @@ export default async function AdminShippingPage() {
     orderBy: { createdAt: "asc" }
   });
 
+  const currencySetting = await db.setting.findUnique({ where: { key: "store_currency" } });
+  const currencyCode = currencySetting?.value || "USD";
+
   return (
     <div className="space-y-6">
       <div>
@@ -18,7 +21,7 @@ export default async function AdminShippingPage() {
         <p className="text-sm text-gray-500">Configure where you ship and how much you charge.</p>
       </div>
       
-      <ShippingClient initialZones={zones} />
+      <ShippingClient initialZones={zones} currencyCode={currencyCode} />
     </div>
   );
 }
