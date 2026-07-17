@@ -201,18 +201,17 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 py-8 lg:py-12 flex flex-col-reverse lg:flex-row gap-8 lg:gap-16">
-        
-        {/* Left Side - Forms */}
-        <div className="flex-1 max-w-2xl">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Side - Forms */}
+      <div className="flex-1 bg-background pt-8 pb-14 px-4 sm:px-6 lg:px-12 xl:px-24 lg:pt-16 border-r">
+        <div className="max-w-2xl mx-auto lg:ml-auto lg:mr-12">
           {/* Breadcrumbs */}
           <nav className="flex items-center text-sm font-medium text-muted-foreground mb-8">
-            <button onClick={() => setStep("information")} className={`${step === "information" ? "text-primary" : "hover:text-foreground"} transition-colors`}>Information</button>
+            <button onClick={() => setStep("information")} className={`${step === "information" ? "text-primary font-bold" : "hover:text-foreground"} transition-colors`}>Information</button>
             <ChevronRight className="h-4 w-4 mx-2" />
-            <button onClick={() => setStep("shipping")} disabled={step === "information"} className={`${step === "shipping" ? "text-primary" : ""} disabled:opacity-50 transition-colors`}>Shipping</button>
+            <button onClick={() => setStep("shipping")} disabled={step === "information"} className={`${step === "shipping" ? "text-primary font-bold" : ""} disabled:opacity-50 transition-colors`}>Shipping</button>
             <ChevronRight className="h-4 w-4 mx-2" />
-            <button disabled className={`${step === "payment" ? "text-primary" : "opacity-50"}`}>Payment</button>
+            <button disabled className={`${step === "payment" ? "text-primary font-bold" : "opacity-50"}`}>Payment</button>
           </nav>
 
           <AnimatePresence mode="wait">
@@ -239,7 +238,7 @@ export default function CheckoutPage() {
                     <input type="text" name="city" value={formData.city} onChange={handleInputChange} required placeholder="City" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required placeholder="Postal code" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Phone number" className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <select name="country" value={formData.country} onChange={handleInputChange} required className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
+                    <select name="country" value={formData.country} onChange={handleInputChange} required className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow appearance-none">
                       <option value="PK">Pakistan</option>
                       <option value="US">United States</option>
                       <option value="CA">Canada</option>
@@ -445,10 +444,12 @@ export default function CheckoutPage() {
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Right Side - Order Summary */}
-        <div className="w-full lg:w-[450px] shrink-0">
-          <div className="bg-background rounded-2xl border shadow-sm p-6 sticky top-24">
+      {/* Right Side - Order Summary */}
+      <div className="w-full lg:w-[45%] bg-muted/20 pt-8 pb-14 px-4 sm:px-6 lg:px-12 lg:pt-16 border-t lg:border-t-0">
+        <div className="max-w-xl mx-auto lg:mx-0 sticky top-8">
+          <div className="bg-transparent rounded-none border-none shadow-none p-0">
             <h2 className="text-xl font-bold mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
