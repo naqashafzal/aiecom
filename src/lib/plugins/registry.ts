@@ -2,9 +2,11 @@ import { PluginConfig, PluginRegistry } from './types';
 import { db } from '@/lib/prisma';
 
 import helloWorldPlugin from '@/plugins/hello-world';
+import nullpkDownloadPlugin from '@/plugins/nullpk-download';
 
 const localPlugins: PluginConfig[] = [
-  helloWorldPlugin
+  helloWorldPlugin,
+  nullpkDownloadPlugin
 ];
 
 export const registry: PluginRegistry = localPlugins.reduce((acc, plugin) => {

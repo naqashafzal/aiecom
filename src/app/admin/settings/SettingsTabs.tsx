@@ -422,6 +422,23 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
                 />
               </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">5. Timer Page Ad Slot</div>
+                  <select key={settings.ad_timer_enabled} name="ad_timer_enabled" defaultValue={settings.ad_timer_enabled || "false"} className="h-8 px-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-xs font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground">Displays specifically when a user is waiting for a download timer (above and below the timer).</p>
+                <textarea 
+                  name="ad_timer_script" 
+                  defaultValue={settings.ad_timer_script || ""} 
+                  placeholder="<!-- Timer Page Ad Unit -->"
+                  className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
+                />
+              </div>
             </div>
           </div>
         )}
