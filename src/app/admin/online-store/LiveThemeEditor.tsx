@@ -179,6 +179,7 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
       { id: "features", name: "Value Props", icon: LayoutGrid },
       { id: "products", name: "Latest Products", icon: LayoutGrid },
       { id: "stores", name: "Premium Stores", icon: LayoutGrid },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ],
     elegant: [
       { id: "navigation", name: "Navigation Menu", icon: MenuSquare },
@@ -187,6 +188,7 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
       { id: "elegant_best_sellers", name: "Best Sellers", icon: LayoutGrid },
       { id: "elegant_featured_plants", name: "Featured Plants", icon: LayoutGrid },
       { id: "elegant_new_arrivals", name: "New Arrivals", icon: LayoutGrid },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ],
     marketplace: [
       { id: "navigation", name: "Navigation Menu", icon: MenuSquare },
@@ -194,6 +196,7 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
       { id: "marketplace_flash_sales", name: "Flash Sales", icon: LayoutGrid },
       { id: "marketplace_official_stores", name: "Official Stores", icon: LayoutGrid },
       { id: "marketplace_just_for_you", name: "Just For You", icon: LayoutGrid },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ]
   };
 

@@ -11,10 +11,11 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const product = await db.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         images: true
       }
@@ -32,13 +33,14 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const { name, price, stock, status } = body;
 
     const product = await db.product.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: name !== undefined ? name : undefined,
         price: price !== undefined ? parseFloat(price) : undefined,

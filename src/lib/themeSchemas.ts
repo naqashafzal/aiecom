@@ -91,6 +91,18 @@ export const BlockSchemas: BlockSchema[] = [
 
 export const AliExpressThemeSchema: SectionSchema[] = [
   {
+    type: "custom_html",
+    name: "Custom HTML",
+    icon: "Type",
+    fields: [
+      { id: "html_content", label: "Custom HTML Code", type: "textarea", default: "<div>Hello World!</div>" },
+      { id: "bg", label: "Background Color", type: "color", default: "transparent" },
+      { id: "pt", label: "Top Padding (px)", type: "number", default: 48 },
+      { id: "pb", label: "Bottom Padding (px)", type: "number", default: 48 },
+      { id: "width", label: "Container Width", type: "text", default: "container" }
+    ]
+  },
+  {
     type: "hero",
     name: "Summer Sale Banner",
     icon: "ImageIcon",
@@ -157,6 +169,18 @@ export const AliExpressThemeSchema: SectionSchema[] = [
 
 export const ElegantThemeSchema: SectionSchema[] = [
   {
+    type: "custom_html",
+    name: "Custom HTML",
+    icon: "Type",
+    fields: [
+      { id: "html_content", label: "Custom HTML Code", type: "textarea", default: "<div>Hello World!</div>" },
+      { id: "bg", label: "Background Color", type: "color", default: "transparent" },
+      { id: "pt", label: "Top Padding (px)", type: "number", default: 48 },
+      { id: "pb", label: "Bottom Padding (px)", type: "number", default: 48 },
+      { id: "width", label: "Container Width", type: "text", default: "container" }
+    ]
+  },
+  {
     type: "elegant_hero",
     name: "Hero Banner",
     icon: "ImageIcon",
@@ -195,6 +219,18 @@ export const ElegantThemeSchema: SectionSchema[] = [
 ];
 
 export const MarketplaceThemeSchema: SectionSchema[] = [
+  {
+    type: "custom_html",
+    name: "Custom HTML",
+    icon: "Type",
+    fields: [
+      { id: "html_content", label: "Custom HTML Code", type: "textarea", default: "<div>Hello World!</div>" },
+      { id: "bg", label: "Background Color", type: "color", default: "transparent" },
+      { id: "pt", label: "Top Padding (px)", type: "number", default: 48 },
+      { id: "pb", label: "Bottom Padding (px)", type: "number", default: 48 },
+      { id: "width", label: "Container Width", type: "text", default: "container" }
+    ]
+  },
   {
     type: "marketplace_sidebar",
     name: "Vertical Menu",

@@ -88,6 +88,19 @@ export default async function ElegantHome() {
         return <ElegantBestSellersSection key={id} settings={section.settings} products={bestSellers} storeCurrency={storeCurrency} />;
       case "custom_builder":
         return <CustomBuilderSection key={id} settings={section.settings} block_order={section.block_order} blocks={section.blocks} storeCurrency={storeCurrency} />;
+      case "custom_html":
+        return (
+          <div 
+            key={id} 
+            className={`w-full ${section.settings.width === "container" ? "max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8" : ""}`}
+            style={{
+              backgroundColor: section.settings.bg || "transparent",
+              paddingTop: `${section.settings.pt || 48}px`,
+              paddingBottom: `${section.settings.pb || 48}px`,
+            }}
+            dangerouslySetInnerHTML={{ __html: section.settings.html_content || "<div>Custom HTML</div>" }}
+          />
+        );
       default:
         return <div key={id} className="p-4 text-center text-red-500">Unknown section type: {section.type}</div>;
     }
