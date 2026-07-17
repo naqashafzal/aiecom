@@ -1,0 +1,34 @@
+import { NextResponse } from "next/server";
+import { db } from "@/lib/prisma";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
+export async function GET(req: Request) {
+  try {
+    const products = await db.product.findMany({
+      take: 20,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        inventory: true,
+        status: true,
+        images: true
+      }
+    });
+
+    return NextResponse.json({ products }, { headers: corsHeaders });
+  } catch (error) {
+    console.error("Mobile products error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
+  }
+}
