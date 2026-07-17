@@ -62,7 +62,7 @@ export function ElegantCategoriesSection({ settings, categories }: { settings: R
         <p className="text-sm text-gray-500 font-light tracking-wide">{subtitle}</p>
       </motion.div>
 
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-8">
         {categories.map((cat, i) => {
           const image = cat.imageId || "/placeholder.png";
           return (
@@ -73,17 +73,18 @@ export function ElegantCategoriesSection({ settings, categories }: { settings: R
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: i * 0.1 }}
             >
-              <Link href={`/products?category=${cat.slug}`} className="flex flex-col group relative block overflow-hidden aspect-[4/5] bg-[#F5F5F5]">
-                <Image 
-                  src={image} 
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
-                  alt={cat.name} 
-                  sizes="(max-width: 768px) 50vw, 20vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-50 group-hover:opacity-80 transition-opacity duration-500"></div>
-                <div className="absolute bottom-6 w-full text-center px-4 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                  <span className="text-sm md:text-[15px] text-white font-medium tracking-widest uppercase drop-shadow-md">{cat.name}</span>
+              <Link href={`/products?category=${cat.slug}`} className="flex flex-col group block">
+                <div className="relative overflow-hidden aspect-square bg-[#F5F5F5] mb-4">
+                  <Image 
+                    src={image} 
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                    alt={cat.name} 
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
+                <div className="w-full text-center px-2">
+                  <span className="text-xs md:text-[13px] text-gray-900 font-medium tracking-widest uppercase">{cat.name}</span>
                 </div>
               </Link>
             </motion.div>
