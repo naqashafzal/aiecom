@@ -148,7 +148,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               <button 
                 key={idx}
                 onClick={() => setActiveImage(idx)}
-                className={`w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
+                className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
               >
                 <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="80px" className="object-cover" />
               </button>
