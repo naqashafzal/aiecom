@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getActivePlugins } from "@/lib/plugins/registry";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const activePlugins = await getActivePlugins();
