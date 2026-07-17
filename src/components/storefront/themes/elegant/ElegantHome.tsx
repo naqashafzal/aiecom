@@ -53,8 +53,29 @@ export default async function ElegantHome() {
     switch (section.type) {
       case "elegant_hero":
         return <ElegantHeroSection key={id} settings={section.settings} />;
-      case "elegant_categories":
-        return <ElegantCategoriesSection key={id} settings={section.settings} categories={allCategories} />;
+      case "elegant_categories": {
+        let displayCategories = allCategories;
+        if (section.block_order && section.block_order.length > 0) {
+          const selected = [];
+          for (const blockId of section.block_order) {
+            const block = section.blocks?.[blockId];
+            if (block && block.type === "category_link") {
+              const catId = block.settings.category_id;
+              const cat = allCategories.find(c => c.id === catId);
+              if (cat) {
+                selected.push({
+                  ...cat,
+                  name: block.settings.custom_text || cat.name
+                });
+              }
+            }
+          }
+          if (selected.length > 0) {
+            displayCategories = selected;
+          }
+        }
+        return <ElegantCategoriesSection key={id} settings={section.settings} categories={displayCategories} />;
+      }
       case "elegant_best_sellers":
         return <ElegantBestSellersSection key={id} settings={section.settings} products={bestSellers} storeCurrency={storeCurrency} />;
       case "custom_builder":
