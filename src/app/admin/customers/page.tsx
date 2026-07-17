@@ -17,17 +17,18 @@ export default async function AdminCustomersPage({
 
   const [customers, total] = await Promise.all([
     db.user.findMany({
-    where: { role: 'USER' },
-    include: {
-      _count: {
-        select: { orders: true }
-      }
-    },
-    },
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
-  });
+      where: { role: 'USER' },
+      include: {
+        _count: {
+          select: { orders: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.user.count({ where: { role: 'USER' } })
+  ]);
   
   const totalPages = Math.ceil(total / limit);
 

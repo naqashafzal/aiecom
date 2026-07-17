@@ -15,14 +15,16 @@ export default async function AdminReviewsPage({
 
   const [reviews, total] = await Promise.all([
     db.review.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      user: { select: { name: true, email: true } },
-      product: { select: { name: true, slug: true, images: { take: 1 } } }
-    },
-    skip,
-    take: limit
-  });
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { name: true, email: true } },
+        product: { select: { name: true, slug: true, images: { take: 1 } } }
+      },
+      skip,
+      take: limit
+    }),
+    db.review.count()
+  ]);
 
   const totalPages = Math.ceil(total / limit);
 

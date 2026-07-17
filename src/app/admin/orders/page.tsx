@@ -20,14 +20,16 @@ export default async function AdminOrdersPage({
   
   const [orders, total] = await Promise.all([
     db.order.findMany({
-    include: {
-      shippingAddress: true,
-      items: true
-    },
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
-  });
+      include: {
+        shippingAddress: true,
+        items: true
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.order.count()
+  ]);
 
   const totalPages = Math.ceil(total / limit);
 

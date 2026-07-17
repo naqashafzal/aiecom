@@ -16,15 +16,17 @@ export default async function CategoriesPage({
 
   const [categories, total] = await Promise.all([
     db.category.findMany({
-    include: {
-      _count: {
-        select: { products: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    skip,
-    take: limit
-  });
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.category.count()
+  ]);
   
   const totalPages = Math.ceil(total / limit);
 
