@@ -10,7 +10,10 @@ import { getCachedCategories } from "@/lib/cache";
 import { 
   ElegantHeroSection, 
   ElegantCategoriesSection, 
-  ElegantBestSellersSection 
+  ElegantBestSellersSection,
+  ElegantStorySection,
+  ElegantFeaturesSection,
+  ElegantNewsletterSection
 } from "./ElegantSectionsClient";
 
 
@@ -86,6 +89,12 @@ export default async function ElegantHome() {
       }
       case "elegant_best_sellers":
         return <ElegantBestSellersSection key={id} settings={section.settings} products={bestSellers} storeCurrency={storeCurrency} />;
+      case "elegant_story":
+        return <ElegantStorySection key={id} settings={section.settings} />;
+      case "elegant_features":
+        return <ElegantFeaturesSection key={id} settings={section.settings} />;
+      case "elegant_newsletter":
+        return <ElegantNewsletterSection key={id} settings={section.settings} />;
       case "custom_builder":
         return <CustomBuilderSection key={id} settings={section.settings} block_order={section.block_order} blocks={section.blocks} storeCurrency={storeCurrency} />;
       case "custom_html":

@@ -148,7 +148,7 @@ export function MarketplaceNavbar({
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white text-black px-4 py-4 flex flex-col gap-4 border-b border-gray-200 shadow-md absolute w-full left-0 z-40">
-          <div className="font-bold text-gray-800 mb-2">Categories</div>
+          <Link href="/categories" className="font-bold text-gray-800 mb-2 hover:text-[#f85606]" onClick={() => setIsMobileMenuOpen(false)}>All Categories</Link>
           {menuLinks && menuLinks.map((link, idx) => (
             <Link 
               key={idx} 

@@ -162,7 +162,7 @@ export function AliExpressNavbar({
         <div className="flex items-center gap-6 pb-3 pt-1 overflow-x-auto no-scrollbar">
           
           {/* All Categories Dropdown Button */}
-          <Link href="/products" className="flex items-center gap-2 bg-muted/60 hover:bg-muted py-2 px-4 rounded-full text-sm font-bold shrink-0 transition-colors">
+          <Link href="/categories" className="flex items-center gap-2 bg-muted/60 hover:bg-muted py-2 px-4 rounded-full text-sm font-bold shrink-0 transition-colors">
             <Menu className="h-4 w-4" /> All Categories
           </Link>
 

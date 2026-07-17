@@ -43,7 +43,7 @@ export async function Footer() {
   const col1Links = parseLinks(s["footer_col1_links"]).length > 0
     ? parseLinks(s["footer_col1_links"])
     : [
-        { label: "All Categories", url: "/products" },
+        { label: "All Categories", url: "/categories" },
         { label: "Flash Deals", url: "/deals" },
         { label: "New Arrivals", url: "/products" },
         { label: "Trending Now", url: "/products" },

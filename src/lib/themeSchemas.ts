@@ -215,6 +215,39 @@ export const ElegantThemeSchema: SectionSchema[] = [
       { id: "pt", label: "Top Padding (px)", type: "number", default: 48 },
       { id: "pb", label: "Bottom Padding (px)", type: "number", default: 48 },
     ]
+  },
+  {
+    type: "elegant_story",
+    name: "Brand Story",
+    icon: "LayoutTemplate",
+    fields: [
+      { id: "title", label: "Title", type: "text", default: "Our Philosophy" },
+      { id: "description", label: "Description", type: "textarea", default: "We believe in creating timeless pieces that bring warmth, elegance, and beauty to your everyday spaces. Every item is crafted with passion and meticulous attention to detail." },
+      { id: "image", label: "Story Image URL", type: "url", default: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=1000" },
+      { id: "buttonText", label: "Button Text", type: "text", default: "Discover More" },
+      { id: "buttonLink", label: "Button Link", type: "text", default: "/about" },
+      { id: "imagePosition", label: "Image Position (left or right)", type: "text", default: "left" }
+    ]
+  },
+  {
+    type: "elegant_features",
+    name: "Value Propositions",
+    icon: "CheckCircle2",
+    fields: [
+      { id: "title", label: "Section Title (Optional)", type: "text", default: "" },
+      { id: "bg", label: "Background Color", type: "color", default: "#FAFAFA" },
+    ]
+  },
+  {
+    type: "elegant_newsletter",
+    name: "Newsletter Signup",
+    icon: "Mail",
+    fields: [
+      { id: "title", label: "Heading", type: "text", default: "Join Our Inner Circle" },
+      { id: "subtitle", label: "Subheading", type: "text", default: "Subscribe to receive updates, access to exclusive deals, and more." },
+      { id: "bg", label: "Background Color", type: "color", default: "#111111" },
+      { id: "textColor", label: "Text Color", type: "color", default: "#FFFFFF" }
+    ]
   }
 ];
 
@@ -321,11 +354,21 @@ export const defaultAliExpressConfig: ThemeConfig = {
 };
 
 export const defaultElegantConfig: ThemeConfig = {
-  order: ["elegant_hero_default", "elegant_categories_default", "elegant_best_sellers_default"],
+  order: [
+    "elegant_hero_default", 
+    "elegant_features_default",
+    "elegant_categories_default", 
+    "elegant_story_default",
+    "elegant_best_sellers_default",
+    "elegant_newsletter_default"
+  ],
   sections: {
     "elegant_hero_default": { type: "elegant_hero", settings: {}, block_order: [], blocks: {} },
+    "elegant_features_default": { type: "elegant_features", settings: {}, block_order: [], blocks: {} },
     "elegant_categories_default": { type: "elegant_categories", settings: {}, block_order: [], blocks: {} },
-    "elegant_best_sellers_default": { type: "elegant_best_sellers", settings: {}, block_order: [], blocks: {} }
+    "elegant_story_default": { type: "elegant_story", settings: {}, block_order: [], blocks: {} },
+    "elegant_best_sellers_default": { type: "elegant_best_sellers", settings: {}, block_order: [], blocks: {} },
+    "elegant_newsletter_default": { type: "elegant_newsletter", settings: {}, block_order: [], blocks: {} }
   }
 };
 

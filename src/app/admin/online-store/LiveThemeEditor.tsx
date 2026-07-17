@@ -183,11 +183,14 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
     ],
     elegant: [
       { id: "navigation", name: "Navigation Menu", icon: MenuSquare },
-      { id: "elegant_categories", name: "Top Categories", icon: LayoutGrid },
       { id: "elegant_hero", name: "Hero Banner", icon: ImageIcon },
+      { id: "elegant_story", name: "Brand Story", icon: Type },
+      { id: "elegant_features", name: "Value Props", icon: LayoutGrid },
+      { id: "elegant_categories", name: "Top Categories", icon: LayoutGrid },
       { id: "elegant_best_sellers", name: "Best Sellers", icon: LayoutGrid },
       { id: "elegant_featured_plants", name: "Featured Plants", icon: LayoutGrid },
       { id: "elegant_new_arrivals", name: "New Arrivals", icon: LayoutGrid },
+      { id: "elegant_newsletter", name: "Newsletter", icon: Type },
       { id: "custom_html", name: "Custom HTML", icon: Type },
     ],
     marketplace: [
