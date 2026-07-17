@@ -13,6 +13,9 @@ export async function OPTIONS() {
 
 export async function GET(req: Request) {
   try {
+    const currencySetting = await db.setting.findUnique({ where: { key: "storeCurrency" } });
+    const storeCurrency = currencySetting?.value || "USD";
+
     const products = await db.product.findMany({
       take: 20,
       orderBy: { createdAt: 'desc' },
@@ -26,7 +29,7 @@ export async function GET(req: Request) {
       }
     });
 
-    return NextResponse.json({ products }, { headers: corsHeaders });
+    return NextResponse.json({ products, storeCurrency }, { headers: corsHeaders });
   } catch (error) {
     console.error("Mobile products error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });

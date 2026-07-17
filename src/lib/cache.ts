@@ -43,11 +43,9 @@ export const getCachedActiveProducts = unstable_cache(
 
 // Ultra-fast cached query for categories
 export const getCachedCategories = unstable_cache(
-  async (take: number = 12) => {
-    return await db.category.findMany({
-      take,
-    });
+  async () => {
+    return await db.category.findMany();
   },
-  ['categories'],
+  ['all-categories'],
   { revalidate: 3600, tags: ['categories'] } // Categories rarely change, cache for 1 hour
 );

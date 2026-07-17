@@ -13,6 +13,9 @@ export async function OPTIONS() {
 
 export async function GET(req: Request) {
   try {
+    const currencySetting = await db.setting.findUnique({ where: { key: "storeCurrency" } });
+    const storeCurrency = currencySetting?.value || "USD";
+
     // In a real app, verify the Bearer token from headers here.
     // const authHeader = req.headers.get("authorization");
     
@@ -22,10 +25,11 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { name: true, email: true } },
+        items: true
       }
     });
 
-    return NextResponse.json({ orders }, { headers: corsHeaders });
+    return NextResponse.json({ orders, storeCurrency }, { headers: corsHeaders });
   } catch (error) {
     console.error("Mobile orders error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });

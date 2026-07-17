@@ -16,15 +16,18 @@ export async function GET(req: Request) {
     // In a real application, extract user context from the authorization token
     // For this prototype, we'll fetch aggregated store data
 
-    const [totalOrders, totalProducts, recentOrders] = await Promise.all([
+    const [totalOrders, totalProducts, recentOrders, currencySetting] = await Promise.all([
       db.order.count(),
       db.product.count(),
       db.order.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         select: { totalAmount: true, createdAt: true, status: true }
-      })
+      }),
+      db.setting.findUnique({ where: { key: "storeCurrency" } })
     ]);
+
+    const storeCurrency = currencySetting?.value || "USD";
 
     const totalRevenue = recentOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
 
@@ -34,6 +37,7 @@ export async function GET(req: Request) {
         totalProducts,
         totalRevenue: totalRevenue * 10, // Simulated total revenue
         recentRevenue: totalRevenue,
+        storeCurrency,
       }
     }, { headers: corsHeaders });
   } catch (error) {
