@@ -5,9 +5,17 @@ import { Plus, Trash2, Globe, Settings2 } from "lucide-react";
 import { createShippingZone, deleteShippingZone, createShippingRate, deleteShippingRate } from "./actions";
 import { Button } from "@/components/ui/button";
 
-export default function ShippingClient({ initialZones }: { initialZones: any[] }) {
+export default function ShippingClient({ initialZones, currencyCode = "USD" }: { initialZones: any[], currencyCode?: string }) {
   const [zones, setZones] = useState(initialZones);
   const [isPending, startTransition] = useTransition();
+
+  const formatPrice = (price: number) => {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(price);
+    } catch (e) {
+      return `$${price.toFixed(2)}`;
+    }
+  };
 
   // Zone Form State
   const [isAddingZone, setIsAddingZone] = useState(false);
@@ -110,11 +118,11 @@ export default function ShippingClient({ initialZones }: { initialZones: any[] }
                     <div>
                       <div className="font-medium text-sm text-gray-900">{rate.name}</div>
                       {rate.condition === "PRICE" && (
-                        <div className="text-xs text-gray-500">Condition: Order price ≥ ${rate.minCondition}</div>
+                        <div className="text-xs text-gray-500">Condition: Order price ≥ {formatPrice(rate.minCondition)}</div>
                       )}
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-semibold text-sm">{rate.price === 0 ? "Free" : `$${rate.price.toFixed(2)}`}</span>
+                      <span className="font-semibold text-sm">{rate.price === 0 ? "Free" : formatPrice(rate.price)}</span>
                       <button 
                         onClick={() => handleDeleteRate(zone.id, rate.id)}
                         disabled={isPending}
@@ -136,7 +144,7 @@ export default function ShippingClient({ initialZones }: { initialZones: any[] }
                     <input type="text" value={rateName} onChange={e => setRateName(e.target.value)} className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Price ($)</label>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Price ({currencyCode})</label>
                     <input type="number" value={ratePrice} onChange={e => setRatePrice(Number(e.target.value))} className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black" />
                   </div>
                   <div>
@@ -148,7 +156,7 @@ export default function ShippingClient({ initialZones }: { initialZones: any[] }
                   </div>
                   {rateCondition === "PRICE" && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">Minimum Order Price ($)</label>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Minimum Order Price ({currencyCode})</label>
                       <input type="number" value={rateMin} onChange={e => setRateMin(Number(e.target.value))} className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-black focus:ring-black" />
                     </div>
                   )}

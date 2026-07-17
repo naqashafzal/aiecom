@@ -63,7 +63,7 @@ export default function CheckoutPage() {
 
   const total = getCartTotal();
   const shipping = shippingCost;
-  const taxes = total * 0.08; // 8% tax rate
+  const taxes = 0; // Tax disabled as per request
   
   let discountAmount = 0;
   if (appliedCoupon) {
@@ -514,9 +514,13 @@ export default function CheckoutPage() {
                 <span>Subtotal</span>
                 <span className="font-medium text-foreground">{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Shipping</span>
-                <span className="font-medium text-foreground">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
+              <div className="flex justify-between items-center text-sm py-3 border-b">
+                <span className="text-muted-foreground">Shipping</span>
+                <span className="font-medium">
+                  {step === "information" 
+                    ? <span className="text-muted-foreground text-xs font-normal">Calculated at next step</span> 
+                    : (shipping === 0 ? "Free" : formatPrice(shipping))}
+                </span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Estimated taxes</span>
