@@ -3,7 +3,7 @@ import { db } from "@/lib/prisma";
 import ProductClient from "./ProductClient";
 import { Metadata, ResolvingMetadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },

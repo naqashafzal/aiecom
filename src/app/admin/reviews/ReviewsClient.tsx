@@ -5,6 +5,7 @@ import { Star, CheckCircle, XCircle, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toggleReviewApproval, deleteReview } from "./actions";
 import { Pagination } from "@/components/ui/pagination";
+import { useRouter } from "next/navigation";
 
 export default function ReviewsClient({ 
   initialReviews,
@@ -17,6 +18,7 @@ export default function ReviewsClient({
 }) {
   const [reviews, setReviews] = useState(initialReviews);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleToggleStatus = (id: string, currentStatus: boolean) => {
     startTransition(async () => {
