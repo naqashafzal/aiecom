@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import { StoreLogo } from "@/components/storefront/StoreLogo";
+import { LiveSearchBar } from "@/components/storefront/LiveSearchBar";
 
 export function MarketplaceNavbar({ 
   menuLinks = [],
@@ -79,25 +80,12 @@ export function MarketplaceNavbar({
               <option>Fashion</option>
               <option>Home & Garden</option>
             </select>
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const q = formData.get("q");
-                if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-              }}
-              className="flex flex-1 h-full"
-            >
-              <input 
-                type="text" 
-                name="q"
-                placeholder="Search in Marketplace..." 
-                className="flex-1 h-full px-4 text-black text-sm outline-none"
-              />
-              <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
-                <Search className="w-5 h-5" />
-              </button>
-            </form>
+            <LiveSearchBar 
+              placeholder="Search in Marketplace..."
+              className="flex-1 h-full"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
+            />
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
@@ -124,25 +112,14 @@ export function MarketplaceNavbar({
           </div>
           
           {/* Mobile Search Row */}
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const q = formData.get("q");
-              if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-            }}
-            className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner"
-          >
-            <input 
-              type="text" 
-              name="q"
-              placeholder="Search in Marketplace..." 
-              className="flex-1 h-full px-4 text-black text-sm outline-none"
+          <div className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner">
+            <LiveSearchBar 
+              placeholder="Search in Marketplace..."
+              className="w-full h-full"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
             />
-            <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
-              <Search className="w-5 h-5" />
-            </button>
-          </form>
+          </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
