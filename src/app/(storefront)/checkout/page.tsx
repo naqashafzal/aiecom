@@ -63,7 +63,7 @@ export default function CheckoutPage() {
 
   const total = getCartTotal();
   const shipping = shippingCost;
-  const taxes = total * 0.08; // 8% tax rate
+  const taxes = 0; // Tax disabled as per request
   
   let discountAmount = 0;
   if (appliedCoupon) {
