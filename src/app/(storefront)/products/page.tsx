@@ -28,7 +28,10 @@ export default async function ProductsPage({
   if (category && category !== "All") {
     whereCondition.categories = {
       some: {
-        name: category
+        OR: [
+          { slug: category },
+          { name: category }
+        ]
       }
     };
   }

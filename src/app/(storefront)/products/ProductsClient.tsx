@@ -97,9 +97,9 @@ export default function ProductsClient({
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => handleCategoryChange(cat.name)}
+                    onClick={() => handleCategoryChange(cat.slug)}
                     className={`text-left px-3 py-2 rounded-md transition-colors ${
-                      initialCategory === cat.name 
+                      initialCategory === cat.slug || initialCategory === cat.name
                         ? "bg-primary text-primary-foreground font-medium" 
                         : "hover:bg-muted text-muted-foreground"
                     }`}
