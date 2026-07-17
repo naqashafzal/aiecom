@@ -512,7 +512,7 @@ export async function testResendApi(apiKey: string, fromAddress: string, toAddre
     const { data, error } = await resend.emails.send({
       from: fromAddress || "onboarding@resend.dev",
       to: [toAddress],
-      subject: "Test Email from Aura Ecom",
+      subject: "Test Email from ZS Decor Ecom",
       html: "<p>If you are receiving this, your Resend API configuration is working perfectly!</p>",
     });
 

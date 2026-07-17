@@ -32,7 +32,7 @@ export const useRecentlyViewedStore = create<RecentlyViewedStore>()(
       clearItems: () => set({ items: [] }),
     }),
     {
-      name: "aura-recently-viewed",
+      name: "ZS Decor-recently-viewed",
     }
   )
 );

@@ -27,7 +27,7 @@ export async function sendOrderConfirmationEmail(orderData: {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'Aura Store <onboarding@resend.dev>', // Update this when you verify a domain on Resend
+      from: 'ZS Decor Store <onboarding@resend.dev>', // Update this when you verify a domain on Resend
       to: [orderData.email],
       subject: `Order Confirmation #${orderData.orderNumber}`,
       react: React.createElement(OrderConfirmationEmail, {

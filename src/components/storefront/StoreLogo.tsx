@@ -7,7 +7,7 @@ import Link from "next/link";
 export function StoreLogo({ 
   className = "",
   logoUrl,
-  logoText = "Aura",
+  logoText = "ZS Decor",
   logoHeight = 40,
   logoAccent = "#f97316"
 }: { 

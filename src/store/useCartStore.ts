@@ -67,7 +67,7 @@ export const useCartStore = create<CartStore>()(
       },
     }),
     {
-      name: 'aura-cart-storage',
+      name: 'ZS Decor-cart-storage',
       // We only persist items, not the UI state (isOpen)
       partialize: (state) => ({ items: state.items }),
     }

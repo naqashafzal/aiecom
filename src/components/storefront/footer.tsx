@@ -24,11 +24,11 @@ export async function Footer() {
     return acc;
   }, {} as Record<string, string>);
 
-  const storeName   = s["footer_store_name"] || s["storeName"] || "Aura";
+  const storeName   = s["footer_store_name"] || s["storeName"] || "ZS Decor";
   const tagline     = s["footer_tagline"]    || "Experience the next generation of modern, fast, and engaging ecommerce. Premium products at your fingertips.";
-  const copyright   = (s["footer_copyright"] || "© {year} Aura Store. All rights reserved.").replace("{year}", String(new Date().getFullYear()));
-  const bgColor     = s["footer_bg_color"]   || "";
-  const textColor   = s["footer_text_color"] || "";
+  const copyright   = (s["footer_copyright"] || "© {year} ZS Decor Store. All rights reserved.").replace("{year}", String(new Date().getFullYear()));
+  const bgColor     = s["footer_bg_color"]   || "#111827";
+  const textColor   = s["footer_text_color"] || "#ffffff";
   const showNewsletter = s["footer_show_newsletter"] !== "false";
 
   const logoUrl = s["storefront_logo_url"];
@@ -79,7 +79,7 @@ export async function Footer() {
         color: textColor || undefined,
       }}
     >
-      <div className={`container mx-auto px-4 sm:px-6 lg:px-8 py-12 ${!bgColor ? "bg-muted" : ""}`}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className={`grid gap-8 ${showNewsletter ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"}`}>
 
           {/* Branding */}
@@ -178,8 +178,8 @@ export async function Footer() {
             {copyright}
           </p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <Link href="/privacy" className="hover:text-primary transition-colors text-muted-foreground">Privacy Policy</Link>
-            <Link href="/terms"   className="hover:text-primary transition-colors text-muted-foreground">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-primary transition-colors" style={{ color: textColor || undefined, opacity: textColor ? 0.7 : undefined }}>Privacy Policy</Link>
+            <Link href="/terms"   className="hover:text-primary transition-colors" style={{ color: textColor || undefined, opacity: textColor ? 0.7 : undefined }}>Terms of Service</Link>
           </div>
         </div>
       </div>

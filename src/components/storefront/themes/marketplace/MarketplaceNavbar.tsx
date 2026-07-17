@@ -37,7 +37,7 @@ export function MarketplaceNavbar({
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <div className="flex gap-4">
             <span className="hover:text-[#f85606] cursor-pointer transition-colors text-red-500">Save more on app</span>
-            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Sell on Aura Marketplace</span>
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Sell on ZS Decor Marketplace</span>
             <span className="hover:text-[#f85606] cursor-pointer transition-colors">Customer Care</span>
           </div>
           <div className="flex gap-4 items-center">

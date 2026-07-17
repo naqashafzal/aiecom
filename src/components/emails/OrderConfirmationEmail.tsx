@@ -44,11 +44,11 @@ export const OrderConfirmationEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Your Aura Store Order Confirmation (#{orderNumber})</Preview>
+      <Preview>Your ZS Decor Store Order Confirmation (#{orderNumber})</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Text style={logo}>AURA</Text>
+            <Text style={logo}>ZS Decor</Text>
           </Section>
           <Section style={content}>
             <Heading style={heading}>Thank you for your order!</Heading>

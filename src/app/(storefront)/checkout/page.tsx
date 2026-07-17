@@ -178,7 +178,7 @@ export default function CheckoutPage() {
         </motion.div>
         <h1 className="text-4xl font-extrabold mb-4">Order Confirmed!</h1>
         <p className="text-lg text-muted-foreground max-w-md mb-8">
-          Thank you for shopping with Aura. Your order <span className="font-bold text-foreground">#{orderId || 'PENDING'}</span> has been placed successfully and your payment has been processed.
+          Thank you for shopping with ZS Decor. Your order <span className="font-bold text-foreground">#{orderId || 'PENDING'}</span> has been placed successfully and your payment has been processed.
         </p>
         <Button asChild size="lg" className="rounded-full px-8">
           <Link href="/products">Continue Shopping</Link>

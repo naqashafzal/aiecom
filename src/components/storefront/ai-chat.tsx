@@ -42,7 +42,7 @@ export function AiChat() {
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
             <div>
-              <h3 className="font-bold text-sm">Aura AI Agent</h3>
+              <h3 className="font-bold text-sm">ZS Decor AI Agent</h3>
               <p className="text-[10px] opacity-80">Your personal shopping assistant</p>
             </div>
           </div>
@@ -56,7 +56,7 @@ export function AiChat() {
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm mt-10">
               <Bot className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p>Hello! I am the Aura AI Agent. I can help you find products, check features, or assist with your shopping.</p>
+              <p>Hello! I am the ZS Decor AI Agent. I can help you find products, check features, or assist with your shopping.</p>
             </div>
           )}
           

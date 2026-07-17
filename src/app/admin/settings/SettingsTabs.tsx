@@ -71,12 +71,12 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Store Name</label>
-                  <input type="text" name="storeName" defaultValue={settings.storeName || "Aura Premium"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <input type="text" name="storeName" defaultValue={settings.storeName || "ZS Decor Premium"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Contact Email</label>
-                    <input type="email" name="contactEmail" defaultValue={settings.contactEmail || "support@aura-ecom.com"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                    <input type="email" name="contactEmail" defaultValue={settings.contactEmail || "support@ZS Decor-ecom.com"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Support Phone</label>
@@ -160,7 +160,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   </div>
                   <div>
                     <label className="block text-xs font-semibold mb-1">Account Title</label>
-                    <input type="text" name="payment_bank_title" defaultValue={settings.payment_bank_title || ""} placeholder="e.g. Aura Ecom" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                    <input type="text" name="payment_bank_title" defaultValue={settings.payment_bank_title || ""} placeholder="e.g. ZS Decor Ecom" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-semibold mb-1">IBAN / Account Number</label>
