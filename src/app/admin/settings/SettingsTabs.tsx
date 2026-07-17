@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail } from "lucide-react";
+import { useState, useRef } from "react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
@@ -20,6 +20,32 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
       return [];
     }
   });
+
+  const [faviconUrl, setFaviconUrl] = useState(settings.storeFavicon || "/favicon.ico");
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadFavicon = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingFavicon(true);
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.success) {
+        setFaviconUrl(data.url);
+      } else {
+        alert("Upload failed: " + data.error);
+      }
+    } catch (err) {
+      alert("Upload failed");
+    } finally {
+      setIsUploadingFavicon(false);
+    }
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setIsSaving(true);
@@ -85,7 +111,25 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Favicon URL</label>
-                  <input type="text" name="storeFavicon" defaultValue={settings.storeFavicon || "/favicon.ico"} placeholder="e.g. /favicon.ico or https://.../icon.png" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" />
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      name="storeFavicon" 
+                      value={faviconUrl} 
+                      onChange={(e) => setFaviconUrl(e.target.value)}
+                      placeholder="e.g. /favicon.ico or https://.../icon.png" 
+                      className="flex-1 h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm" 
+                    />
+                    <input type="file" accept="image/png, image/x-icon, image/jpeg, image/svg+xml" className="hidden" ref={fileInputRef} onChange={handleUploadFavicon} />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingFavicon}
+                    >
+                      {isUploadingFavicon ? "Uploading..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
+                    </Button>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-1">Provide a URL for the browser tab icon. (Must be .ico or .png format)</p>
                 </div>
               </div>

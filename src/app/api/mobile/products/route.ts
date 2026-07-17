@@ -35,3 +35,26 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { name, price, stock, status } = body;
+
+    const product = await db.product.create({
+      data: {
+        name: name || "New Product",
+        slug: name ? name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now() : `new-product-${Date.now()}`,
+        description: "",
+        price: price ? parseFloat(price) : 0,
+        stock: stock ? parseInt(stock, 10) : 0,
+        status: status || "DRAFT"
+      }
+    });
+
+    return NextResponse.json({ success: true, product }, { headers: corsHeaders });
+  } catch (error) {
+    console.error("Mobile product POST error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
+  }
+}
