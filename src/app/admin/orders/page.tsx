@@ -4,16 +4,32 @@ import { Eye, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getFormatPrice } from "@/lib/format";
 
-export default async function AdminOrdersPage() {
+import { Pagination } from "@/components/ui/pagination";
+
+export default async function AdminOrdersPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
   const formatPrice = await getFormatPrice();
-  const orders = await db.order.findMany({
+  
+  const [orders, total] = await Promise.all([
+    db.order.findMany({
     include: {
       shippingAddress: true,
       items: true
     },
     orderBy: { createdAt: 'desc' },
-    take: 100 // Prevent server crash on large amount of orders
+    skip,
+    take: limit
   });
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -93,6 +109,10 @@ export default async function AdminOrdersPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

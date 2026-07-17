@@ -1,35 +1,57 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Filter, Heart, Star, Search as SearchIcon, ShoppingCart } from "lucide-react";
+import { Filter, Heart, Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { Pagination } from "@/components/ui/pagination";
 
-export default function ProductsClient({ initialProducts, categories, initialCategory, storeCurrency = "USD" }: { initialProducts: any[], categories: any[], initialCategory?: string, storeCurrency?: string }) {
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory || "All");
-  const [sortOrder, setSortOrder] = useState("featured");
+export default function ProductsClient({ 
+  initialProducts, 
+  categories, 
+  initialCategory, 
+  storeCurrency = "USD",
+  currentPage,
+  totalPages,
+  totalProducts,
+  initialSort
+}: { 
+  initialProducts: any[], 
+  categories: any[], 
+  initialCategory?: string, 
+  storeCurrency?: string,
+  currentPage: number,
+  totalPages: number,
+  totalProducts: number,
+  initialSort: string
+}) {
   const addItem = useCartStore((state) => state.addItem);
   const searchParams = useSearchParams();
-  const search = searchParams.get("search") || "";
+  const router = useRouter();
+  const pathname = usePathname();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
   };
 
-  const filteredProducts = initialProducts.filter((p) => {
-    const matchesCategory = selectedCategory === "All" || p.categories?.some((c: any) => c.name === selectedCategory);
-    const matchesSearch = search === "" || p.name.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }).sort((a, b) => {
-    const priceA = a.salePrice || a.price;
-    const priceB = b.salePrice || b.price;
-    if (sortOrder === "price-low") return priceA - priceB;
-    if (sortOrder === "price-high") return priceB - priceA;
-    // Default / featured: sort by newest
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+  const handleCategoryChange = (category: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (category === "All") {
+      params.delete("category");
+    } else {
+      params.set("category", category);
+    }
+    params.delete("page"); // Reset page on filter change
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleSortChange = (sort: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("sort", sort);
+    params.delete("page"); // Reset page on sort change
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const handleAddToCart = (product: any) => {
     const image = product.images?.[0]?.url || "/placeholder.png";
@@ -63,9 +85,9 @@ export default function ProductsClient({ initialProducts, categories, initialCat
               </h3>
               <div className="space-y-2 flex flex-col">
                 <button
-                  onClick={() => setSelectedCategory("All")}
+                  onClick={() => handleCategoryChange("All")}
                   className={`text-left px-3 py-2 rounded-md transition-colors ${
-                    selectedCategory === "All" 
+                    initialCategory === "All" 
                       ? "bg-primary text-primary-foreground font-medium" 
                       : "hover:bg-muted text-muted-foreground"
                   }`}
@@ -75,9 +97,9 @@ export default function ProductsClient({ initialProducts, categories, initialCat
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedCategory(cat.name)}
+                    onClick={() => handleCategoryChange(cat.name)}
                     className={`text-left px-3 py-2 rounded-md transition-colors ${
-                      selectedCategory === cat.name 
+                      initialCategory === cat.name 
                         ? "bg-primary text-primary-foreground font-medium" 
                         : "hover:bg-muted text-muted-foreground"
                     }`}
@@ -92,8 +114,8 @@ export default function ProductsClient({ initialProducts, categories, initialCat
               <h3 className="font-semibold text-lg mb-4">Sort By</h3>
               <select 
                 className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
+                value={initialSort}
+                onChange={(e) => handleSortChange(e.target.value)}
               >
                 <option value="featured">Featured / Newest</option>
                 <option value="price-low">Price: Low to High</option>
@@ -107,12 +129,12 @@ export default function ProductsClient({ initialProducts, categories, initialCat
         <div className="flex-1">
           <div className="mb-6 flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">
-              Showing {filteredProducts.length} products
+              Showing {initialProducts.length} of {totalProducts} products
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProducts.map((product) => {
+            {initialProducts.map((product) => {
               const image = product.images?.[0]?.url || "/placeholder.png";
               const displayPrice = product.salePrice || product.price;
 
@@ -156,15 +178,17 @@ export default function ProductsClient({ initialProducts, categories, initialCat
             })}
           </div>
           
-          {filteredProducts.length === 0 && (
+          {initialProducts.length === 0 && (
             <div className="text-center py-20">
               <h2 className="text-2xl font-bold mb-2">No products found</h2>
               <p className="text-muted-foreground">Try selecting a different category.</p>
-              <Button onClick={() => setSelectedCategory("All")} className="mt-6" variant="outline">
+              <Button onClick={() => handleCategoryChange("All")} className="mt-6" variant="outline">
                 Clear Filters
               </Button>
             </div>
           )}
+
+          <Pagination totalPages={totalPages} currentPage={currentPage} />
         </div>
       </div>
     </div>

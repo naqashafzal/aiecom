@@ -3,14 +3,28 @@ import ReviewsClient from "./ReviewsClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminReviewsPage() {
-  const reviews = await db.review.findMany({
+export default async function AdminReviewsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  const [reviews, total] = await Promise.all([
+    db.review.findMany({
     orderBy: { createdAt: "desc" },
     include: {
       user: { select: { name: true, email: true } },
       product: { select: { name: true, slug: true, images: { take: 1 } } }
-    }
+    },
+    skip,
+    take: limit
   });
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -19,7 +33,11 @@ export default async function AdminReviewsPage() {
         <p className="text-sm text-gray-500">Manage and moderate customer reviews for your products.</p>
       </div>
       
-      <ReviewsClient initialReviews={reviews} />
+      <ReviewsClient 
+        initialReviews={reviews} 
+        currentPage={page} 
+        totalPages={totalPages} 
+      />
     </div>
   );
 }

@@ -2,12 +2,30 @@ import { db } from "@/lib/prisma";
 import { User, Shield, Mail } from "lucide-react";
 import UserActions from "./UserActions";
 
+import { Pagination } from "@/components/ui/pagination";
+
 export const dynamic = 'force-dynamic';
 
-export default async function AdminUsersPage() {
-  const users = await db.user.findMany({
-    orderBy: { createdAt: 'desc' }
-  });
+export default async function AdminUsersPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  const [users, total] = await Promise.all([
+    db.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.user.count()
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -71,6 +89,10 @@ export default async function AdminUsersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

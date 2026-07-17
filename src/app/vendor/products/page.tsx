@@ -5,8 +5,18 @@ import { Plus, Package, Edit, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { Pagination } from "@/components/ui/pagination";
 
-export default async function VendorProductsPage() {
+export default async function VendorProductsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
   const session = await auth();
   if (!session?.user?.email) redirect("/login");
 
@@ -18,14 +28,21 @@ export default async function VendorProductsPage() {
   const store = user?.stores[0];
   if (!store) redirect("/");
 
-  const products = await db.product.findMany({
-    where: { storeId: store.id },
-    include: {
-      images: true,
-      categories: true,
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+  const [products, total] = await Promise.all([
+    db.product.findMany({
+      where: { storeId: store.id },
+      include: {
+        images: true,
+        categories: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.product.count({ where: { storeId: store.id } })
+  ]);
+  
+  const totalPages = Math.ceil(total / limit);
 
   const currencySetting = await db.setting.findUnique({ where: { key: "storeCurrency" } });
   const storeCurrency = currencySetting?.value || "USD";
@@ -127,6 +144,10 @@ export default async function VendorProductsPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

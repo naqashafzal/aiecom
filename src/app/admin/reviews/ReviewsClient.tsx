@@ -4,8 +4,17 @@ import { useState, useTransition } from "react";
 import { Star, CheckCircle, XCircle, Trash2, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toggleReviewApproval, deleteReview } from "./actions";
+import { Pagination } from "@/components/ui/pagination";
 
-export default function ReviewsClient({ initialReviews }: { initialReviews: any[] }) {
+export default function ReviewsClient({ 
+  initialReviews,
+  currentPage,
+  totalPages
+}: { 
+  initialReviews: any[],
+  currentPage: number,
+  totalPages: number
+}) {
   const [reviews, setReviews] = useState(initialReviews);
   const [isPending, startTransition] = useTransition();
 
@@ -121,6 +130,10 @@ export default function ReviewsClient({ initialReviews }: { initialReviews: any[
           ))}
         </tbody>
       </table>
+      
+      <div className="p-4 border-t">
+        <Pagination totalPages={totalPages} currentPage={currentPage} />
+      </div>
     </div>
   );
 }

@@ -3,8 +3,18 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import { Pagination } from "@/components/ui/pagination";
 
-export default async function VendorOrdersPage() {
+export default async function VendorOrdersPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
   const session = await auth();
   if (!session?.user?.email) redirect("/login");
 
@@ -16,18 +26,25 @@ export default async function VendorOrdersPage() {
   const store = user?.stores[0];
   if (!store) redirect("/");
 
-  const orderItems = await db.orderItem.findMany({
-    where: { storeId: store.id },
-    include: {
-      order: {
-        include: { user: true, shippingAddress: true }
+  const [orderItems, total] = await Promise.all([
+    db.orderItem.findMany({
+      where: { storeId: store.id },
+      include: {
+        order: {
+          include: { user: true, shippingAddress: true }
+        },
+        product: {
+          include: { images: true }
+        }
       },
-      product: {
-        include: { images: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.orderItem.count({ where: { storeId: store.id } })
+  ]);
+  
+  const totalPages = Math.ceil(total / limit);
 
   const currencySetting = await db.setting.findUnique({ where: { key: "storeCurrency" } });
   const storeCurrency = currencySetting?.value || "USD";
@@ -106,6 +123,10 @@ export default async function VendorOrdersPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>
