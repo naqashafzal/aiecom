@@ -128,7 +128,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
   const adTimerScript = settings?.["ad_timer_script"];
   
   // Store info
-  const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "Aura Official Store");
+  const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "ZS DECOR Official Store");
   const storeRating = product.store ? (product.store.rating || 5.0) : 4.9;
 
   return (
