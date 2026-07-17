@@ -22,13 +22,18 @@ export default async function VendorDashboardPage() {
     where: { storeId: store.id }
   });
 
-  const orderItems = await db.orderItem.findMany({
-    where: { storeId: store.id },
-    include: { order: true }
+  const orderStats = await db.orderItem.aggregate({
+    _sum: { total: true },
+    where: { storeId: store.id }
   });
+  const totalSales = orderStats._sum.total || 0;
 
-  const totalSales = orderItems.reduce((sum: number, item: any) => sum + item.total, 0);
-  const totalOrders = new Set(orderItems.map((item: any) => item.orderId)).size;
+  const distinctOrders = await db.orderItem.findMany({
+    where: { storeId: store.id },
+    distinct: ['orderId'],
+    select: { orderId: true }
+  });
+  const totalOrders = distinctOrders.length;
 
   const recentOrderItems = await db.orderItem.findMany({
     where: { storeId: store.id },

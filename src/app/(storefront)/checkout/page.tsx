@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { processCheckout, getPaymentSettings, validateCoupon, saveAbandonedCart } from "./actions";
@@ -454,7 +455,7 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={item.id} className="flex gap-4 items-center">
                   <div className="relative h-16 w-16 rounded-lg bg-muted border overflow-hidden shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                     <span className="absolute -top-2 -right-2 bg-muted-foreground text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-background">
                       {item.quantity}
                     </span>

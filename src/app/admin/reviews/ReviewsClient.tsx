@@ -41,7 +41,7 @@ export default function ReviewsClient({
       if (!result.success) {
         // We would need to refetch here ideally, but for now just alert
         alert(result.error);
-        window.location.reload();
+        router.refresh();
       }
     });
   };

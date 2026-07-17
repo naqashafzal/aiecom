@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { searchProducts } from "./searchActions";
+import { useRouter } from "next/navigation";
 
 export function LiveSearchBar({ 
   placeholder = "Search products...",
@@ -17,6 +18,7 @@ export function LiveSearchBar({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -54,7 +56,8 @@ export function LiveSearchBar({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(query.trim())}`;
+      setIsOpen(false);
+      router.push(`/products?search=${encodeURIComponent(query.trim())}`);
     }
   };
 
