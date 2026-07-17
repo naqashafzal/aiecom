@@ -14,6 +14,14 @@ export async function getApplicableShippingRates(countryCode: string, cartTotal:
       }
     });
 
+    if (allZones.length === 0) {
+      // Fallback for fresh installations so checkout isn't completely broken
+      return { 
+        success: true, 
+        rates: [{ id: "default_free", name: "Standard Shipping", price: 0, condition: "NONE" }] 
+      };
+    }
+
     let matchedZone = null;
 
     // 1. Try to find a zone that explicitly includes this country
