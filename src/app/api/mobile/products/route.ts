@@ -18,9 +18,9 @@ export async function GET(req: Request) {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        title: true,
+        name: true,
         price: true,
-        inventory: true,
+        stock: true,
         status: true,
         images: true
       }
