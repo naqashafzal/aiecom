@@ -67,6 +67,14 @@ export default async function ElegantHome() {
                   ...cat,
                   name: block.settings.custom_text || cat.name
                 });
+              } else {
+                // If no category is selected or found, push a placeholder
+                selected.push({
+                  id: `placeholder-${blockId}`,
+                  name: block.settings.custom_text || "Select Category",
+                  slug: "#",
+                  imageId: "/placeholder.png"
+                });
               }
             }
           }
