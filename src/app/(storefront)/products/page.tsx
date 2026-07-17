@@ -13,6 +13,9 @@ export default async function ProductsPage({
   const search = typeof params.search === 'string' ? params.search : "";
   const category = typeof params.category === 'string' ? params.category : "All";
   const sort = typeof params.sort === 'string' ? params.sort : "featured";
+  const minPrice = typeof params.minPrice === 'string' ? parseFloat(params.minPrice) : undefined;
+  const maxPrice = typeof params.maxPrice === 'string' ? parseFloat(params.maxPrice) : undefined;
+  const inStock = params.inStock === 'true';
 
   const limit = 12; // Default page size for grid
   const skip = (page - 1) * limit;
@@ -41,6 +44,19 @@ export default async function ProductsPage({
       contains: search,
       mode: 'insensitive'
     };
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    const priceFilter: any = {};
+    if (minPrice !== undefined && !isNaN(minPrice)) priceFilter.gte = minPrice;
+    if (maxPrice !== undefined && !isNaN(maxPrice)) priceFilter.lte = maxPrice;
+    if (Object.keys(priceFilter).length > 0) {
+      whereCondition.price = priceFilter;
+    }
+  }
+
+  if (inStock) {
+    whereCondition.stock = { gt: 0 };
   }
 
   let orderByCondition: Prisma.ProductOrderByWithRelationInput = {
@@ -85,6 +101,10 @@ export default async function ProductsPage({
         totalProducts={total}
         initialCategory={category}
         initialSort={sort}
+        initialSearch={search}
+        initialMinPrice={minPrice}
+        initialMaxPrice={maxPrice}
+        initialInStock={inStock}
       />
     </Suspense>
   );
