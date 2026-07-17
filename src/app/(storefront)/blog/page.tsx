@@ -3,8 +3,8 @@ import Link from "next/link"
 import { ArrowRight, Calendar, User } from "lucide-react"
 
 export const metadata = {
-  title: "Blog | Aura Ecommerce",
-  description: "Read the latest news, tips, and updates from Aura.",
+  title: "Blog | ZS Decor Ecommerce",
+  description: "Read the latest news, tips, and updates from ZS Decor.",
 }
 
 export default async function BlogIndexPage() {
@@ -18,7 +18,7 @@ export default async function BlogIndexPage() {
     <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
-          The <span className="text-primary">Aura</span> Blog
+          The <span className="text-primary">ZS Decor</span> Blog
         </h1>
         <p className="mt-4 text-lg text-gray-500">
           Discover tips, stories, and insights from our community of vendors and shoppers.
@@ -43,7 +43,7 @@ export default async function BlogIndexPage() {
                 </div>
               ) : (
                 <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-primary/5 border-b flex items-center justify-center">
-                  <span className="text-primary/40 font-bold text-4xl">Aura</span>
+                  <span className="text-primary/40 font-bold text-4xl">ZS Decor</span>
                 </div>
               )}
               

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 import { StoreLogo } from "@/components/storefront/StoreLogo";
+import { LiveSearchBar } from "@/components/storefront/LiveSearchBar";
 
 export function MarketplaceNavbar({ 
   menuLinks = [],
@@ -37,7 +38,7 @@ export function MarketplaceNavbar({
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <div className="flex gap-4">
             <span className="hover:text-[#f85606] cursor-pointer transition-colors text-red-500">Save more on app</span>
-            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Sell on Aura Marketplace</span>
+            <span className="hover:text-[#f85606] cursor-pointer transition-colors">Sell on ZS Decor Marketplace</span>
             <span className="hover:text-[#f85606] cursor-pointer transition-colors">Customer Care</span>
           </div>
           <div className="flex gap-4 items-center">
@@ -79,25 +80,12 @@ export function MarketplaceNavbar({
               <option>Fashion</option>
               <option>Home & Garden</option>
             </select>
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const q = formData.get("q");
-                if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-              }}
-              className="flex flex-1 h-full"
-            >
-              <input 
-                type="text" 
-                name="q"
-                placeholder="Search in Marketplace..." 
-                className="flex-1 h-full px-4 text-black text-sm outline-none"
-              />
-              <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
-                <Search className="w-5 h-5" />
-              </button>
-            </form>
+            <LiveSearchBar 
+              placeholder="Search in Marketplace..."
+              className="flex-1 h-full"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
+            />
           </div>
 
           <div className="flex items-center gap-4 md:gap-6">
@@ -124,31 +112,20 @@ export function MarketplaceNavbar({
           </div>
           
           {/* Mobile Search Row */}
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const q = formData.get("q");
-              if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-            }}
-            className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner"
-          >
-            <input 
-              type="text" 
-              name="q"
-              placeholder="Search in Marketplace..." 
-              className="flex-1 h-full px-4 text-black text-sm outline-none"
+          <div className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner">
+            <LiveSearchBar 
+              placeholder="Search in Marketplace..."
+              className="w-full h-full"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
             />
-            <button type="submit" className="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center">
-              <Search className="w-5 h-5" />
-            </button>
-          </form>
+          </div>
       </header>
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white text-black px-4 py-4 flex flex-col gap-4 border-b border-gray-200 shadow-md absolute w-full left-0 z-40">
-          <div className="font-bold text-gray-800 mb-2">Categories</div>
+          <Link href="/categories" className="font-bold text-gray-800 mb-2 hover:text-[#f85606]" onClick={() => setIsMobileMenuOpen(false)}>All Categories</Link>
           {menuLinks && menuLinks.map((link, idx) => (
             <Link 
               key={idx} 

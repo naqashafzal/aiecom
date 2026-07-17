@@ -33,6 +33,7 @@ model User {
   points        Int       @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  expoPushToken String?
 
   accounts          Account[]
   sessions          Session[]
@@ -188,6 +189,8 @@ model ProductImage {
   isPrimary Boolean  @default(false)
   productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model ProductVariant {
@@ -205,6 +208,8 @@ model ProductVariant {
   orderItems  OrderItem[]
   cartItems   CartItem[]
   inventoryLogs InventoryLog[]
+
+  @@index([productId])
 }
 
 model Cart {
@@ -230,6 +235,7 @@ model CartItem {
   updatedAt DateTime        @updatedAt
 
   @@index([cartId])
+  @@index([productId])
 }
 
 model Wishlist {
@@ -250,6 +256,7 @@ model WishlistItem {
   createdAt DateTime @default(now())
   
   @@unique([wishlistId, productId])
+  @@index([userId])
 }
 
 model Order {
@@ -280,6 +287,8 @@ model Order {
   updatedAt       DateTime    @updatedAt
 
   @@index([userId])
+  @@index([createdAt])
+  @@index([paymentStatus])
 }
 
 model OrderItem {
@@ -296,6 +305,10 @@ model OrderItem {
   price     Float
   total     Float
   createdAt DateTime        @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([storeId])
 }
 
 model Address {
@@ -329,6 +342,8 @@ model Payment {
   status        String
   method        String
   createdAt     DateTime @default(now())
+
+  @@index([orderId])
 }
 
 model Coupon {
@@ -359,6 +374,8 @@ model Review {
   isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([productId])
 }
 
 model InventoryLog {

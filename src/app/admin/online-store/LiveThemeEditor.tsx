@@ -179,14 +179,19 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
       { id: "features", name: "Value Props", icon: LayoutGrid },
       { id: "products", name: "Latest Products", icon: LayoutGrid },
       { id: "stores", name: "Premium Stores", icon: LayoutGrid },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ],
     elegant: [
       { id: "navigation", name: "Navigation Menu", icon: MenuSquare },
-      { id: "elegant_categories", name: "Top Categories", icon: LayoutGrid },
       { id: "elegant_hero", name: "Hero Banner", icon: ImageIcon },
+      { id: "elegant_story", name: "Brand Story", icon: Type },
+      { id: "elegant_features", name: "Value Props", icon: LayoutGrid },
+      { id: "elegant_categories", name: "Top Categories", icon: LayoutGrid },
       { id: "elegant_best_sellers", name: "Best Sellers", icon: LayoutGrid },
       { id: "elegant_featured_plants", name: "Featured Plants", icon: LayoutGrid },
       { id: "elegant_new_arrivals", name: "New Arrivals", icon: LayoutGrid },
+      { id: "elegant_newsletter", name: "Newsletter", icon: Type },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ],
     marketplace: [
       { id: "navigation", name: "Navigation Menu", icon: MenuSquare },
@@ -194,6 +199,7 @@ export default function LiveThemeEditor({ initialSettings, categories = [] }: { 
       { id: "marketplace_flash_sales", name: "Flash Sales", icon: LayoutGrid },
       { id: "marketplace_official_stores", name: "Official Stores", icon: LayoutGrid },
       { id: "marketplace_just_for_you", name: "Just For You", icon: LayoutGrid },
+      { id: "custom_html", name: "Custom HTML", icon: Type },
     ]
   };
 

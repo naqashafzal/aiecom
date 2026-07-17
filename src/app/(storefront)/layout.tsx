@@ -7,7 +7,7 @@ import { AiChat } from "@/components/storefront/ai-chat";
 import { CurrencyProvider } from "@/components/storefront/currency-provider";
 import { db } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function StorefrontLayout({
   children,

@@ -8,6 +8,7 @@ import { useCurrency } from "@/components/storefront/currency-provider";
 import { useSession } from "next-auth/react";
 
 import { StoreLogo } from "@/components/storefront/StoreLogo";
+import { LiveSearchBar } from "@/components/storefront/LiveSearchBar";
 
 export function AliExpressNavbar({ 
   menuLinks = [],
@@ -54,28 +55,7 @@ export function AliExpressNavbar({
 
           {/* Search Bar */}
           <div className="flex-1 max-w-3xl hidden md:block">
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const q = formData.get("q");
-                if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-              }}
-              className="flex w-full items-center relative"
-            >
-              <input 
-                type="search" 
-                name="q"
-                placeholder="Hglrc M100 5883 Gps Module" 
-                className="w-full h-11 pl-5 pr-14 rounded-full border-2 border-foreground bg-background focus:outline-none focus:border-foreground focus:ring-0 text-sm font-medium"
-              />
-              <button 
-                type="submit" 
-                className="absolute right-1 top-1 bottom-1 w-14 bg-foreground flex items-center justify-center text-background rounded-full hover:bg-foreground/90 transition-colors"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-            </form>
+            <LiveSearchBar placeholder="Search for products..." />
           </div>
 
           {/* Right Actions */}
@@ -134,35 +114,14 @@ export function AliExpressNavbar({
 
         {/* Mobile Search Bar Row */}
         <div className="md:hidden pb-3">
-          <form 
-            onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const q = formData.get("q");
-              if (q) window.location.href = `/products?search=${encodeURIComponent(q as string)}`;
-            }}
-            className="flex w-full items-center relative"
-          >
-            <input 
-              type="search" 
-              name="q"
-              placeholder="Search products..." 
-              className="w-full h-11 pl-5 pr-14 rounded-full border-2 border-foreground bg-background focus:outline-none focus:border-foreground focus:ring-0 text-sm font-medium"
-            />
-            <button 
-              type="submit" 
-              className="absolute right-1 top-1 bottom-1 w-14 bg-foreground flex items-center justify-center text-background rounded-full hover:bg-foreground/90 transition-colors"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-          </form>
+          <LiveSearchBar placeholder="Search for products..." />
         </div>
 
         {/* Bottom Nav Row */}
         <div className="flex items-center gap-6 pb-3 pt-1 overflow-x-auto no-scrollbar">
           
           {/* All Categories Dropdown Button */}
-          <Link href="/products" className="flex items-center gap-2 bg-muted/60 hover:bg-muted py-2 px-4 rounded-full text-sm font-bold shrink-0 transition-colors">
+          <Link href="/categories" className="flex items-center gap-2 bg-muted/60 hover:bg-muted py-2 px-4 rounded-full text-sm font-bold shrink-0 transition-colors">
             <Menu className="h-4 w-4" /> All Categories
           </Link>
 

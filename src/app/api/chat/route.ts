@@ -13,8 +13,8 @@ export async function POST(req: Request) {
   const rawSettings = await db.setting.findMany();
   const settings = rawSettings.reduce((acc: Record<string, string>, s: any) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 
-  const agentName = settings.aiAgentName || "Aura";
-  const defaultPrompt = `You are ${agentName}, the premier AI Sales Assistant for the Aura Ecommerce platform.
+  const agentName = settings.aiAgentName || "ZS Decor";
+  const defaultPrompt = `You are ${agentName}, the premier AI Sales Assistant for the ZS Decor Ecommerce platform.
 Your job is to help customers find products, answer questions, and assist with their shopping experience.
 - Be concise, friendly, and highly professional.
 - ALWAYS try to recommend actual products that are available in the store using your tools.

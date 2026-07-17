@@ -2,16 +2,33 @@ import Link from "next/link";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
+import { Pagination } from "@/components/ui/pagination";
 
-export default async function CategoriesPage() {
-  const categories = await db.category.findMany({
-    include: {
-      _count: {
-        select: { products: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
+export default async function CategoriesPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  const [categories, total] = await Promise.all([
+    db.category.findMany({
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.category.count()
+  ]);
+  
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -77,6 +94,10 @@ export default async function CategoriesPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

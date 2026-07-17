@@ -425,7 +425,18 @@ export function ThemeBlockEditorClient({
                 const block = section.blocks?.[blockId];
                 if (!block) return null;
                 const blockSchema = BlockSchemas.find(s => s.type === block.type);
-                
+                let blockName = blockSchema?.name || block.type;
+                if (block.type === "category_link") {
+                  const customText = block.settings?.custom_text;
+                  const catId = block.settings?.category_id;
+                  if (customText) {
+                    blockName = customText;
+                  } else if (catId) {
+                    const cat = categories.find(c => c.id === catId);
+                    if (cat) blockName = cat.name;
+                  }
+                }
+
                 return (
                   <div key={blockId} className="w-full flex items-center justify-between bg-white border border-[#c9cccf] p-2 hover:bg-[#f9fafb] rounded-md group">
                     <div 
@@ -441,7 +452,7 @@ export function ThemeBlockEditorClient({
                         </button>
                       </div>
                       {blockSchema ? renderIcon(blockSchema.icon) : <LayoutGrid className="h-4 w-4 text-[#5c5f62]" />}
-                      <span className="text-sm font-medium">{blockSchema?.name || block.type}</span>
+                      <span className="text-sm font-medium">{blockName}</span>
                     </div>
                   </div>
                 );

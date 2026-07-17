@@ -3,17 +3,34 @@ import { db } from "@/lib/prisma";
 import { User, Mail, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default async function AdminCustomersPage() {
-  const customers = await db.user.findMany({
-    where: { role: 'USER' },
-    include: {
-      _count: {
-        select: { orders: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 100 // Prevent server crash on large amount of users
-  });
+import { Pagination } from "@/components/ui/pagination";
+
+export default async function AdminCustomersPage({
+  searchParams
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+  const page = typeof params.page === 'string' ? parseInt(params.page) || 1 : 1;
+  const limit = 20;
+  const skip = (page - 1) * limit;
+
+  const [customers, total] = await Promise.all([
+    db.user.findMany({
+      where: { role: 'USER' },
+      include: {
+        _count: {
+          select: { orders: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
+    }),
+    db.user.count({ where: { role: 'USER' } })
+  ]);
+  
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -77,6 +94,10 @@ export default async function AdminCustomersPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        <div className="p-4 border-t">
+          <Pagination totalPages={totalPages} currentPage={page} />
         </div>
       </div>
     </div>

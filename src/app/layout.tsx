@@ -28,8 +28,8 @@ import { auth } from "@/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl = "/favicon.ico";
-  let storeName = "Aura";
-  let fullTitle = "Aura | Premium Ecommerce";
+  let storeName = "ZS Decor";
+  let fullTitle = "ZS Decor | Premium Ecommerce";
 
   try {
     const allSettings = await db.setting.findMany({
@@ -63,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: "https://aura-ecom.vercel.app",
+      url: "https://zsdecor-ecom.vercel.app",
       title: fullTitle,
       description: "Experience the next generation of modern, fast, and engaging ecommerce.",
       siteName: storeName,

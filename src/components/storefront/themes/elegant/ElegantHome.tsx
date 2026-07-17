@@ -10,7 +10,10 @@ import { getCachedCategories } from "@/lib/cache";
 import { 
   ElegantHeroSection, 
   ElegantCategoriesSection, 
-  ElegantBestSellersSection 
+  ElegantBestSellersSection,
+  ElegantStorySection,
+  ElegantFeaturesSection,
+  ElegantNewsletterSection
 } from "./ElegantSectionsClient";
 
 
@@ -53,12 +56,60 @@ export default async function ElegantHome() {
     switch (section.type) {
       case "elegant_hero":
         return <ElegantHeroSection key={id} settings={section.settings} />;
-      case "elegant_categories":
-        return <ElegantCategoriesSection key={id} settings={section.settings} categories={allCategories} />;
+      case "elegant_categories": {
+        let displayCategories = allCategories;
+        if (section.block_order && section.block_order.length > 0) {
+          const selected = [];
+          for (const blockId of section.block_order) {
+            const block = section.blocks?.[blockId];
+            if (block && block.type === "category_link") {
+              const catId = block.settings.category_id;
+              const cat = allCategories.find(c => c.id === catId);
+              if (cat) {
+                selected.push({
+                  ...cat,
+                  name: block.settings.custom_text || cat.name
+                });
+              } else {
+                // If no category is selected or found, push a placeholder
+                selected.push({
+                  id: `placeholder-${blockId}`,
+                  name: block.settings.custom_text || "Select Category",
+                  slug: "#",
+                  imageId: "/placeholder.png"
+                });
+              }
+            }
+          }
+          if (selected.length > 0) {
+            displayCategories = selected;
+          }
+        }
+        return <ElegantCategoriesSection key={id} settings={section.settings} categories={displayCategories} />;
+      }
       case "elegant_best_sellers":
         return <ElegantBestSellersSection key={id} settings={section.settings} products={bestSellers} storeCurrency={storeCurrency} />;
+      case "elegant_story":
+        return <ElegantStorySection key={id} settings={section.settings} />;
+      case "elegant_features":
+        return <ElegantFeaturesSection key={id} settings={section.settings} />;
+      case "elegant_newsletter":
+        return <ElegantNewsletterSection key={id} settings={section.settings} />;
       case "custom_builder":
         return <CustomBuilderSection key={id} settings={section.settings} block_order={section.block_order} blocks={section.blocks} storeCurrency={storeCurrency} />;
+      case "custom_html":
+        return (
+          <div 
+            key={id} 
+            className={`w-full ${section.settings.width === "container" ? "max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8" : ""}`}
+            style={{
+              backgroundColor: section.settings.bg || "transparent",
+              paddingTop: `${section.settings.pt || 48}px`,
+              paddingBottom: `${section.settings.pb || 48}px`,
+            }}
+            dangerouslySetInnerHTML={{ __html: section.settings.html_content || "<div>Custom HTML</div>" }}
+          />
+        );
       default:
         return <div key={id} className="p-4 text-center text-red-500">Unknown section type: {section.type}</div>;
     }

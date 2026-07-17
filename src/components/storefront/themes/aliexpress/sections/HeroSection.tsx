@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { BlockRenderer } from "./BlockRenderer";
+import Image from "next/image";
 
 export function HeroSection({ settings, block_order = [], blocks = {} }: { settings: Record<string, any>, block_order?: string[], blocks?: Record<string, any> }) {
   const heroBgColor = settings["bg_color"] || "#0071FF";
@@ -38,7 +39,7 @@ export function HeroSection({ settings, block_order = [], blocks = {} }: { setti
 
         {/* Right Side Image Graphic */}
         <div className="hidden lg:flex w-[450px] shrink-0 items-center justify-end z-0 right-8 absolute bottom-0 h-full">
-          <img src={heroSideImage} className="max-h-[120%] object-contain object-bottom -mb-10" alt="Summer Sale Graphic" />
+          <Image src={heroSideImage} fill sizes="450px" className="object-contain object-bottom" alt="Summer Sale Graphic" />
         </div>
 
       </div>

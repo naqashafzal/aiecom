@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, ShoppingCart, User, Menu, Heart, Home, LayoutGrid } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { StoreLogo } from "@/components/storefront/StoreLogo";
+import { LiveSearchBar } from "@/components/storefront/LiveSearchBar";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 
@@ -88,13 +89,12 @@ export function ElegantNavbar({
 
         {/* Search Bar (Desktop Only) */}
         <div className="hidden md:block md:flex-1 md:mx-8 relative order-3 md:order-2">
-          <input 
-            id="mobile-search-input"
-            type="text" 
-            placeholder="Search the store" 
-            className="w-full bg-white text-black rounded-full py-2.5 px-6 focus:outline-none text-sm placeholder-gray-500"
+          <LiveSearchBar 
+            placeholder="Search the store"
+            className="w-full"
+            inputClassName="w-full bg-white text-black rounded-full py-2.5 px-6 pr-12 focus:outline-none text-sm placeholder-gray-500"
+            buttonClassName="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black cursor-pointer bg-transparent border-0"
           />
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 cursor-pointer" />
         </div>
       </header>
 

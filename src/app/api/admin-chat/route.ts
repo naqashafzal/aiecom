@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: google('gemini-1.5-flash'),
-    system: `You are the Omni-Agent for the Aura E-Commerce Admin Dashboard.
+    system: `You are the Omni-Agent for the ZS Decor E-Commerce Admin Dashboard.
 You have absolute knowledge and control over the store's data via your tools.
 Be helpful, concise, and professional. 
 If asked to modify data (like stock or order status), confirm the action you took.

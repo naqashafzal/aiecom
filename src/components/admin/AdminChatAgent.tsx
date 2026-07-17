@@ -47,7 +47,7 @@ export default function AdminChatAgent() {
           <div className="bg-indigo-100 p-1.5 rounded-md">
             <Bot className="h-4 w-4 text-indigo-600" />
           </div>
-          <span className="font-semibold text-sm text-indigo-900">Aura Omni-Agent</span>
+          <span className="font-semibold text-sm text-indigo-900">ZS Decor Omni-Agent</span>
           <span className="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-medium ml-2">Beta</span>
         </div>
         <div className="flex gap-1">

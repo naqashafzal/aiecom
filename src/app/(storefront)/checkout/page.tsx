@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronRight, CreditCard, Lock, CheckCircle2, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { processCheckout, getPaymentSettings, validateCoupon, saveAbandonedCart } from "./actions";
@@ -178,7 +179,7 @@ export default function CheckoutPage() {
         </motion.div>
         <h1 className="text-4xl font-extrabold mb-4">Order Confirmed!</h1>
         <p className="text-lg text-muted-foreground max-w-md mb-8">
-          Thank you for shopping with Aura. Your order <span className="font-bold text-foreground">#{orderId || 'PENDING'}</span> has been placed successfully and your payment has been processed.
+          Thank you for shopping with ZS Decor. Your order <span className="font-bold text-foreground">#{orderId || 'PENDING'}</span> has been placed successfully and your payment has been processed.
         </p>
         <Button asChild size="lg" className="rounded-full px-8">
           <Link href="/products">Continue Shopping</Link>
@@ -200,18 +201,17 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/10">
-      <div className="container mx-auto px-4 py-8 lg:py-12 flex flex-col-reverse lg:flex-row gap-8 lg:gap-16">
-        
-        {/* Left Side - Forms */}
-        <div className="flex-1 max-w-2xl">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Side - Forms */}
+      <div className="flex-1 bg-background pt-8 pb-14 px-4 sm:px-6 lg:px-12 xl:px-24 lg:pt-16 border-r">
+        <div className="max-w-2xl mx-auto lg:ml-auto lg:mr-12">
           {/* Breadcrumbs */}
           <nav className="flex items-center text-sm font-medium text-muted-foreground mb-8">
-            <button onClick={() => setStep("information")} className={`${step === "information" ? "text-primary" : "hover:text-foreground"} transition-colors`}>Information</button>
+            <button onClick={() => setStep("information")} className={`${step === "information" ? "text-primary font-bold" : "hover:text-foreground"} transition-colors`}>Information</button>
             <ChevronRight className="h-4 w-4 mx-2" />
-            <button onClick={() => setStep("shipping")} disabled={step === "information"} className={`${step === "shipping" ? "text-primary" : ""} disabled:opacity-50 transition-colors`}>Shipping</button>
+            <button onClick={() => setStep("shipping")} disabled={step === "information"} className={`${step === "shipping" ? "text-primary font-bold" : ""} disabled:opacity-50 transition-colors`}>Shipping</button>
             <ChevronRight className="h-4 w-4 mx-2" />
-            <button disabled className={`${step === "payment" ? "text-primary" : "opacity-50"}`}>Payment</button>
+            <button disabled className={`${step === "payment" ? "text-primary font-bold" : "opacity-50"}`}>Payment</button>
           </nav>
 
           <AnimatePresence mode="wait">
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
                     <input type="text" name="city" value={formData.city} onChange={handleInputChange} required placeholder="City" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="text" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required placeholder="Postal code" className="w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
                     <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required placeholder="Phone number" className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow" />
-                    <select name="country" value={formData.country} onChange={handleInputChange} required className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow">
+                    <select name="country" value={formData.country} onChange={handleInputChange} required className="sm:col-span-2 w-full h-12 px-4 rounded-lg border bg-background focus:ring-2 focus:ring-primary outline-none transition-shadow appearance-none">
                       <option value="PK">Pakistan</option>
                       <option value="US">United States</option>
                       <option value="CA">Canada</option>
@@ -444,17 +444,19 @@ export default function CheckoutPage() {
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Right Side - Order Summary */}
-        <div className="w-full lg:w-[450px] shrink-0">
-          <div className="bg-background rounded-2xl border shadow-sm p-6 sticky top-24">
+      {/* Right Side - Order Summary */}
+      <div className="w-full lg:w-[45%] bg-muted/20 pt-8 pb-14 px-4 sm:px-6 lg:px-12 lg:pt-16 border-t lg:border-t-0">
+        <div className="max-w-xl mx-auto lg:mx-0 sticky top-8">
+          <div className="bg-transparent rounded-none border-none shadow-none p-0">
             <h2 className="text-xl font-bold mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
               {items.map(item => (
                 <div key={item.id} className="flex gap-4 items-center">
                   <div className="relative h-16 w-16 rounded-lg bg-muted border overflow-hidden shrink-0">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name} fill sizes="64px" className="object-cover" />
                     <span className="absolute -top-2 -right-2 bg-muted-foreground text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-background">
                       {item.quantity}
                     </span>

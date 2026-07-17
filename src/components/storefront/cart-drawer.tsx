@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 import { useCurrency } from "@/components/storefront/currency-provider";
 
 export function CartDrawer() {
@@ -128,8 +129,8 @@ export function CartDrawer() {
                     key={item.id} 
                     className="flex gap-4 group"
                   >
-                    <div className="h-24 w-24 rounded-lg bg-muted overflow-hidden flex-shrink-0 border">
-                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    <div className="relative h-24 w-24 rounded-lg bg-muted overflow-hidden flex-shrink-0 border">
+                      <Image src={item.image} alt={item.name} fill className="object-cover" />
                     </div>
                     <div className="flex flex-col flex-1 py-1">
                       <div className="flex justify-between items-start">
@@ -181,7 +182,7 @@ export function CartDrawer() {
                       return (
                         <div key={product.id} className="w-32 flex-shrink-0 flex flex-col group border rounded-xl overflow-hidden bg-muted/20">
                           <div className="h-32 w-full bg-white relative">
-                            <img src={image} alt={product.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
+                            <Image src={image} alt={product.name} fill sizes="128px" className="object-cover group-hover:scale-105 transition-transform" />
                           </div>
                           <div className="p-2 flex flex-col flex-1">
                             <h4 className="text-xs font-medium line-clamp-2 mb-1">{product.name}</h4>

@@ -30,7 +30,7 @@ export async function sendAbandonedCartEmail(orderId: string) {
       return acc;
     }, {} as Record<string, string>);
 
-    const storeName = settingsMap["store_name"] || "Aura Official Store";
+    const storeName = settingsMap["store_name"] || "ZS Decor Official Store";
     const fromEmail = settingsMap["email_from_address"] || "onboarding@resend.dev";
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 

@@ -13,6 +13,7 @@ import { PluginSlot } from "@/components/plugins/PluginSlot";
 import { submitProductReview } from "./actions";
 import { motion } from "framer-motion";
 import { WishlistButton } from "@/components/storefront/WishlistButton";
+import Image from "next/image";
 
 export default function ProductClient({ product, settings, initialIsWishlisted }: { product: any, settings: Record<string, string>, initialIsWishlisted?: boolean }) {
   const images = product.images?.length > 0 
@@ -127,7 +128,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
   const adTimerScript = settings?.["ad_timer_script"];
   
   // Store info
-  const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "Aura Official Store");
+  const storeName = product.store ? product.store.name : (settings?.["footer_store_name"] || "ZS DECOR Official Store");
   const storeRating = product.store ? (product.store.rating || 5.0) : 4.9;
 
   return (
@@ -147,9 +148,9 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               <button 
                 key={idx}
                 onClick={() => setActiveImage(idx)}
-                className={`w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
+                className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
               >
-                <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="80px" className="object-cover" />
               </button>
             ))}
           </div>
@@ -378,7 +379,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         {review.user.image ? (
-                          <img src={review.user.image} alt={review.user.name} className="h-10 w-10 rounded-full bg-muted object-cover" />
+                          <Image src={review.user.image} alt={review.user.name} width={40} height={40} className="rounded-full bg-muted object-cover" />
                         ) : (
                           <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">
                             {review.user.name?.[0]?.toUpperCase() || "U"}
@@ -474,10 +475,11 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               <div key={item.id} className="min-w-[200px] w-[200px] sm:min-w-[250px] sm:w-[250px] snap-start group">
                 <Link href={`/products/${item.slug}`}>
                   <div className="aspect-[4/5] rounded-xl bg-muted overflow-hidden mb-4 relative">
-                    <img 
+                    <Image 
                       src={item.image} 
                       alt={item.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      fill sizes="(max-width: 640px) 200px, 250px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   </div>
                   <h3 className="font-semibold text-sm truncate">{item.name}</h3>

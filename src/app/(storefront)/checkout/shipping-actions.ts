@@ -14,11 +14,23 @@ export async function getApplicableShippingRates(countryCode: string, cartTotal:
       }
     });
 
+    if (allZones.length === 0) {
+      // Fallback for fresh installations so checkout isn't completely broken
+      return { 
+        success: true, 
+        rates: [{ id: "default_free", name: "Standard Shipping", price: 0, condition: "NONE" }] 
+      };
+    }
+
     let matchedZone = null;
 
     // 1. Try to find a zone that explicitly includes this country
     for (const zone of allZones) {
-      const countries = Array.isArray(zone.countries) ? zone.countries : [];
+      let countries = [];
+      try {
+        countries = typeof zone.countries === 'string' ? JSON.parse(zone.countries) : (Array.isArray(zone.countries) ? zone.countries : []);
+      } catch (e) {}
+      
       if (countries.includes(countryCode.toUpperCase())) {
         matchedZone = zone;
         break;
@@ -28,7 +40,11 @@ export async function getApplicableShippingRates(countryCode: string, cartTotal:
     // 2. Fallback to a "Rest of World" zone if configured (e.g. wildcard "*")
     if (!matchedZone) {
       for (const zone of allZones) {
-        const countries = Array.isArray(zone.countries) ? zone.countries : [];
+        let countries = [];
+        try {
+          countries = typeof zone.countries === 'string' ? JSON.parse(zone.countries) : (Array.isArray(zone.countries) ? zone.countries : []);
+        } catch (e) {}
+
         if (countries.includes("*")) {
           matchedZone = zone;
           break;

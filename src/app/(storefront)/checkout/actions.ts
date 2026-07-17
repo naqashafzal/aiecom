@@ -222,22 +222,53 @@ export async function processCheckout(data: {
     }
 
     revalidatePath("/admin");
-    revalidatePath("/admin");
     revalidatePath("/admin/orders");
     revalidatePath("/products");
     
     // 4. Send Confirmation Email
-    // Background operation so it doesn't block the checkout response
-    sendOrderConfirmationEmail({
-      email: data.shipping.email,
-      orderNumber: order.orderNumber ? order.orderNumber.toString() : order.id,
-      customerName: data.shipping.firstName,
-      items: data.items,
-      total: data.totals.grandTotal,
-      shippingAddress: `${data.shipping.address1}, ${data.shipping.city}, ${data.shipping.country}`,
-      paymentMethod: data.paymentMethod,
-      currencyCode: data.currencyCode
-    });
+    try {
+      sendOrderConfirmationEmail({
+        email: data.shipping.email,
+        orderNumber: order.orderNumber ? order.orderNumber.toString() : order.id,
+        customerName: data.shipping.firstName,
+        items: data.items,
+        total: data.totals.grandTotal,
+        shippingAddress: `${data.shipping.address1}, ${data.shipping.city}, ${data.shipping.country}`,
+        paymentMethod: data.paymentMethod,
+        currencyCode: data.currencyCode
+      });
+    } catch (e) {
+      console.log("Email failed", e);
+    }
+
+    // 5. Dispatch Expo Push Notifications to Admins
+    try {
+      const admins = await db.user.findMany({
+        where: { role: 'ADMIN', expoPushToken: { not: null } }
+      });
+
+      const pushMessages = admins.map(admin => ({
+        to: admin.expoPushToken,
+        sound: 'default',
+        title: 'New Order Received! 🎉',
+        body: `Order #${order.orderNumber || order.id.substring(0, 8)} for $${data.totals.grandTotal.toFixed(2)}`,
+        data: { orderId: order.id },
+      }));
+
+      if (pushMessages.length > 0) {
+        await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(pushMessages),
+        });
+      }
+    } catch (pushError) {
+      console.error("Failed to send push notification:", pushError);
+    }
 
     return { success: true, orderId: order.id, orderNumber: order.orderNumber };
   } catch (error) {

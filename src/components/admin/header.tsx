@@ -16,11 +16,11 @@ export function AdminHeader({ user }: AdminHeaderProps) {
           <Menu className="h-5 w-5" />
         </Button>
         <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-gray-900">
-          {/* Aura Logo */}
+          {/* ZS Decor Logo */}
           <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center">
             <span className="text-white text-xs font-black">A</span>
           </div>
-          Aura<span className="text-gray-400 font-normal">Admin</span>
+          ZS Decor<span className="text-gray-400 font-normal">Admin</span>
         </div>
       </div>
       
@@ -53,7 +53,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
           <div className="h-6 w-6 rounded text-[10px] font-bold bg-black text-white flex items-center justify-center uppercase group-hover:bg-destructive group-hover:text-destructive-foreground transition-colors">
             {user?.name?.[0] || "A"}
           </div>
-          <span className="text-xs font-medium truncate max-w-[100px] text-gray-700 group-hover:text-gray-900">{user?.name || "Aura Admin"}</span>
+          <span className="text-xs font-medium truncate max-w-[100px] text-gray-700 group-hover:text-gray-900">{user?.name || "ZS Decor Admin"}</span>
           <LogOut className="h-3 w-3 ml-1 text-gray-400 group-hover:text-destructive" />
         </div>
       </div>
