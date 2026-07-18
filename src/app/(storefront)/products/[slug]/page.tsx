@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
 import ProductClient from "./ProductClient";
 import { Metadata, ResolvingMetadata } from "next";
+import { Suspense } from "react";
 
 export const revalidate = 60;
 
@@ -72,7 +73,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           "storefront_fake_sales_enabled",
           "storeCurrency",
           "ad_product_enabled",
-          "ad_product_script"
+          "ad_product_script",
+          "ad_timer_enabled",
+          "ad_timer_script"
         ]
       }
     }
@@ -83,5 +86,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     return acc;
   }, {} as Record<string, string>);
 
-  return <ProductClient product={product} settings={settings} />;
+  return (
+    <Suspense fallback={<div className="p-8 text-center animate-pulse">Loading product...</div>}>
+      <ProductClient product={product} settings={settings} />
+    </Suspense>
+  );
 }
