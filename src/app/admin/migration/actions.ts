@@ -314,7 +314,13 @@ export async function importProductsCsv(formData: FormData) {
             if (!existingCat) {
               // Extremely rare edge case where findUnique returns null after P2002,
               // or just a fallback.
-              existingCat = await db.category.create({ data: { name: typeName, slug: catSlug + '-' + Math.random().toString(36).substring(2, 8) } });
+              let finalCatSlug = catSlug;
+              let catCounter = 1;
+              while (await db.category.findUnique({ where: { slug: finalCatSlug } })) {
+                finalCatSlug = `${catSlug}-${catCounter}`;
+                catCounter++;
+              }
+              existingCat = await db.category.create({ data: { name: typeName, slug: finalCatSlug } });
             }
             categoryIds.push(existingCat.id);
           }
@@ -323,7 +329,12 @@ export async function importProductsCsv(formData: FormData) {
         }
 
         const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-        const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
+        let slug = baseSlug;
+        let counter = 1;
+        while (await db.product.findUnique({ where: { slug } })) {
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
 
         // Download Image
         let localImageUrl: string | null = null;
@@ -594,7 +605,13 @@ export async function syncShopifyApi(formData: FormData) {
               }
             }
             if (!existingCat) {
-              existingCat = await db.category.create({ data: { name: colName, slug: catSlug + '-' + Math.random().toString(36).substring(2, 8) } });
+              let finalCatSlug = catSlug;
+              let catCounter = 1;
+              while (await db.category.findUnique({ where: { slug: finalCatSlug } })) {
+                finalCatSlug = `${catSlug}-${catCounter}`;
+                catCounter++;
+              }
+              existingCat = await db.category.create({ data: { name: colName, slug: finalCatSlug } });
             }
             categoryIds.push(existingCat.id);
           }
@@ -603,7 +620,12 @@ export async function syncShopifyApi(formData: FormData) {
         }
 
         let baseSlug = p.handle || slugify(p.title);
-        const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
+        let slug = baseSlug;
+        let counter = 1;
+        while (await db.product.findUnique({ where: { slug } })) {
+          slug = `${baseSlug}-${counter}`;
+          counter++;
+        }
 
         // Download primary image
         let localImageUrl: string | null = null;
