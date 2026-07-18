@@ -27,7 +27,7 @@ export async function Footer() {
   const storeName   = s["footer_store_name"] || s["storeName"] || "ZS Decor";
   const tagline     = s["footer_tagline"]    || "Experience the next generation of modern, fast, and engaging ecommerce. Premium products at your fingertips.";
   const copyright   = (s["footer_copyright"] || "© {year} ZS Decor Store. All rights reserved.").replace("{year}", String(new Date().getFullYear()));
-  const bgColor     = s["footer_bg_color"]   || "#111827";
+  const bgColor     = s["footer_bg_color"]   || "#000000";
   const textColor   = s["footer_text_color"] || "#ffffff";
   const showNewsletter = s["footer_show_newsletter"] !== "false";
 

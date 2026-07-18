@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getFormatPrice } from "@/lib/format";
 
 import { Pagination } from "@/components/ui/pagination";
+import { OrderTableClient } from "./OrderTableClient";
 
 export default async function AdminOrdersPage({
   searchParams
@@ -42,80 +43,21 @@ export default async function AdminOrdersPage({
         </div>
       </div>
 
-      <div className="bg-background rounded-xl shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
-              <tr>
-                <th className="px-6 py-4 font-medium">Order ID</th>
-                <th className="px-6 py-4 font-medium">Date</th>
-                <th className="px-6 py-4 font-medium">Customer</th>
-                <th className="px-6 py-4 font-medium text-right">Total</th>
-                <th className="px-6 py-4 font-medium text-center">Payment</th>
-                <th className="px-6 py-4 font-medium text-center">Fulfillment</th>
-                <th className="px-6 py-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                  <td className="px-6 py-4 font-medium text-primary whitespace-nowrap">
-                    #{order.orderNumber ? order.orderNumber : order.id.slice(-8).toUpperCase()}
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground whitespace-nowrap">
-                    {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }).format(new Date(order.createdAt))}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-medium">{order.shippingAddress?.firstName} {order.shippingAddress?.lastName}</div>
-                    <div className="text-xs text-muted-foreground">{order.shippingAddress?.city}, {order.shippingAddress?.country}</div>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-right whitespace-nowrap">
-                    {formatPrice(order.grandTotal)}
-                    <div className="text-xs text-muted-foreground font-normal">{order.items.length} items</div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider ${
-                      order.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                      'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                    }`}>
-                      {order.paymentStatus}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider ${
-                      order.status === 'DELIVERED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                      order.status === 'PROCESSING' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                      order.status === 'SHIPPED' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                      'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-muted-foreground hover:text-primary">
-                        <Link href={`/admin/orders/${order.id}`}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {orders.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-muted-foreground">
-                    No orders have been placed yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="p-4 border-t">
-          <Pagination totalPages={totalPages} currentPage={page} />
-        </div>
+      {/* Client Table with Bulk Actions */}
+      <OrderTableClient orders={orders.map(order => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        createdAt: order.createdAt.toISOString(),
+        customerName: `${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}`.trim() || 'Unknown',
+        customerLocation: `${order.shippingAddress?.city || ''}, ${order.shippingAddress?.country || ''}`.trim() || 'Unknown',
+        totalFormatted: formatPrice(order.grandTotal),
+        itemCount: order.items.length,
+        paymentStatus: order.paymentStatus,
+        status: order.status
+      }))} />
+      
+      <div className="p-4 border border-t-0 rounded-b-xl bg-background shadow-sm">
+        <Pagination totalPages={totalPages} currentPage={page} />
       </div>
     </div>
   );
