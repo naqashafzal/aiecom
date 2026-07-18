@@ -12,6 +12,7 @@
     "@ai-sdk/google": "^3.0.80",
     "@ai-sdk/react": "^3.0.197",
     "@auth/prisma-adapter": "^2.11.2",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@prisma/client": "^6.19.3",
     "@prisma/config": "^7.8.0",
     "@radix-ui/react-slot": "^1.2.4",
