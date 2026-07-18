@@ -86,9 +86,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     return acc;
   }, {} as Record<string, string>);
 
+  const storeCurrency = settings["storeCurrency"] || "PKR";
+  const displayPrice = product.salePrice || product.price;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images?.[0]?.url || "/placeholder.png",
+    offers: {
+      "@type": "Offer",
+      priceCurrency: storeCurrency,
+      price: displayPrice,
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      url: `${process.env.NEXT_PUBLIC_APP_URL || ''}/products/${product.slug}`,
+    }
+  };
+
   return (
-    <Suspense fallback={<div className="p-8 text-center animate-pulse">Loading product...</div>}>
-      <ProductClient product={product} settings={settings} />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Suspense fallback={<div className="p-8 text-center animate-pulse">Loading product...</div>}>
+        <ProductClient product={product} settings={settings} />
+      </Suspense>
+    </>
   );
 }
