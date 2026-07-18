@@ -24,18 +24,25 @@ export async function generateMetadata(
 
   const image = product.images?.[0]?.url || "/placeholder.png";
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
+  const cleanDescription = product.description.replace(/<[^>]*>?/gm, '').substring(0, 160).trim() + '...';
+
   return {
     title: product.name,
-    description: product.description.substring(0, 160),
+    description: cleanDescription,
+    alternates: {
+      canonical: `${appUrl}/products/${product.slug}`,
+    },
     openGraph: {
       title: product.name,
-      description: product.description.substring(0, 160),
+      description: cleanDescription,
       images: [image],
+      url: `${appUrl}/products/${product.slug}`,
     },
     twitter: {
       card: "summary_large_image",
       title: product.name,
-      description: product.description.substring(0, 160),
+      description: cleanDescription,
       images: [image],
     },
   };
@@ -89,27 +96,44 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const storeCurrency = settings["storeCurrency"] || "PKR";
   const displayPrice = product.salePrice || product.price;
 
-  const jsonLd = {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://zsdecor-ecom.vercel.app';
+  
+  const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description,
+    description: product.description.replace(/<[^>]*>?/gm, ''),
     image: product.images?.[0]?.url || "/placeholder.png",
+    sku: product.sku || product.id,
+    brand: { "@type": "Brand", name: settings["storeName"] || "ZS Decor" },
+    itemCondition: "https://schema.org/NewCondition",
     offers: {
       "@type": "Offer",
       priceCurrency: storeCurrency,
       price: displayPrice,
+      priceValidUntil: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url: `${process.env.NEXT_PUBLIC_APP_URL || ''}/products/${product.slug}`,
+      url: `${appUrl}/products/${product.slug}`,
     }
+  };
+
+  const categoryName = product.categories?.[0]?.name || "Products";
+  const categorySlug = product.categories?.[0]?.slug || "";
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": appUrl },
+      { "@type": "ListItem", "position": 2, "name": categoryName, "item": `${appUrl}/products?category=${categorySlug}` },
+      { "@type": "ListItem", "position": 3, "name": product.name, "item": `${appUrl}/products/${product.slug}` }
+    ]
   };
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Suspense fallback={<div className="p-8 text-center animate-pulse">Loading product...</div>}>
         <ProductClient product={product} settings={settings} />
       </Suspense>

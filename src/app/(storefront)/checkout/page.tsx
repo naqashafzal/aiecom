@@ -208,10 +208,10 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col-reverse lg:flex-row relative pb-24 lg:pb-0">
+    <form onSubmit={handleCompleteOrder} className="min-h-screen flex flex-col lg:flex-row relative">
       {/* Left Side - Forms */}
-      <div className="flex-1 bg-background pt-8 pb-14 px-4 sm:px-6 lg:px-12 xl:px-24 lg:pt-16 lg:border-r">
-        <form onSubmit={handleCompleteOrder} className="max-w-2xl mx-auto lg:ml-auto lg:mr-12 space-y-12">
+      <div className="flex-1 lg:order-1 order-1 bg-background pt-8 pb-14 px-4 sm:px-6 lg:px-12 xl:px-24 lg:pt-16 lg:border-r">
+        <div className="max-w-2xl mx-auto lg:ml-auto lg:mr-12 space-y-12">
           
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold tracking-tight">Checkout</h1>
@@ -404,8 +404,8 @@ export default function CheckoutPage() {
             </section>
           </div>
 
-          {/* Sticky bottom CTA for Mobile, Normal position for Desktop */}
-          <div className="fixed lg:static bottom-0 left-0 right-0 p-4 lg:p-0 bg-background lg:bg-transparent border-t lg:border-t-0 z-40 mt-8 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] lg:shadow-none">
+          {/* Desktop Button */}
+          <div className="hidden lg:block mt-8">
             <Button 
               type="submit" 
               disabled={isProcessing || isFetchingRates || availableRates.length === 0 || (paymentMethod !== "Cash on Delivery" && !transactionId)} 
@@ -415,11 +415,11 @@ export default function CheckoutPage() {
               {isProcessing ? "Processing Order..." : `Complete Order • ${formatPrice(grandTotal)}`}
             </Button>
           </div>
-        </form>
+        </div>
       </div>
 
       {/* Right Side - Order Summary */}
-      <div className="w-full lg:w-[45%] bg-muted/20 pt-8 pb-14 px-4 sm:px-6 lg:px-12 lg:pt-16 border-b lg:border-b-0 lg:border-l">
+      <div className="w-full lg:w-[45%] lg:order-2 order-2 bg-muted/20 pt-8 pb-14 px-4 sm:px-6 lg:px-12 lg:pt-16 border-b lg:border-b-0 lg:border-l">
         <div className="max-w-xl mx-auto lg:mx-0 sticky top-8">
           <div className="bg-transparent rounded-none border-none shadow-none p-0">
             <h2 className="text-xl font-bold mb-6">Order Summary</h2>
@@ -513,9 +513,21 @@ export default function CheckoutPage() {
                 <span className="text-2xl font-black text-primary">{formatPrice(grandTotal)}</span>
               </div>
             </div>
+
+            {/* Mobile Button */}
+            <div className="block lg:hidden mt-8 pt-8 border-t border-muted-foreground/20">
+               <Button 
+                  type="submit" 
+                  disabled={isProcessing || isFetchingRates || availableRates.length === 0 || (paymentMethod !== "Cash on Delivery" && !transactionId)} 
+                  size="lg" 
+                  className="rounded-full w-full h-14 shadow-lg shadow-primary/20 text-lg font-bold transition-all"
+                >
+                  {isProcessing ? "Processing Order..." : `Complete Order • ${formatPrice(grandTotal)}`}
+               </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

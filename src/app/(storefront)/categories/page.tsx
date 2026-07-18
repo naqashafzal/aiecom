@@ -4,16 +4,33 @@ import { getCachedCategories } from "@/lib/cache";
 
 export const revalidate = 60; // Cache for 60 seconds
 
-export const metadata = {
-  title: "All Categories",
-  description: "Browse our wide selection of categories.",
-};
+export async function generateMetadata() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
+  return {
+    title: "All Categories",
+    description: "Browse our wide selection of categories.",
+    alternates: {
+      canonical: `${appUrl}/categories`,
+    }
+  };
+}
 
 export default async function CategoriesPage() {
   const categories = await getCachedCategories();
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": appUrl },
+      { "@type": "ListItem", "position": 2, "name": "Categories", "item": `${appUrl}/categories` }
+    ]
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen py-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-4">Shop by Category</h1>

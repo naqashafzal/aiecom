@@ -48,7 +48,10 @@ export async function generateMetadata(): Promise<Metadata> {
     console.error("Failed to fetch settings for metadata", e);
   }
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
+
   return {
+    metadataBase: new URL(appUrl),
     title: {
       default: fullTitle,
       template: `%s | ${storeName}`,
@@ -63,7 +66,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: "en_US",
-      url: "https://zsdecor-ecom.vercel.app",
+      url: appUrl,
       title: fullTitle,
       description: "Experience the next generation of modern, fast, and engaging ecommerce.",
       siteName: storeName,
