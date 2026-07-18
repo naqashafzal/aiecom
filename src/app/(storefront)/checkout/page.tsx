@@ -129,6 +129,7 @@ export default function CheckoutPage() {
     } else if (nextStep === "payment") {
       setStep(nextStep);
     } else if (nextStep === "success") {
+      if (isProcessing) return; // Prevent double submission
       if (paymentMethod !== "Cash on Delivery" && !transactionId) {
         alert("Please provide the Transaction ID or Receipt Number.");
         return;
