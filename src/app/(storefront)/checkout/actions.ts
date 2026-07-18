@@ -141,6 +141,35 @@ export async function processCheckout(data: {
   couponId?: string;
 }) {
   try {
+    // 0. Clean up abandoned carts for this email
+    try {
+      const abandonedOrders = await db.order.findMany({
+        where: {
+          email: data.shipping.email,
+          status: "PENDING",
+          paymentMethod: "NOT_SELECTED"
+        },
+        select: { id: true, shippingAddressId: true }
+      });
+
+      if (abandonedOrders.length > 0) {
+        const orderIds = abandonedOrders.map(o => o.id);
+        const addressIds = abandonedOrders.map(o => o.shippingAddressId).filter(Boolean) as string[];
+
+        await db.order.deleteMany({
+          where: { id: { in: orderIds } }
+        });
+
+        if (addressIds.length > 0) {
+          await db.address.deleteMany({
+            where: { id: { in: addressIds }, firstName: "Abandoned" }
+          });
+        }
+      }
+    } catch (e) {
+      console.log("Failed to clean up abandoned carts", e);
+    }
+
     // 1. Create Address
     const address = await db.address.create({
       data: {
