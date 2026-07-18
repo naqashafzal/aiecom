@@ -4,23 +4,26 @@ import { Bell, Search, Menu, Printer, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 
+import { useAdminStore } from "@/store/useAdminStore";
+
 interface AdminHeaderProps {
   user?: { name?: string | null; email?: string | null } | null;
 }
 
 export function AdminHeader({ user }: AdminHeaderProps) {
+  const { toggleMobileSidebar } = useAdminStore();
   return (
     <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-30 shrink-0">
-      <div className="flex items-center gap-4 w-64 shrink-0">
-        <Button variant="ghost" size="icon" className="md:hidden text-gray-600 hover:bg-gray-100">
+      <div className="flex items-center gap-4 w-auto md:w-64 shrink-0">
+        <Button variant="ghost" size="icon" onClick={toggleMobileSidebar} className="md:hidden text-gray-600 hover:bg-gray-100">
           <Menu className="h-5 w-5" />
         </Button>
         <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-gray-900">
           {/* ZS Decor Logo */}
-          <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center">
+          <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center hidden sm:flex">
             <span className="text-white text-xs font-black">A</span>
           </div>
-          ZS Decor<span className="text-gray-400 font-normal">Admin</span>
+          <span className="hidden sm:inline">ZS Decor</span><span className="text-gray-400 font-normal">Admin</span>
         </div>
       </div>
       
@@ -38,8 +41,8 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         </div>
       </div>
       
-      <div className="flex items-center gap-2 w-64 shrink-0 justify-end">
-        <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 h-8 w-8">
+      <div className="flex items-center gap-2 w-auto md:w-64 shrink-0 justify-end">
+        <Button variant="ghost" size="icon" className="hidden sm:flex text-gray-500 hover:text-gray-900 hover:bg-gray-100 h-8 w-8">
           <Printer className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 h-8 w-8">
@@ -47,14 +50,14 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         </Button>
         <div 
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="ml-2 flex items-center gap-2 hover:bg-gray-100 cursor-pointer rounded-md pl-1 pr-3 py-1 transition-colors group border border-transparent hover:border-gray-200"
+          className="ml-0 sm:ml-2 flex items-center gap-2 hover:bg-gray-100 cursor-pointer rounded-md pl-1 pr-1 sm:pr-3 py-1 transition-colors group border border-transparent hover:border-gray-200"
           title="Sign out"
         >
           <div className="h-6 w-6 rounded text-[10px] font-bold bg-black text-white flex items-center justify-center uppercase group-hover:bg-destructive group-hover:text-destructive-foreground transition-colors">
             {user?.name?.[0] || "A"}
           </div>
-          <span className="text-xs font-medium truncate max-w-[100px] text-gray-700 group-hover:text-gray-900">{user?.name || "ZS Decor Admin"}</span>
-          <LogOut className="h-3 w-3 ml-1 text-gray-400 group-hover:text-destructive" />
+          <span className="text-xs font-medium truncate max-w-[100px] text-gray-700 group-hover:text-gray-900 hidden sm:inline">{user?.name || "ZS Decor Admin"}</span>
+          <LogOut className="h-3 w-3 ml-1 text-gray-400 group-hover:text-destructive hidden sm:inline" />
         </div>
       </div>
     </header>
