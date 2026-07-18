@@ -108,6 +108,10 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     <label className="block text-sm font-medium mb-1">Support Phone</label>
                     <input type="tel" name="supportPhone" defaultValue={settings.supportPhone || "+1 (800) 123-4567"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium mb-1">WhatsApp Support Number (Include Country Code)</label>
+                    <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. +1234567890" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Favicon URL</label>

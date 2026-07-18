@@ -4,6 +4,7 @@ import { MarketplaceNavbar } from "@/components/storefront/themes/marketplace/Ma
 import { Footer } from "@/components/storefront/footer";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { AiChat } from "@/components/storefront/ai-chat";
+import { WhatsAppBubble } from "@/components/storefront/whatsapp-bubble";
 import { CurrencyProvider } from "@/components/storefront/currency-provider";
 import { db } from "@/lib/prisma";
 
@@ -61,6 +62,7 @@ export default async function StorefrontLayout({
   const customCss = settingsMap["storefront_custom_css"];
   const gaId = settingsMap["storefront_ga_id"];
   const fontFamilySetting = settingsMap["storefront_font_family"] || "sans";
+  const whatsappNumber = settingsMap["whatsappNumber"];
 
   let fontClass = "font-sans";
   if (fontFamilySetting === "serif") fontClass = "font-serif";
@@ -145,6 +147,7 @@ export default async function StorefrontLayout({
         )}
         <Footer />
         {aiEnabled && <AiChat />}
+        {whatsappNumber && <WhatsAppBubble phoneNumber={whatsappNumber} />}
       </CurrencyProvider>
     </div>
   );
