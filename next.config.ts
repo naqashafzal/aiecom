@@ -26,6 +26,45 @@ const nextConfig: NextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  async redirects() {
+    return [
+      {
+        source: '/product-tag/:slug*',
+        destination: '/products',
+        permanent: true,
+      },
+      {
+        source: '/category/:slug*',
+        destination: '/categories',
+        permanent: true,
+      },
+      {
+        source: '/product/:slug*',
+        destination: '/products',
+        permanent: true,
+      },
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/wp-admin/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/logo/:path*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/blog-fullwidth',
+        destination: '/blog',
+        permanent: true,
+      }
+    ];
+  },
   /* config options here */
 };
 
