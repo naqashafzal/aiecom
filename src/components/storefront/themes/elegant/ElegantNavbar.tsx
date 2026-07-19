@@ -36,13 +36,10 @@ export function ElegantNavbar({
       {/* Top Bar (Black) */}
       <header className="bg-black text-white py-3 md:py-4 px-4 md:px-12 flex flex-wrap items-center justify-between gap-y-3">
         
-        {/* Mobile Menu Button & Search (Left) */}
+        {/* Mobile Menu Button (Left) */}
         <div className="flex items-center gap-4 md:hidden shrink-0 order-1 w-1/3">
           <button onClick={() => { setIsMobileMenuOpen(!isMobileMenuOpen); setIsMobileSearchOpen(false); }}>
             <Menu className="w-6 h-6" />
-          </button>
-          <button onClick={() => { setIsMobileSearchOpen(!isMobileSearchOpen); setIsMobileMenuOpen(false); }}>
-            <Search className="w-5 h-5 font-light" strokeWidth={1.5} />
           </button>
         </div>
 
