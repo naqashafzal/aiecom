@@ -24,6 +24,7 @@ export function ElegantNavbar({
   const { getCartCount, toggleCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -37,13 +38,10 @@ export function ElegantNavbar({
         
         {/* Mobile Menu Button & Search (Left) */}
         <div className="flex items-center gap-4 md:hidden shrink-0 order-1 w-1/3">
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button onClick={() => { setIsMobileMenuOpen(!isMobileMenuOpen); setIsMobileSearchOpen(false); }}>
             <Menu className="w-6 h-6" />
           </button>
-          <button onClick={() => {
-            const searchInput = document.getElementById('mobile-search-input');
-            if (searchInput) searchInput.focus();
-          }}>
+          <button onClick={() => { setIsMobileSearchOpen(!isMobileSearchOpen); setIsMobileMenuOpen(false); }}>
             <Search className="w-5 h-5 font-light" strokeWidth={1.5} />
           </button>
         </div>
@@ -96,6 +94,18 @@ export function ElegantNavbar({
             buttonClassName="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black cursor-pointer bg-transparent border-0"
           />
         </div>
+
+        {/* Mobile Search Dropdown */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden absolute top-full left-0 right-0 bg-white p-3 border-b border-gray-200 z-[60] shadow-md">
+            <LiveSearchBar 
+              placeholder="Search the store"
+              className="w-full"
+              inputClassName="w-full bg-gray-100 text-black rounded-full py-2.5 px-6 pr-12 focus:outline-none text-sm border border-gray-200 placeholder-gray-500"
+              buttonClassName="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black cursor-pointer bg-transparent border-0"
+            />
+          </div>
+        )}
       </header>
 
       {/* Bottom Navigation Bar (Dark Grey) */}
@@ -115,7 +125,7 @@ export function ElegantNavbar({
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-black text-white px-4 py-4 flex flex-col gap-4 border-t border-[#333] shadow-lg absolute w-full left-0">
+        <div className="md:hidden bg-black text-white px-4 py-4 flex flex-col gap-4 border-t border-[#333] shadow-lg absolute w-full left-0 z-[60]">
           <div className="font-bold mb-2">Menu</div>
           {menuLinks.map((link, idx) => (
             <Link 
@@ -142,10 +152,10 @@ export function ElegantNavbar({
           <Home className="w-5 h-5 mb-1" strokeWidth={1.5} />
           <span className="text-[10px]">Home</span>
         </Link>
-        <Link href="/products?search=" className="flex flex-col items-center text-gray-600 hover:text-black">
+        <button onClick={() => { setIsMobileSearchOpen(!isMobileSearchOpen); setIsMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex flex-col items-center text-gray-600 hover:text-black">
           <Search className="w-5 h-5 mb-1" strokeWidth={1.5} />
           <span className="text-[10px]">Search</span>
-        </Link>
+        </button>
         <Link href="/products" className="flex flex-col items-center text-gray-600 hover:text-black">
           <LayoutGrid className="w-5 h-5 mb-1" strokeWidth={1.5} />
           <span className="text-[10px]">Collection</span>

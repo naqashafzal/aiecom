@@ -371,6 +371,7 @@ model Review {
   rating    Int
   title     String?
   comment   String   @db.Text
+  images    String[] @default([])
   isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

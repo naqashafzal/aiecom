@@ -73,8 +73,8 @@ export function MarketplaceNavbar({
             />
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-2xl bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner">
-            <select className="bg-gray-100 text-gray-700 h-full px-3 text-xs border-r border-gray-300 outline-none cursor-pointer hidden lg:block">
+          <div className="hidden md:flex flex-1 max-w-2xl bg-white rounded-sm flex-row items-center h-10 shadow-inner">
+            <select className="bg-gray-100 text-gray-700 h-full px-3 text-xs border-r border-gray-300 outline-none cursor-pointer hidden lg:block rounded-l-sm">
               <option>All Categories</option>
               <option>Electronics</option>
               <option>Fashion</option>
@@ -83,8 +83,8 @@ export function MarketplaceNavbar({
             <LiveSearchBar 
               placeholder="Search in Marketplace..."
               className="flex-1 h-full"
-              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
-              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full rounded-l-sm"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center rounded-r-sm"
             />
           </div>
 
@@ -112,12 +112,12 @@ export function MarketplaceNavbar({
           </div>
           
           {/* Mobile Search Row */}
-          <div className="md:hidden flex w-full bg-white rounded-sm overflow-hidden flex-row items-center h-10 shadow-inner">
+          <div className="md:hidden flex w-full bg-white rounded-sm flex-row items-center h-10 shadow-inner">
             <LiveSearchBar 
               placeholder="Search in Marketplace..."
               className="w-full h-full"
-              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full"
-              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center"
+              inputClassName="flex-1 h-full px-4 text-black text-sm outline-none w-full rounded-l-sm"
+              buttonClassName="bg-[#ffe1d2] text-[#f85606] h-full px-5 hover:bg-[#ffcfb9] transition-colors flex items-center justify-center rounded-r-sm"
             />
           </div>
       </header>
