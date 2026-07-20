@@ -251,10 +251,14 @@ mcpServer.tool("getStores", "List multi-vendor stores", {}, async () => {
 // ADVANCED ADMIN & FAKE DATA GENERATION
 // ==========================================
 mcpServer.tool("generateFakeReviews", "Generate bulk fake reviews for products", {
-  count: z.number().describe("Number of fake reviews to generate (1-100)")
-}, async ({ count }) => {
+  count: z.number().describe("Number of fake reviews to generate (1-100)"),
+  productId: z.string().optional().describe("Optional product ID to generate reviews for a specific product")
+}, async ({ count, productId }) => {
   try {
-    const products = await db.product.findMany({ select: { id: true } });
+    const products = productId 
+      ? await db.product.findMany({ where: { id: productId }, select: { id: true } })
+      : await db.product.findMany({ select: { id: true } });
+      
     let users = await db.user.findMany({ select: { id: true, name: true } });
 
     if (products.length === 0) return formatResponse({ error: "No products found to review" }, true);
@@ -262,26 +266,27 @@ mcpServer.tool("generateFakeReviews", "Generate bulk fake reviews for products",
     if (users.length === 0) {
       await db.user.createMany({
         data: Array.from({ length: 5 }).map((_, i) => ({
-          name: `Fake User ${i + 1}`,
-          email: `fake${Date.now()}_${i}@example.com`,
+          name: `Verified Buyer ${i + 1}`,
+          email: `buyer${Date.now()}_${i}@example.com`,
         }))
       });
       users = await db.user.findMany({ select: { id: true, name: true } });
     }
 
-    const reviewTitles = ["Great product!", "Not bad", "Excellent quality", "Will buy again", "Disappointed"];
+    const reviewTitles = ["Great product!", "Excellent quality", "Will buy again", "Highly recommended", "Love it!", "Fantastic purchase", "Beautiful and functional"];
     const reviewComments = [
       "I really liked this product. It exceeded my expectations.",
-      "It's okay, but could be better. The quality is decent.",
-      "Absolutely fantastic! I highly recommend it.",
-      "Very good value for the price. Happy with my purchase.",
-      "Not what I expected. The description was misleading."
+      "Absolutely fantastic! I highly recommend it to anyone.",
+      "Very good value for the price. I'm extremely happy with my purchase.",
+      "Works perfectly and looks great. Very satisfied.",
+      "Fast shipping and the quality is amazing. 5 stars!",
+      "Exactly what I was looking for. Will definitely be returning to buy more."
     ];
 
     const newReviews = Array.from({ length: Math.min(100, Math.max(1, count)) }).map(() => {
       const randomProduct = products[Math.floor(Math.random() * products.length)];
       const randomUser = users[Math.floor(Math.random() * users.length)];
-      const rating = Math.floor(Math.random() * 5) + 1;
+      const rating = Math.random() > 0.3 ? 5 : 4; // Generate 4 or 5 star ratings only
       
       return {
         productId: randomProduct.id,
@@ -289,12 +294,12 @@ mcpServer.tool("generateFakeReviews", "Generate bulk fake reviews for products",
         rating,
         title: reviewTitles[Math.floor(Math.random() * reviewTitles.length)],
         comment: reviewComments[Math.floor(Math.random() * reviewComments.length)],
-        isApproved: Math.random() > 0.5
+        isApproved: true // Auto-approve fake reviews for immediate visibility
       };
     });
 
     await db.review.createMany({ data: newReviews });
-    return formatResponse({ success: true, count: newReviews.length, message: `Successfully generated ${newReviews.length} fake reviews.` });
+    return formatResponse({ success: true, count: newReviews.length, message: `Successfully generated ${newReviews.length} high-quality fake reviews.` });
   } catch (e: any) {
     return formatResponse({ error: e.message }, true);
   }
