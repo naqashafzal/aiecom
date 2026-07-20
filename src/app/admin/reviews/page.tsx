@@ -14,7 +14,7 @@ export default async function AdminReviewsPage({
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const [reviews, total] = await Promise.all([
+  const [reviews, total, products] = await Promise.all([
     db.review.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -24,7 +24,8 @@ export default async function AdminReviewsPage({
       skip,
       take: limit
     }),
-    db.review.count()
+    db.review.count(),
+    db.product.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
   ]);
 
   const totalPages = Math.ceil(total / limit);
@@ -36,7 +37,7 @@ export default async function AdminReviewsPage({
           <h1 className="text-2xl font-bold tracking-tight">Product Reviews</h1>
           <p className="text-sm text-gray-500">Manage and moderate customer reviews for your products.</p>
         </div>
-        <GenerateFakeReviewsButton />
+        <GenerateFakeReviewsButton products={products} />
       </div>
       
       <ReviewsClient 
