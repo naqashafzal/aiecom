@@ -46,81 +46,92 @@ export default async function AdminDashboard() {
     }
   });
 
-  // Since we don't have a Google Analytics integration yet for real sessions,
-  // we'll calculate a realistic mockup based on user count and orders.
-  const usersCount = await db.user.count();
-  const sessions = 1000 + (usersCount * 12) + (ordersCount * 3);
-  const conversionRate = sessions > 0 ? ((ordersCount / sessions) * 100).toFixed(2) : "0.00";
+  // Calculate Average Order Value (AOV)
+  const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
+
+  // Calculate Customer Retention Rate (Users with > 1 order)
+  const usersWithOrders = await db.order.groupBy({
+    by: ['userId'],
+    _count: { userId: true },
+    where: { userId: { not: null } }
+  });
+  
+  let returningUsers = 0;
+  usersWithOrders.forEach(user => {
+    if (user._count.userId > 1) {
+      returningUsers++;
+    }
+  });
+  const totalPurchasingUsers = usersWithOrders.length;
+  const retentionRate = totalPurchasingUsers > 0 ? ((returningUsers / totalPurchasingUsers) * 100).toFixed(1) : "0.0";
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-20">
       
       {/* Date & Channels Filter */}
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
+        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7] transition-colors">
           <Calendar className="h-4 w-4 text-[#5c5f62]" />
-          Last 30 days
+          All time
           <ChevronDown className="h-3 w-3 text-[#5c5f62] ml-1" />
         </button>
-        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7]">
+        <button className="flex items-center gap-2 bg-white border border-[#c9cccf] rounded-md px-3 py-1.5 text-sm font-semibold shadow-sm hover:bg-[#f6f6f7] transition-colors">
           All channels
           <ChevronDown className="h-3 w-3 text-[#5c5f62] ml-1" />
         </button>
       </div>
 
       {/* Stats Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#e1e3e5] p-5">
+      <div className="bg-white rounded-xl shadow-sm border border-[#e1e3e5] p-5 hover:shadow-md transition-shadow">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-[#e1e3e5]">
-          <div className="pl-0 pt-4 md:pt-0">
-            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1">Sessions</h3>
-            <div className="flex items-end gap-2">
-              <span className="text-base font-semibold">{sessions.toLocaleString()}</span>
-              <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 48%</span>
+          
+          {/* Total Sales */}
+          <div className="pl-0 pt-4 md:pt-0 group">
+            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 group-hover:text-[#202223] transition-colors">Total sales</h3>
+            <div className="flex items-end gap-2 mt-1">
+              <span className="text-base font-semibold">{formatPrice(revenue)}</span>
             </div>
-            <div className="mt-4 h-6 w-full flex items-end">
+            <div className="mt-4 h-6 w-full flex items-end opacity-80 group-hover:opacity-100 transition-opacity">
               <svg className="w-full h-full text-blue-500" viewBox="0 0 100 20" preserveAspectRatio="none">
                 <path d="M0,15 Q10,20 20,10 T40,12 T60,5 T80,18 T100,2" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </div>
           </div>
           
-          <div className="md:pl-8 pt-4 md:pt-0">
-            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 border-b border-dashed border-[#8c9196] inline-block">Total sales</h3>
+          {/* Orders */}
+          <div className="md:pl-8 pt-4 md:pt-0 group">
+            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 group-hover:text-[#202223] transition-colors">Orders</h3>
             <div className="flex items-end gap-2 mt-1">
-              <span className="text-base font-semibold">{formatPrice(revenue)}</span>
-              <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 29%</span>
+              <span className="text-base font-semibold">{ordersCount}</span>
             </div>
-            <div className="mt-4 h-6 w-full flex items-end">
+            <div className="mt-4 h-6 w-full flex items-end opacity-80 group-hover:opacity-100 transition-opacity">
               <svg className="w-full h-full text-blue-500" viewBox="0 0 100 20" preserveAspectRatio="none">
                 <path d="M0,10 Q20,5 40,15 T70,8 T100,2" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </div>
           </div>
 
-          <div className="md:pl-8 pt-4 md:pt-0">
-            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 border-b border-dashed border-[#8c9196] inline-block">Orders</h3>
+          {/* Average Order Value */}
+          <div className="md:pl-8 pt-4 md:pt-0 group">
+            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 group-hover:text-[#202223] transition-colors">Average Order Value</h3>
             <div className="flex items-end gap-2 mt-1">
-              <span className="text-base font-semibold">{ordersCount}</span>
-              <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 33%</span>
+              <span className="text-base font-semibold">{formatPrice(aov)}</span>
             </div>
-            <div className="mt-4 h-6 w-full flex items-end">
-              <svg className="w-full h-full text-blue-500" viewBox="0 0 100 20" preserveAspectRatio="none">
+            <div className="mt-4 h-6 w-full flex items-end opacity-80 group-hover:opacity-100 transition-opacity">
+              <svg className="w-full h-full text-green-500" viewBox="0 0 100 20" preserveAspectRatio="none">
                 <path d="M0,18 L20,18 L20,5 L40,5 L40,18 L60,18 L60,10 L80,10 L80,18 L100,18" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </div>
           </div>
 
-          <div className="md:pl-8 pt-4 md:pt-0 relative">
-            <div className="absolute right-0 top-4 md:top-0">
-              <ChevronDown className="h-4 w-4 text-[#5c5f62]" />
-            </div>
-            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 border-b border-dashed border-[#8c9196] inline-block">Conversion rate</h3>
+          {/* Customer Retention */}
+          <div className="md:pl-8 pt-4 md:pt-0 relative group">
+            <h3 className="text-xs font-semibold text-[#5c5f62] mb-1 group-hover:text-[#202223] transition-colors">Customer Retention</h3>
             <div className="flex items-end gap-2 mt-1">
-              <span className="text-base font-semibold">{conversionRate}%</span>
-              <span className="text-xs font-semibold flex items-center text-green-600 mb-0.5"><ArrowUpRight className="h-3 w-3" /> 28%</span>
+              <span className="text-base font-semibold">{retentionRate}%</span>
             </div>
-            <div className="mt-4 h-6 w-full flex items-end">
-              <svg className="w-full h-full text-blue-500" viewBox="0 0 100 20" preserveAspectRatio="none">
+            <div className="mt-4 h-6 w-full flex items-end opacity-80 group-hover:opacity-100 transition-opacity">
+              <svg className="w-full h-full text-purple-500" viewBox="0 0 100 20" preserveAspectRatio="none">
                 <path d="M0,18 L30,18 L30,5 L50,5 L50,18 L70,18 L70,8 L90,8 L90,18 L100,18" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
             </div>
