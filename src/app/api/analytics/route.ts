@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { url, pathname, referrer } = body;
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     let sessionId = cookieStore.get('zsd_visitor_session')?.value;
     
     let isNewSession = false;
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       isNewSession = true;
     }
 
-    const reqHeaders = headers();
+    const reqHeaders = await headers();
     const userAgent = reqHeaders.get('user-agent') || '';
     
     // Attempt to get country from Cloudflare or Vercel headers
