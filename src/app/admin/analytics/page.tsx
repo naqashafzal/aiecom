@@ -130,72 +130,74 @@ export default async function AdminAnalyticsPage() {
   const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12 px-4 sm:px-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Analytics Overview</h1>
-          <p className="text-slate-500 mt-1">Track your store's performance and customer behavior in real-time.</p>
-        </div>
-        <div className="px-4 py-2 bg-white text-slate-600 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-200 shadow-sm">
-          <Globe className="h-4 w-4 text-slate-400" /> Global Time
-        </div>
+    <div className="space-y-6 max-w-6xl mx-auto pb-20">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-[#202223]">Analytics Overview</h1>
+        <p className="text-muted-foreground mt-1">Track your store's performance and customer behavior in real-time.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Revenue Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
-              <DollarSign className="h-5 w-5" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-100 rounded-lg text-indigo-600">
+              <DollarSign className="h-6 w-6" />
             </div>
-            <p className="text-sm font-semibold text-slate-600">Total Revenue</p>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+              <h3 className="text-2xl font-bold break-words">{formatPrice(revenue)}</h3>
+            </div>
           </div>
-          <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 truncate" title={formatPrice(revenue)}>{formatPrice(revenue)}</h3>
         </div>
 
-        {/* Orders Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg">
-              <ShoppingCart className="h-5 w-5" />
+        <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-100 rounded-lg text-blue-600">
+              <ShoppingCart className="h-6 w-6" />
             </div>
-            <p className="text-sm font-semibold text-slate-600">Total Orders</p>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
+              <h3 className="text-2xl font-bold">{ordersCount}</h3>
+            </div>
           </div>
-          <h3 className="text-2xl lg:text-3xl font-bold text-slate-900">{ordersCount}</h3>
         </div>
 
-        {/* Customers Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 bg-orange-50 text-orange-600 rounded-lg">
-              <Users className="h-5 w-5" />
+        <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-100 rounded-lg text-orange-600">
+              <Users className="h-6 w-6" />
             </div>
-            <p className="text-sm font-semibold text-slate-600">Customers</p>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Customers</p>
+              <h3 className="text-2xl font-bold">{usersCount}</h3>
+            </div>
           </div>
-          <h3 className="text-2xl lg:text-3xl font-bold text-slate-900">{usersCount}</h3>
         </div>
 
-        {/* Live Traffic Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
-          <div className="flex items-center gap-3 mb-4 relative z-10">
-            <div className="p-2.5 bg-green-50 text-green-600 rounded-lg relative">
-              <Activity className="h-5 w-5" />
+        <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Activity className="h-20 w-20 text-green-500" />
+          </div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="p-3 bg-green-100 rounded-lg text-green-600 relative">
+              <Activity className="h-6 w-6" />
               <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
             </div>
-            <p className="text-sm font-semibold text-slate-600">Active Now</p>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Active Visitors</p>
+              <h3 className="text-2xl font-bold">{activeVisitorsCount}</h3>
+            </div>
           </div>
-          <div className="relative z-10">
-            <h3 className="text-2xl lg:text-3xl font-bold text-slate-900">{activeVisitorsCount}</h3>
-            <p className="text-xs text-slate-500 mt-1">In the last 30 minutes</p>
+          <div className="mt-4 flex items-center text-xs text-muted-foreground relative z-10">
+            <span>In the last 30 minutes</span>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+      <div className="bg-white rounded-xl border shadow-sm p-6">
+        <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Revenue & Orders</h2>
-            <p className="text-sm text-slate-500 mt-1">Last 7 Days Performance</p>
+            <h2 className="text-lg font-bold text-[#202223]">Revenue & Orders (Last 7 Days)</h2>
+            <p className="text-sm text-muted-foreground">Daily performance metrics</p>
           </div>
         </div>
         
@@ -205,77 +207,77 @@ export default async function AdminAnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Categories */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 lg:col-span-1">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Top Categories</h2>
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow lg:col-span-1">
+          <h2 className="text-lg font-bold mb-4 text-[#202223]">Top Categories</h2>
           <div className="space-y-5">
             {topCategories.length > 0 ? topCategories.map((cat, i) => (
-              <div key={cat.name} className="flex flex-col gap-2">
-                <div className="flex justify-between items-end">
-                  <span className="text-sm font-semibold text-slate-700 truncate pr-4">{cat.name}</span>
-                  <span className="text-sm font-bold text-slate-900">{cat.percentage}%</span>
+              <div key={cat.name} className="flex items-center gap-3 group">
+                <span className="text-sm font-medium w-[40%] truncate" title={cat.name}>{cat.name}</span>
+                <div className="w-[40%] h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
+                  <div className={`h-full ${colors[i % colors.length]} transition-all duration-1000 ease-out group-hover:opacity-80`} style={{ width: `${cat.percentage}%` }}></div>
                 </div>
-                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div className={`h-full ${colors[i % colors.length]} rounded-full`} style={{ width: `${cat.percentage}%` }}></div>
+                <div className="flex flex-col items-end w-[20%]">
+                  <span className="text-sm font-bold">{cat.percentage}%</span>
                 </div>
               </div>
             )) : (
-              <div className="text-sm text-slate-500 py-4 text-center">Not enough data to display top categories.</div>
+              <div className="text-sm text-muted-foreground py-4">Not enough data to display top categories.</div>
             )}
           </div>
         </div>
 
         {/* Live Traffic Details */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 lg:col-span-1">
-          <div className="flex items-center gap-2 mb-4">
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow lg:col-span-1">
+          <div className="flex items-center gap-2 mb-4 text-[#202223]">
             <Globe className="h-5 w-5 text-blue-500" />
-            <h2 className="text-lg font-bold text-slate-900">Top Countries</h2>
+            <h2 className="text-lg font-bold">Top Countries</h2>
           </div>
-          <div className="space-y-3 mb-8">
+          <div className="space-y-4">
             {topCountries.length > 0 ? topCountries.map(([country, count]) => (
-              <div key={country} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                <span className="font-medium text-slate-600">{country}</span>
-                <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-semibold">{count}</span>
+              <div key={country} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground">{country}</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
               </div>
             )) : (
-              <div className="text-sm text-slate-500 text-center py-2">No active visitors.</div>
+              <div className="text-sm text-muted-foreground">No active visitors.</div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mt-6 mb-4 text-[#202223]">
             <LinkIcon className="h-5 w-5 text-purple-500" />
-            <h2 className="text-lg font-bold text-slate-900">Top Sources</h2>
+            <h2 className="text-lg font-bold">Top Sources</h2>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {topSources.length > 0 ? topSources.map(([source, count]) => (
-              <div key={source} className="flex justify-between items-center text-sm border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                <span className="font-medium text-slate-600 truncate max-w-[150px]">{source}</span>
-                <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-700 font-semibold">{count}</span>
+              <div key={source} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground truncate max-w-[150px]">{source}</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
               </div>
             )) : (
-              <div className="text-sm text-slate-500 text-center py-2">No traffic sources.</div>
+              <div className="text-sm text-muted-foreground">No traffic sources recorded.</div>
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <TrendingUp className="h-5 w-5 text-indigo-500" />
-            <h2 className="text-lg font-bold text-slate-900">Store Insights</h2>
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-3 mb-4">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-bold text-[#202223]">Store Insights</h2>
           </div>
           <div className="space-y-4">
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
-              <h4 className="font-semibold text-sm text-slate-700 mb-1">Average Order Value</h4>
-              <p className="text-sm text-slate-600">
-                Your AOV is <strong className="text-slate-900 font-bold">{formatPrice(aov)}</strong>. 
+            <div className="p-4 bg-muted/50 rounded-lg border hover:bg-muted/70 transition-colors">
+              <h4 className="font-semibold text-sm">Average Order Value</h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your AOV is <strong>{formatPrice(aov)}</strong>. 
                 {isAovLow 
-                  ? " Consider creating product bundles or offering free shipping over a certain threshold." 
-                  : " Great job! Your AOV is healthy. Focus on customer retention."}
+                  ? " Consider creating product bundles or offering free shipping over a certain threshold to increase this metric." 
+                  : " Great job! Your AOV is healthy. Focus on customer retention to maximize LTV."}
               </p>
             </div>
-            <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-              <h4 className="font-semibold text-sm text-indigo-700 mb-1">Sales Velocity</h4>
-              <p className="text-sm text-indigo-900/80">
-                Based on your last 7 days of data, your store generated <strong className="text-indigo-900 font-bold">{formatPrice(chartData.reduce((acc, curr) => acc + curr.revenue, 0))}</strong> in recent revenue.
+            <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 hover:bg-primary/10 transition-colors">
+              <h4 className="font-semibold text-sm text-primary">Sales Velocity</h4>
+              <p className="text-xs text-muted-foreground mt-1">
+                Based on your last 7 days of data, your store generated <strong>{formatPrice(chartData.reduce((acc, curr) => acc + curr.revenue, 0))}</strong> in recent revenue.
               </p>
             </div>
           </div>
