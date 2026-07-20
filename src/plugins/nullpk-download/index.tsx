@@ -6,7 +6,7 @@ const nullpkDownloadPlugin = {
   description: "Renders the download timer on product pages.",
   version: "1.0.0",
   components: {
-    blog_post_bottom: DownloadTimerWrapper
+    blog_post_middle: DownloadTimerWrapper
   }
 };
 
