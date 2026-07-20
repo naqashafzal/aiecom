@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { revalidatePath } from "next/cache"
+import { RichTextEditor } from "../../RichTextEditor"
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -108,13 +109,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
         <div className="space-y-2">
           <label htmlFor="content" className="text-sm font-medium text-gray-900">Content</label>
-          <textarea 
+          <RichTextEditor 
             id="content"
             name="content" 
             defaultValue={post.content}
             required
-            rows={12}
-            className="w-full p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5 font-mono text-sm resize-y"
           />
         </div>
 

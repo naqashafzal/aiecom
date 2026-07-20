@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Sparkles, Loader2 } from "lucide-react";
 import { generateAiBlogPost } from "../../ai-agents/ai-actions";
 
+import { RichTextEditor } from "../RichTextEditor";
+
 export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction: (formData: FormData) => Promise<void>, aiEnabled: boolean }) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
@@ -100,15 +102,12 @@ export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction:
 
       <div className="space-y-2">
         <label htmlFor="content" className="text-sm font-medium text-gray-900">Content</label>
-        <textarea 
+        <RichTextEditor 
           id="content"
-          name="content" 
+          name="content"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={setContent}
           required
-          rows={12}
-          placeholder="Write your blog post content here (Markdown or HTML)..."
-          className="w-full p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5 font-mono text-sm resize-y"
         />
       </div>
 
