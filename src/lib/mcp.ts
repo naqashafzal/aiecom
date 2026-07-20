@@ -8,9 +8,13 @@ export const mcpServer = new McpServer({
 });
 
 // We need a place to store active transports mapping sessionId -> transport
-// In a serverless environment like Vercel this won't persist across lambdas,
-// but for Coolify/Docker (Node.js standalone), this works perfectly.
-export const activeTransports = new Map<string, any>();
+// In Next.js, API routes are bundled separately, so we MUST use the global object
+// to share this Map between /api/mcp/index.ts and /api/mcp/messages.ts
+const globalAny = global as any;
+if (!globalAny.mcpActiveTransports) {
+  globalAny.mcpActiveTransports = new Map<string, any>();
+}
+export const activeTransports = globalAny.mcpActiveTransports;
 
 // Helper for formatting responses
 const formatResponse = (data: any, isError = false) => ({
