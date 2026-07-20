@@ -2,6 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { mcpServer, activeTransports } from '@/lib/mcp';
 
+export const config = {
+  api: {
+    externalResolver: true,
+  },
+};
+
 // Generate a random session ID
 function generateSessionId() {
   return Math.random().toString(36).substring(2, 15);
@@ -49,4 +55,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Connect the server to this transport instance
   await mcpServer.connect(transport);
+
+  // Keep the Next.js API route from resolving and auto-closing the connection
+  await new Promise((resolve) => {
+    req.on('close', resolve);
+  });
 }
