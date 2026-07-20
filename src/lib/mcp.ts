@@ -242,3 +242,105 @@ mcpServer.tool("getStores", "List multi-vendor stores", {}, async () => {
   const stores = await db.store.findMany({ select: { id: true, name: true, slug: true, rating: true } });
   return formatResponse(stores);
 });
+
+// ==========================================
+// ADVANCED ADMIN & FAKE DATA GENERATION
+// ==========================================
+mcpServer.tool("generateFakeReviews", "Generate bulk fake reviews for products", {
+  count: z.number().describe("Number of fake reviews to generate (1-100)")
+}, async ({ count }) => {
+  try {
+    const products = await db.product.findMany({ select: { id: true } });
+    let users = await db.user.findMany({ select: { id: true, name: true } });
+
+    if (products.length === 0) return formatResponse({ error: "No products found to review" }, true);
+
+    if (users.length === 0) {
+      await db.user.createMany({
+        data: Array.from({ length: 5 }).map((_, i) => ({
+          name: `Fake User ${i + 1}`,
+          email: `fake${Date.now()}_${i}@example.com`,
+        }))
+      });
+      users = await db.user.findMany({ select: { id: true, name: true } });
+    }
+
+    const reviewTitles = ["Great product!", "Not bad", "Excellent quality", "Will buy again", "Disappointed"];
+    const reviewComments = [
+      "I really liked this product. It exceeded my expectations.",
+      "It's okay, but could be better. The quality is decent.",
+      "Absolutely fantastic! I highly recommend it.",
+      "Very good value for the price. Happy with my purchase.",
+      "Not what I expected. The description was misleading."
+    ];
+
+    const newReviews = Array.from({ length: Math.min(100, Math.max(1, count)) }).map(() => {
+      const randomProduct = products[Math.floor(Math.random() * products.length)];
+      const randomUser = users[Math.floor(Math.random() * users.length)];
+      const rating = Math.floor(Math.random() * 5) + 1;
+      
+      return {
+        productId: randomProduct.id,
+        userId: randomUser.id,
+        rating,
+        title: reviewTitles[Math.floor(Math.random() * reviewTitles.length)],
+        comment: reviewComments[Math.floor(Math.random() * reviewComments.length)],
+        isApproved: Math.random() > 0.5
+      };
+    });
+
+    await db.review.createMany({ data: newReviews });
+    return formatResponse({ success: true, count: newReviews.length, message: `Successfully generated ${newReviews.length} fake reviews.` });
+  } catch (e: any) {
+    return formatResponse({ error: e.message }, true);
+  }
+});
+
+mcpServer.tool("deleteReview", "Delete a customer review", {
+  reviewId: z.string().describe("ID of the review to delete")
+}, async ({ reviewId }) => {
+  try {
+    await db.review.delete({ where: { id: reviewId } });
+    return formatResponse({ success: true, message: "Review deleted successfully." });
+  } catch (e: any) {
+    return formatResponse({ error: e.message }, true);
+  }
+});
+
+mcpServer.tool("deleteOrder", "Permanently delete an order", {
+  orderId: z.string().describe("ID of the order to delete")
+}, async ({ orderId }) => {
+  try {
+    await db.order.delete({ where: { id: orderId } });
+    return formatResponse({ success: true, message: "Order deleted successfully." });
+  } catch (e: any) {
+    return formatResponse({ error: e.message }, true);
+  }
+});
+
+mcpServer.tool("createCustomer", "Create a fake customer account manually", {
+  name: z.string().describe("Name of the customer"),
+  email: z.string().describe("Email of the customer"),
+  role: z.enum(["USER", "ADMIN"]).optional().describe("Role of the user")
+}, async ({ name, email, role = "USER" }) => {
+  try {
+    const user = await db.user.create({
+      data: { name, email, role }
+    });
+    return formatResponse({ success: true, user });
+  } catch (e: any) {
+    return formatResponse({ error: e.message }, true);
+  }
+});
+
+mcpServer.tool("deleteCustomer", "Permanently delete a customer", {
+  userId: z.string().describe("ID of the user to delete")
+}, async ({ userId }) => {
+  try {
+    await db.user.delete({ where: { id: userId } });
+    return formatResponse({ success: true, message: "Customer deleted successfully." });
+  } catch (e: any) {
+    return formatResponse({ error: e.message }, true);
+  }
+});
+
