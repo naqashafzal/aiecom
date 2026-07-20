@@ -58,16 +58,21 @@ export interface GenerateFakeReviewsOptions {
   sentiment?: "positive" | "neutral" | "negative" | "random";
   useAI?: boolean;
   autoApprove?: boolean;
+  manualReviews?: string[];
 }
 
 export async function generateFakeReviews(options: GenerateFakeReviewsOptions = {}) {
   const {
-    count = 10,
+    count: rawCount = 10,
     productId = null,
     sentiment = "random",
     useAI = false,
     autoApprove = undefined,
+    manualReviews = [],
   } = options;
+
+  const isManual = manualReviews.length > 0;
+  const count = isManual ? manualReviews.length : rawCount;
 
   try {
     const productQuery = productId ? { where: { id: productId } } : {};
@@ -109,7 +114,30 @@ export async function generateFakeReviews(options: GenerateFakeReviewsOptions = 
 
     let generatedReviews: { title: string; comment: string; rating: number; productId: string }[] = [];
 
-    if (useAI) {
+    if (isManual) {
+      for (let i = 0; i < manualReviews.length; i++) {
+        const randomProduct = products[Math.floor(Math.random() * products.length)];
+        
+        let targetSentiment = sentiment;
+        if (sentiment === "random") {
+          const r = Math.random();
+          targetSentiment = r < 0.65 ? "positive" : r < 0.82 ? "neutral" : "negative";
+        }
+        
+        const rating = targetSentiment === "positive" ? (Math.random() > 0.5 ? 5 : 4) : targetSentiment === "neutral" ? 3 : (Math.random() > 0.5 ? 1 : 2);
+        
+        // Extract a title from the first 30 chars of the comment
+        let title = manualReviews[i].substring(0, 30);
+        if (manualReviews[i].length > 30) title += "...";
+
+        generatedReviews.push({
+          productId: randomProduct.id,
+          title,
+          comment: manualReviews[i],
+          rating,
+        });
+      }
+    } else if (useAI) {
       try {
         const aiModel = await getAIModel("gemini-2.5-pro");
 
