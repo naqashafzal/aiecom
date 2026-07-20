@@ -49,7 +49,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   return (
-    <article className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <article className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
         <Link href="/blog">
           <Button variant="ghost" className="text-muted-foreground hover:text-primary -ml-4">
@@ -92,7 +92,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       )}
 
-      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto text-gray-700">
+      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto max-w-5xl text-gray-700">
         {(() => {
           // Normalize newlines to \n and split by double (or more) newlines
           const normalizedContent = post.content.replace(/\r\n/g, '\n');
