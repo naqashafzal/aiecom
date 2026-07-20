@@ -8,19 +8,22 @@ import { AdSlot } from "@/components/ads/AdSlot"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await db.post.findUnique({
-    where: { slug, published: true }
+    where: { slug }
   })
   
-  if (!post) return { title: "Post Not Found" }
-  
+  if (!post) return { title: 'Post Not Found' }
   return {
-    title: `${post.title} | Aura Blog`,
-    description: post.excerpt || post.content.substring(0, 160),
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      images: post.coverImage ? [post.coverImage] : []
+    }
   }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  
   const post = await db.post.findUnique({
     where: { slug, published: true },
     include: { author: true }
@@ -28,6 +31,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) {
     notFound()
+  }
+
+  // Fetch AdSense Settings
+  let adClientId = "ca-pub-placeholder";
+  let adSlotId = "1234567890";
+  try {
+    const settings = await db.setting.findMany({
+      where: { key: { in: ["ad_sense_client_id", "ad_sense_slot_id"] } }
+    });
+    const clientSetting = settings.find(s => s.key === "ad_sense_client_id");
+    const slotSetting = settings.find(s => s.key === "ad_sense_slot_id");
+    if (clientSetting?.value) adClientId = clientSetting.value;
+    if (slotSetting?.value) adSlotId = slotSetting.value;
+  } catch (e) {
+    console.error("Failed to fetch ad settings", e);
   }
 
   return (
@@ -157,7 +175,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       {showAd && (
                         <div className="my-8 not-prose flex flex-col items-center border-y border-gray-100 py-6">
                           <span className="text-[10px] text-gray-400 uppercase tracking-widest mb-3 font-medium">Advertisement</span>
-                          <AdSlot className="w-full max-w-[728px] mx-auto min-h-[250px]" />
+                          <AdSlot client={adClientId} slot={adSlotId} className="w-full max-w-[728px] mx-auto min-h-[250px]" />
                         </div>
                       )}
                     </div>

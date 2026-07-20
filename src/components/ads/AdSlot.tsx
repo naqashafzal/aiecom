@@ -11,14 +11,19 @@ interface AdSlotProps {
 }
 
 export function AdSlot({ 
-  client = "ca-pub-placeholder", // Replace with real pub ID in admin or env
-  slot = "1234567890", // Replace with real ad slot ID
+  client,
+  slot,
   format = "auto",
   responsive = true,
   className = ""
 }: AdSlotProps) {
   const adRef = useRef<HTMLModElement>(null);
-  const isDev = process.env.NODE_ENV === "development" || client === "ca-pub-placeholder";
+  
+  // Try to read from meta tags injected by layout.tsx if props aren't provided
+  const resolvedClient = client || (typeof document !== "undefined" ? document.querySelector("meta[name='adsense-client']")?.getAttribute("content") : null) || "ca-pub-placeholder";
+  const resolvedSlot = slot || (typeof document !== "undefined" ? document.querySelector("meta[name='adsense-slot']")?.getAttribute("content") : null) || "1234567890";
+
+  const isDev = process.env.NODE_ENV === "development" || resolvedClient === "ca-pub-placeholder";
 
   useEffect(() => {
     if (!isDev && typeof window !== "undefined") {
@@ -47,8 +52,8 @@ export function AdSlot({
     <ins
       ref={adRef}
       className={`adsbygoogle block ${className}`}
-      data-ad-client={client}
-      data-ad-slot={slot}
+      data-ad-client={resolvedClient}
+      data-ad-slot={resolvedSlot}
       data-ad-format={format}
       data-full-width-responsive={responsive ? "true" : "false"}
     />

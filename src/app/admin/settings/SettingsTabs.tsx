@@ -412,12 +412,39 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
             
             <div className="space-y-6">
               <div className="border rounded-lg p-4 bg-muted/10 space-y-3">
-                <div className="font-semibold">1. Global Head Script (AdSense Verification)</div>
-                <p className="text-xs text-muted-foreground">Paste your main `&lt;script async src="..."&gt;&lt;/script&gt;` tag here. This loads on every page.</p>
+                <div className="font-semibold">1. Google AdSense Integration (Smart Ad Slots)</div>
+                <p className="text-xs text-muted-foreground">Just paste your Publisher ID and Slot ID here, and the system will automatically inject high-CPM ads intelligently throughout the blog and around the download timer.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Publisher ID</label>
+                    <input 
+                      type="text" 
+                      name="ad_sense_client_id" 
+                      defaultValue={settings.ad_sense_client_id || ""} 
+                      placeholder="e.g. ca-pub-1234567890123456"
+                      className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Default Ad Unit Slot ID</label>
+                    <input 
+                      type="text" 
+                      name="ad_sense_slot_id" 
+                      defaultValue={settings.ad_sense_slot_id || ""} 
+                      placeholder="e.g. 1234567890"
+                      className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="font-semibold">Custom Global Head Script</div>
+                <p className="text-xs text-muted-foreground">If you want to manually paste raw `&lt;script&gt;` tags for other ad networks (like PropellerAds or Media.net), paste them here.</p>
                 <textarea 
                   name="ad_head_script" 
                   defaultValue={settings.ad_head_script || ""} 
-                  placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'></script>"
+                  placeholder="<script async src='...'></script>"
                   className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
                 />
               </div>
