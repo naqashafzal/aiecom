@@ -11,9 +11,24 @@ import { RichTextEditor } from "../RichTextEditor";
 export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction: (formData: FormData) => Promise<void>, aiEnabled: boolean }) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
+  const [isSlugManual, setIsSlugManual] = useState(false);
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    if (!isSlugManual) {
+      setSlug(newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+    }
+  };
+
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSlug(e.target.value);
+    setIsSlugManual(true);
+  };
 
   const handleGenerate = async () => {
     if (!title) {
@@ -27,7 +42,7 @@ export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction:
       if (res.success) {
         setContent(res.content);
         setExcerpt(res.excerpt);
-        if (!slug) {
+        if (!isSlugManual) {
           setSlug(title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
         }
       } else {
@@ -66,7 +81,7 @@ export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction:
             id="title"
             name="title" 
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={handleTitleChange}
             required
             placeholder="e.g. 10 Tips for E-commerce Success"
             className="w-full h-10 px-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5"
@@ -79,12 +94,28 @@ export function NewPostForm({ createPostAction, aiEnabled }: { createPostAction:
             id="slug"
             name="slug" 
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            onChange={handleSlugChange}
             required
             placeholder="e.g. 10-tips-for-ecommerce-success"
             className="w-full h-10 px-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="coverImage" className="text-sm font-medium text-gray-900">Featured Image URL</label>
+        <div className="flex gap-2">
+          <input 
+            type="url" 
+            id="coverImage"
+            name="coverImage" 
+            value={coverImage}
+            onChange={(e) => setCoverImage(e.target.value)}
+            placeholder="https://example.com/image.jpg (Optional)"
+            className="flex-1 h-10 px-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5"
+          />
+        </div>
+        <p className="text-xs text-gray-500">You can use the image upload button in the Content editor to generate a URL, then paste it here.</p>
       </div>
 
       <div className="space-y-2">
