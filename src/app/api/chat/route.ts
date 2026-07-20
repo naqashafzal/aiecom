@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { google } from '@ai-sdk/google';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { db } from '@/lib/prisma';
+import { getAIModel } from '@/lib/ai';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -22,9 +22,10 @@ Your job is to help customers find products, answer questions, and assist with t
 - Format prices properly with a dollar sign ($).`;
 
   const systemPrompt = settings.aiAgentPrompt || defaultPrompt;
+  const model = await getAIModel();
 
   const result = streamText({
-    model: google('gemini-1.5-flash'),
+    model,
     messages,
     system: systemPrompt,
     tools: {

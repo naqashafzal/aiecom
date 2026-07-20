@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { google } from '@ai-sdk/google';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { db } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { getAIModel } from '@/lib/ai';
 
 export const maxDuration = 30;
 
@@ -17,9 +17,10 @@ export async function POST(req: Request) {
   }
 
   const { messages } = await req.json();
+  const model = await getAIModel();
 
   const result = streamText({
-    model: google('gemini-1.5-flash'),
+    model,
     system: `You are the Omni-Agent for the ZS Decor E-Commerce Admin Dashboard.
 You have absolute knowledge and control over the store's data via your tools.
 Be helpful, concise, and professional. 

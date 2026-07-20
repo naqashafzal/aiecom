@@ -33,7 +33,7 @@ export async function deleteReview(id: string) {
 }
 
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { getAIModel } from "@/lib/ai";
 import { z } from "zod";
 
 export interface GenerateFakeReviewsOptions {
@@ -75,14 +75,15 @@ export async function generateFakeReviews(options: GenerateFakeReviewsOptions = 
 
     let generatedReviews: { title: string; comment: string; rating: number; productId: string }[] = [];
 
-    if (useAI && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    if (useAI) {
       try {
+        const aiModel = await getAIModel("gemini-2.5-pro");
         const productSamples = products.slice(0, 3).map(p => `- ${p.name}: ${p.description?.substring(0, 50) || ""}`).join("\n");
         
         const sentimentPrompt = sentiment === "random" ? "mixed sentiments (some positive, some negative, some neutral)" : `strictly ${sentiment} sentiment`;
         
         const { object } = await generateObject({
-          model: google("gemini-2.5-pro"),
+          model: aiModel,
           schema: z.object({
             reviews: z.array(z.object({
               title: z.string().describe("A catchy short title for the review"),
