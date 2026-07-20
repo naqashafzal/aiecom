@@ -3,6 +3,7 @@
 import { Bell, Search, Menu, Printer, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
+import { NotificationBell } from "./NotificationBell";
 
 import { useAdminStore } from "@/store/useAdminStore";
 
@@ -45,9 +46,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         <Button variant="ghost" size="icon" className="hidden sm:flex text-gray-500 hover:text-gray-900 hover:bg-gray-100 h-8 w-8">
           <Printer className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 h-8 w-8">
-          <Bell className="h-4 w-4" />
-        </Button>
+        <NotificationBell />
         <div 
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="ml-0 sm:ml-2 flex items-center gap-2 hover:bg-gray-100 cursor-pointer rounded-md pl-1 pr-1 sm:pr-3 py-1 transition-colors group border border-transparent hover:border-gray-200"

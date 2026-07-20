@@ -525,3 +525,35 @@ export async function testResendApi(apiKey: string, fromAddress: string, toAddre
     return { success: false, error: e.message || "An unknown error occurred" };
   }
 }
+
+export async function getAdminNotifications() {
+  const session = await import("@/auth").then(m => m.auth());
+  if (!session?.user?.id) return [];
+
+  // Since admins can see all notifications meant for admins, maybe we just fetch by userId.
+  const notifications = await db.notification.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+    take: 10
+  });
+  return notifications;
+}
+
+export async function markNotificationAsRead(id: string) {
+  await db.notification.update({
+    where: { id },
+    data: { isRead: true }
+  });
+  revalidatePath("/admin");
+}
+
+export async function markAllNotificationsAsRead() {
+  const session = await import("@/auth").then(m => m.auth());
+  if (!session?.user?.id) return;
+
+  await db.notification.updateMany({
+    where: { userId: session.user.id, isRead: false },
+    data: { isRead: true }
+  });
+  revalidatePath("/admin");
+}

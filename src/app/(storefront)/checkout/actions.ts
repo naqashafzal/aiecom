@@ -270,33 +270,48 @@ export async function processCheckout(data: {
       console.log("Email failed", e);
     }
 
-    // 5. Dispatch Expo Push Notifications to Admins
+    // 5. Create Database Notifications & Dispatch Expo Push Notifications to Admins
     try {
       const admins = await db.user.findMany({
-        where: { role: 'ADMIN', expoPushToken: { not: null } }
+        where: { role: 'ADMIN' }
       });
 
-      const pushMessages = admins.map(admin => ({
-        to: admin.expoPushToken,
-        sound: 'default',
-        title: 'New Order Received! 🎉',
-        body: `Order #${order.orderNumber || order.id.substring(0, 8)} for $${data.totals.grandTotal.toFixed(2)}`,
-        data: { orderId: order.id },
-      }));
-
-      if (pushMessages.length > 0) {
-        await fetch('https://exp.host/--/api/v2/push/send', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Accept-encoding': 'gzip, deflate',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(pushMessages),
+      if (admins.length > 0) {
+        const orderNumberText = order.orderNumber ? order.orderNumber.toString() : order.id.substring(0, 8);
+        
+        // Create database notifications
+        await db.notification.createMany({
+          data: admins.map(admin => ({
+            userId: admin.id,
+            type: "NEW_ORDER",
+            message: `New Order #${orderNumberText} for $${data.totals.grandTotal.toFixed(2)}`,
+          }))
         });
+
+        // Dispatch Push Notifications
+        const adminsWithTokens = admins.filter(a => a.expoPushToken);
+        const pushMessages = adminsWithTokens.map(admin => ({
+          to: admin.expoPushToken,
+          sound: 'default',
+          title: 'New Order Received! 🎉',
+          body: `Order #${orderNumberText} for $${data.totals.grandTotal.toFixed(2)}`,
+          data: { orderId: order.id },
+        }));
+
+        if (pushMessages.length > 0) {
+          await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Accept-encoding': 'gzip, deflate',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(pushMessages),
+          });
+        }
       }
     } catch (pushError) {
-      console.error("Failed to send push notification:", pushError);
+      console.error("Failed to process notifications:", pushError);
     }
 
     return { success: true, orderId: order.id, orderNumber: order.orderNumber };
