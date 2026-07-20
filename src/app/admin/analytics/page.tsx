@@ -63,7 +63,7 @@ export default async function AdminAnalyticsPage() {
     include: {
       product: {
         include: {
-          category: true
+          categories: true
         }
       }
     }
@@ -73,7 +73,7 @@ export default async function AdminAnalyticsPage() {
   let totalCategoryRevenue = 0;
 
   paidOrderItems.forEach(item => {
-    const catName = item.product?.category?.name || "Uncategorized";
+    const catName = item.product?.categories?.[0]?.name || "Uncategorized";
     if (!categoryRevenue[catName]) {
       categoryRevenue[catName] = { name: catName, total: 0 };
     }
