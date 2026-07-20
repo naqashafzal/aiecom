@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PluginSlot } from "@/components/plugins/PluginSlot"
+import { AdSlot } from "@/components/ads/AdSlot"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await db.post.findUnique({
@@ -142,13 +143,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   contentNode = <p key={`text-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
                 }
 
-                if (index === middleIndex) {
+                const showAd = index > 0 && index % 4 === 0 && Math.abs(index - middleIndex) > 1;
+
+                if (index === middleIndex || showAd) {
                   return (
                     <div key={`wrapper-${index}`}>
                       {contentNode}
-                      <div className="my-10 not-prose">
-                        <PluginSlot name="blog_post_middle" />
-                      </div>
+                      {index === middleIndex && (
+                        <div className="my-10 not-prose">
+                          <PluginSlot name="blog_post_middle" />
+                        </div>
+                      )}
+                      {showAd && (
+                        <div className="my-8 not-prose flex flex-col items-center border-y border-gray-100 py-6">
+                          <span className="text-[10px] text-gray-400 uppercase tracking-widest mb-3 font-medium">Advertisement</span>
+                          <AdSlot className="w-full max-w-[728px] mx-auto min-h-[250px]" />
+                        </div>
+                      )}
                     </div>
                   );
                 }
