@@ -75,10 +75,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <div className="prose prose-lg sm:prose-xl prose-primary mx-auto text-gray-700">
         {(() => {
-          const content = post.content;
-          const toc: { id: string; text: string; level: number }[] = [];
+          // Normalize newlines to \n and split by double (or more) newlines
+          const normalizedContent = post.content.replace(/\r\n/g, '\n');
+          const rawBlocks = normalizedContent.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
           
-          const rawBlocks = content.split(/\n\n+/);
+          const toc: { id: string; text: string; level: number }[] = [];
           
           const parsedBlocks = rawBlocks.map((block) => {
             const mdHeaderMatch = block.match(/^(#{2,3})\s+(.*)/);
@@ -133,11 +134,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 
                 if (block.type === 'header' || block.type === 'html_header') {
                   const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
-                  contentNode = <Tag key={`h-${index}`} id={block.id} className={`${block.level === 2 ? 'text-3xl' : 'text-2xl'} font-bold mt-10 mb-4 text-gray-900 scroll-mt-24`} dangerouslySetInnerHTML={{ __html: block.html }} />;
+                  // Let Tailwind typography (prose) handle margins and fonts, only add scroll-mt for anchor links
+                  contentNode = <Tag key={`h-${index}`} id={block.id} className="scroll-mt-24" dangerouslySetInnerHTML={{ __html: block.html }} />;
                 } else if (block.type === 'html') {
-                  contentNode = <div key={`html-${index}`} className="mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: block.html }} />;
+                  contentNode = <div key={`html-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
                 } else {
-                  contentNode = <p key={`text-${index}`} className="mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: block.html }} />;
+                  contentNode = <p key={`text-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
                 }
 
                 if (index === middleIndex) {
