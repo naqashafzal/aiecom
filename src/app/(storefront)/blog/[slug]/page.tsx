@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { PluginSlot } from "@/components/plugins/PluginSlot"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await db.post.findUnique({
@@ -83,6 +83,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           return <p key={index} className="mb-4 leading-relaxed">{paragraph}</p>
         })}
       </div>
+
+      <PluginSlot name="blog_post_bottom" />
 
       <div className="mt-20 pt-8 border-t">
         <div className="flex justify-between items-center bg-gray-50 p-6 rounded-2xl">
