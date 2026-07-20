@@ -524,3 +524,31 @@ model Plugin {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Visitor {
+  id        String     @id @default(cuid())
+  sessionId String     @unique
+  country   String?
+  city      String?
+  browser   String?
+  os        String?
+  device    String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  pageViews PageView[]
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  visitorId String
+  visitor   Visitor  @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+  url       String
+  pathname  String
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([visitorId])
+  @@index([createdAt])
+  @@index([pathname])
+}

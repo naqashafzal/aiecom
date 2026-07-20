@@ -25,6 +25,7 @@ const montserrat = Montserrat({
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl = "/favicon.ico";
@@ -92,7 +93,10 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${montserrat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session}>
+          <AnalyticsTracker />
+          {children}
+        </Providers>
       </body>
     </html>
   );

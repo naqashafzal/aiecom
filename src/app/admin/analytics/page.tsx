@@ -1,6 +1,7 @@
 import { db } from "@/lib/prisma";
-import { DollarSign, ArrowUpRight, TrendingUp, Users, ShoppingCart } from "lucide-react";
+import { DollarSign, ArrowUpRight, TrendingUp, Users, ShoppingCart, Activity, Globe, Link as LinkIcon } from "lucide-react";
 import { subDays, format, startOfDay, endOfDay } from "date-fns";
+import AnalyticsChart from "@/components/admin/AnalyticsChart";
 
 export const revalidate = 0; // Disable static rendering for this page
 
@@ -36,8 +37,6 @@ export default async function AdminAnalyticsPage() {
 
     const dailyRevenue = dailyOrders.reduce((sum, order) => sum + (order.grandTotal || 0), 0);
     
-    // We count all orders created on that day, regardless of payment status for the "orders" metric, 
-    // but revenue is only for PAID orders.
     const allDailyOrdersCount = await db.order.count({
       where: {
         createdAt: { gte: start, lte: end }
@@ -50,8 +49,6 @@ export default async function AdminAnalyticsPage() {
       orders: allDailyOrdersCount
     });
   }
-
-  const maxRevenue = Math.max(...chartData.map(d => d.revenue), 100);
 
   // Real data for Top Categories
   const paidOrderItems = await db.orderItem.findMany({
@@ -96,6 +93,38 @@ export default async function AdminAnalyticsPage() {
   const aov = ordersCount > 0 ? (revenue / ordersCount) : 0;
   const isAovLow = aov < 50;
 
+  // Live Traffic (Last 30 minutes)
+  const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000);
+  
+  const activeVisitorsCount = await db.visitor.count({
+    where: {
+      updatedAt: { gte: thirtyMinsAgo }
+    }
+  });
+
+  const recentPageViews = await db.pageView.findMany({
+    where: {
+      createdAt: { gte: thirtyMinsAgo }
+    },
+    include: { visitor: true },
+    orderBy: { createdAt: 'desc' },
+    take: 50
+  });
+
+  const sources: Record<string, number> = {};
+  const countries: Record<string, number> = {};
+  
+  recentPageViews.forEach(pv => {
+    const src = pv.referrer && pv.referrer.length > 0 ? pv.referrer : "Direct";
+    sources[src] = (sources[src] || 0) + 1;
+    
+    const country = pv.visitor.country || "Unknown";
+    countries[country] = (countries[country] || 0) + 1;
+  });
+
+  const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-20">
       <div>
@@ -103,7 +132,7 @@ export default async function AdminAnalyticsPage() {
         <p className="text-muted-foreground mt-1">Track your store's performance and customer behavior in real-time.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-lg text-primary">
@@ -113,11 +142,6 @@ export default async function AdminAnalyticsPage() {
               <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
               <h3 className="text-2xl font-bold">${revenue.toFixed(2)}</h3>
             </div>
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-500 flex items-center font-medium">
-              <ArrowUpRight className="h-4 w-4 mr-1" /> All time
-            </span>
           </div>
         </div>
 
@@ -131,11 +155,6 @@ export default async function AdminAnalyticsPage() {
               <h3 className="text-2xl font-bold">{ordersCount}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-500 flex items-center font-medium">
-              <ArrowUpRight className="h-4 w-4 mr-1" /> All time
-            </span>
-          </div>
         </div>
 
         <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow">
@@ -144,72 +163,95 @@ export default async function AdminAnalyticsPage() {
               <Users className="h-6 w-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Registered Customers</p>
+              <p className="text-sm font-medium text-muted-foreground">Customers</p>
               <h3 className="text-2xl font-bold">{usersCount}</h3>
             </div>
           </div>
-          <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-500 flex items-center font-medium">
-              <ArrowUpRight className="h-4 w-4 mr-1" /> All time
-            </span>
+        </div>
+
+        {/* Live Traffic Card */}
+        <div className="bg-white rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Activity className="h-20 w-20 text-green-500" />
+          </div>
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="p-3 bg-green-500/10 rounded-lg text-green-500 relative">
+              <Activity className="h-6 w-6" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Active Visitors</p>
+              <h3 className="text-2xl font-bold">{activeVisitorsCount}</h3>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-xs text-muted-foreground relative z-10">
+            <span>In the last 30 minutes</span>
           </div>
         </div>
       </div>
 
       <div className="bg-white rounded-xl border shadow-sm p-6">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-2">
           <div>
             <h2 className="text-lg font-bold text-[#202223]">Revenue & Orders (Last 7 Days)</h2>
             <p className="text-sm text-muted-foreground">Daily performance metrics</p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center text-xs font-medium text-muted-foreground">
-              <span className="w-3 h-3 rounded-full bg-primary mr-2"></span> Revenue
-            </span>
-          </div>
         </div>
-
-        {/* Pure CSS Bar Chart - Dynamic */}
-        <div className="h-64 flex items-end justify-between gap-2 pt-4">
-          {chartData.map((data, i) => (
-            <div key={i} className="flex flex-col items-center flex-1 group">
-              <div className="w-full relative flex justify-center flex-1 items-end rounded-t-sm">
-                {/* Tooltip */}
-                <div className="absolute -top-14 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs py-1.5 px-3 rounded shadow-lg pointer-events-none z-10 whitespace-nowrap">
-                  <div className="font-semibold">${data.revenue.toFixed(2)}</div>
-                  <div className="text-slate-300">{data.orders} orders</div>
-                </div>
-                {/* Bar */}
-                <div 
-                  className="w-full max-w-[40px] bg-primary rounded-t-md transition-all duration-500 group-hover:bg-primary/80 group-hover:-translate-y-1"
-                  style={{ height: `${(data.revenue / maxRevenue) * 100}%`, minHeight: data.revenue > 0 ? '5%' : '2%' }}
-                ></div>
-              </div>
-              <div className="mt-4 text-xs font-medium text-muted-foreground border-t w-full text-center pt-2">
-                {data.day}
-              </div>
-            </div>
-          ))}
-        </div>
+        
+        {/* Recharts Component */}
+        <AnalyticsChart data={chartData} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow">
-          <h2 className="text-lg font-bold mb-4 text-[#202223]">Top Performing Categories</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Top Categories */}
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow lg:col-span-1">
+          <h2 className="text-lg font-bold mb-4 text-[#202223]">Top Categories</h2>
           <div className="space-y-5">
             {topCategories.length > 0 ? topCategories.map((cat, i) => (
-              <div key={cat.name} className="flex items-center justify-between group">
-                <span className="text-sm font-medium min-w-[120px]">{cat.name}</span>
-                <div className="flex-1 mx-4 h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
+              <div key={cat.name} className="flex items-center gap-3 group">
+                <span className="text-sm font-medium w-[40%] truncate" title={cat.name}>{cat.name}</span>
+                <div className="w-[40%] h-2.5 bg-muted rounded-full overflow-hidden shadow-inner">
                   <div className={`h-full ${colors[i % colors.length]} transition-all duration-1000 ease-out group-hover:opacity-80`} style={{ width: `${cat.percentage}%` }}></div>
                 </div>
-                <div className="flex flex-col items-end min-w-[50px]">
+                <div className="flex flex-col items-end w-[20%]">
                   <span className="text-sm font-bold">{cat.percentage}%</span>
-                  <span className="text-[10px] text-muted-foreground">${cat.total.toFixed(0)}</span>
                 </div>
               </div>
             )) : (
               <div className="text-sm text-muted-foreground py-4">Not enough data to display top categories.</div>
+            )}
+          </div>
+        </div>
+
+        {/* Live Traffic Details */}
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow lg:col-span-1">
+          <div className="flex items-center gap-2 mb-4 text-[#202223]">
+            <Globe className="h-5 w-5 text-blue-500" />
+            <h2 className="text-lg font-bold">Top Countries</h2>
+          </div>
+          <div className="space-y-4">
+            {topCountries.length > 0 ? topCountries.map(([country, count]) => (
+              <div key={country} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground">{country}</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
+              </div>
+            )) : (
+              <div className="text-sm text-muted-foreground">No active visitors.</div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 mt-6 mb-4 text-[#202223]">
+            <LinkIcon className="h-5 w-5 text-purple-500" />
+            <h2 className="text-lg font-bold">Top Sources</h2>
+          </div>
+          <div className="space-y-4">
+            {topSources.length > 0 ? topSources.map(([source, count]) => (
+              <div key={source} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground truncate max-w-[150px]">{source}</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
+              </div>
+            )) : (
+              <div className="text-sm text-muted-foreground">No traffic sources recorded.</div>
             )}
           </div>
         </div>
