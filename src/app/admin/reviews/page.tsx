@@ -1,5 +1,6 @@
 import { db } from "@/lib/prisma";
 import ReviewsClient from "./ReviewsClient";
+import GenerateFakeReviewsButton from "./GenerateFakeReviewsButton";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +31,12 @@ export default async function AdminReviewsPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Product Reviews</h1>
-        <p className="text-sm text-gray-500">Manage and moderate customer reviews for your products.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Product Reviews</h1>
+          <p className="text-sm text-gray-500">Manage and moderate customer reviews for your products.</p>
+        </div>
+        <GenerateFakeReviewsButton />
       </div>
       
       <ReviewsClient 
