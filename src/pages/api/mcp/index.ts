@@ -33,8 +33,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   console.log(`[MCP] Starting SSE session: ${sessionId}`);
 
+  // Construct absolute URL for Claude
+  const protocol = req.headers['x-forwarded-proto'] || (req.headers.host?.includes('localhost') ? 'http' : 'https');
+  const host = req.headers.host;
+  const messagesUrl = `${protocol}://${host}/api/mcp/messages?sessionId=${sessionId}`;
+
   // Create an SSE transport wrapping the Next.js/Node.js response
-  const transport = new SSEServerTransport("/api/mcp/messages?sessionId=" + sessionId, res as any);
+  const transport = new SSEServerTransport(messagesUrl, res as any);
   
   activeTransports.set(sessionId, transport);
 
