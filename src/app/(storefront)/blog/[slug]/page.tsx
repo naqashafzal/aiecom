@@ -74,37 +74,87 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       )}
 
       <div className="prose prose-lg sm:prose-xl prose-primary mx-auto text-gray-700">
-        {/* Simple rendering for now. For a real app, use next-mdx-remote or marked */}
         {(() => {
-          const paragraphs = post.content.split('\n');
-          const middleIndex = Math.floor(paragraphs.length / 2);
-
-          return paragraphs.map((paragraph, index) => {
-            let contentNode = null;
-            if (!paragraph.trim()) contentNode = <br key={index} />;
-            else if (paragraph.startsWith('# ')) contentNode = <h1 key={`h1-${index}`} className="text-3xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('# ', '')}</h1>;
-            else if (paragraph.startsWith('## ')) contentNode = <h2 key={`h2-${index}`} className="text-2xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('## ', '')}</h2>;
-            else if (paragraph.startsWith('### ')) contentNode = <h3 key={`h3-${index}`} className="text-xl font-bold mt-6 mb-3 text-gray-900">{paragraph.replace('### ', '')}</h3>;
-            // Handling the new img tag logic from our RichTextEditor
-            else if (paragraph.startsWith('<img') || paragraph.includes('<img')) {
-              // Very basic HTML parsing for the specific img tag we generate
-              contentNode = <div key={`img-${index}`} dangerouslySetInnerHTML={{ __html: paragraph }} />;
-            } else {
-              contentNode = <p key={`p-${index}`} className="mb-4 leading-relaxed">{paragraph}</p>;
+          const content = post.content;
+          const toc: { id: string; text: string; level: number }[] = [];
+          
+          const rawBlocks = content.split(/\n\n+/);
+          
+          const parsedBlocks = rawBlocks.map((block) => {
+            const mdHeaderMatch = block.match(/^(#{2,3})\s+(.*)/);
+            if (mdHeaderMatch) {
+              const level = mdHeaderMatch[1].length;
+              const text = mdHeaderMatch[2].replace(/<[^>]+>/g, '');
+              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              toc.push({ id, text, level });
+              return { type: 'header', level, id, html: mdHeaderMatch[2], original: block };
             }
-
-            if (index === middleIndex) {
-              return (
-                <div key={`wrapper-${index}`}>
-                  {contentNode}
-                  <div className="my-10">
-                    <PluginSlot name="blog_post_middle" />
-                  </div>
-                </div>
-              );
+            
+            const htmlHeaderMatch = block.match(/^<(h[23])[^>]*>(.*?)<\/\1>/i);
+            if (htmlHeaderMatch) {
+              const level = parseInt(htmlHeaderMatch[1][1]);
+              const rawText = htmlHeaderMatch[2];
+              const text = rawText.replace(/<[^>]+>/g, '');
+              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              toc.push({ id, text, level });
+              return { type: 'html_header', level, id, html: rawText, original: block };
             }
-            return contentNode;
+            
+            if (block.trim().match(/^<(div|ul|ol|li|img|blockquote|p|table|iframe|b|i|strong|em|a|h1|h4|h5|h6)/i)) {
+              return { type: 'html', html: block, original: block };
+            }
+            
+            const htmlBlock = block.replace(/\n/g, '<br/>');
+            return { type: 'text', html: htmlBlock, original: block };
           });
+
+          const middleIndex = Math.floor(parsedBlocks.length / 2);
+
+          return (
+            <>
+              {toc.length > 0 && (
+                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 mb-10 text-gray-900 shadow-sm not-prose">
+                  <h4 className="font-bold mb-4 text-lg">Table of Contents</h4>
+                  <ul className="space-y-3">
+                    {toc.map((item, idx) => (
+                      <li key={idx} className={item.level === 3 ? "ml-6" : ""}>
+                        <a href={`#${item.id}`} className="text-primary hover:underline hover:text-primary/80 transition-colors flex items-start gap-2">
+                          <span className="text-primary/40 mt-1 text-xs">▼</span>
+                          <span>{item.text}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {parsedBlocks.map((block, index) => {
+                let contentNode = null;
+                
+                if (block.type === 'header' || block.type === 'html_header') {
+                  const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
+                  contentNode = <Tag key={`h-${index}`} id={block.id} className={`${block.level === 2 ? 'text-3xl' : 'text-2xl'} font-bold mt-10 mb-4 text-gray-900 scroll-mt-24`} dangerouslySetInnerHTML={{ __html: block.html }} />;
+                } else if (block.type === 'html') {
+                  contentNode = <div key={`html-${index}`} className="mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: block.html }} />;
+                } else {
+                  contentNode = <p key={`text-${index}`} className="mb-6 leading-relaxed" dangerouslySetInnerHTML={{ __html: block.html }} />;
+                }
+
+                if (index === middleIndex) {
+                  return (
+                    <div key={`wrapper-${index}`}>
+                      {contentNode}
+                      <div className="my-10 not-prose">
+                        <PluginSlot name="blog_post_middle" />
+                      </div>
+                    </div>
+                  );
+                }
+
+                return contentNode;
+              })}
+            </>
+          );
         })()}
       </div>
 
