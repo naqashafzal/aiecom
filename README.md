@@ -1,113 +1,124 @@
-# ZS Decor AI E-Commerce Platform
+# ZSDecor E-commerce Platform
 
-A next-generation, fully autonomous e-commerce platform built with **Next.js**, **Prisma**, **Tailwind CSS v4**, and heavily integrated with the **Vercel AI SDK**. 
+A modern, full-featured e-commerce platform built with Next.js, Prisma, and Tailwind CSS. It features a comprehensive storefront, an advanced admin dashboard, multi-vendor support, and a built-in AI MCP (Model Context Protocol) Server for intelligent automation.
 
-This isn't just a standard storefront—it features an entire **AI Workforce** that helps run the business, from customer support to inventory management and marketing, plus a **Remote MCP Server** that allows native integrations with Claude.ai.
+## 🚀 Features
 
----
+### 🛍️ Storefront
+*   **Dynamic Theming**: Support for multiple storefront themes (e.g., Elegant, Marketplace).
+*   **Product Discovery**: Live search bar, category filtering, and product recommendations (similar/bought together).
+*   **Checkout System**: Secure checkout with support for Stripe, Cash on Delivery (COD), Bank Transfer, EasyPaisa, and JazzCash.
+*   **Shopping Cart & Wishlist**: Persistent cart and wishlist for authenticated and guest users.
+*   **Customer Accounts**: Order history, saved addresses, reward points, and recently viewed products.
+*   **Product Reviews**: Customers can leave ratings and reviews (with admin moderation).
 
-## 🚀 Key Features
+### 🛡️ Advanced Admin Dashboard
+*   **Order Management**: View detailed order summaries, update fulfillment & payment statuses, and copy customer details to clipboard.
+*   **Product Management**: Create, edit, and bulk-update products, stock levels, and prices.
+*   **Categorization**: Manage categories and brands with nested hierarchies.
+*   **Shipping Rates**: Configure dynamic shipping zones and rates based on price or weight conditions.
+*   **Marketing & Discounts**: Create discount coupons (percentage, fixed, free shipping) with usage limits and expiration dates.
+*   **Notifications System**: Live admin notification bell for new orders.
+*   **Content Management**: Built-in blogging system and customizable pages.
 
-### 🛍️ Modern Storefront
-- **Blazing Fast Frontend**: Built on Next.js App Router.
-- **Dynamic Cart & Checkout**: Integrated directly with Stripe for secure, frictionless payments.
-- **SEO Optimized**: Fully compliant with Google Merchant Center, dynamic XML sitemaps, robots.txt, and complete Schema.org `application/ld+json` structured data.
-- **Live Search**: Instant product discovery.
+### 🤖 AI Integration (MCP Server)
+The platform includes a deeply integrated **Model Context Protocol (MCP)** server (`/api/mcp`) that exposes secure tools to AI assistants (like Claude Desktop). The AI can:
+*   Retrieve store statistics, recent orders, and customer details.
+*   Create, update, or delete products, categories, and brands.
+*   Generate bulk fake reviews for testing.
+*   Update order statuses and inventory stock.
 
-### 🤖 AI Workforce (Powered by Gemini 1.5 Flash)
-- **The Storefront Concierge**: A highly capable customer-facing chatbot. It can search the database, recommend products, and even securely inject items directly into the user's shopping cart.
-- **The AI Inventory Manager**: Select a product title, and the AI will autonomously write a high-converting, HTML-formatted product description directly inside your admin editor.
-- **The AI Marketing Agent**: Give it a topic, and it will research and write a fully-formatted Markdown blog post complete with excerpts and slugs.
-- **Admin Omni-Agent**: A specialized chatbot in the Admin Dashboard capable of modifying order status, checking total revenue, and updating inventory directly via tool-calling.
+### 🔔 Notifications & Emails
+*   **Push Notifications**: Expo push notifications sent to admins on new orders.
+*   **Emails**: Order confirmation emails powered by Resend.
 
-### 🧠 Remote MCP Server (Model Context Protocol)
-This repository ships with a native **Remote MCP Server**. By connecting this web app to Claude.ai or Claude Desktop as a "Custom Connector", you grant Claude secure, native access to your database.
-- **Tools Included**: `getStoreStats`, `searchProducts`, `updateProductStock`, `getRecentOrders`.
-- **Protocol**: Operates over SSE (Server-Sent Events) via `/api/mcp`.
+## 🛠️ Tech Stack
 
-### 🛡️ Powerful Admin Dashboard
-- **Bulk Order Editing**: Select multiple orders and instantly update their fulfillment or payment statuses.
-- **Content Management**: Manage products, categories, blogs, and pages.
-- **Role-Based Auth**: Secured via NextAuth v5 (Auth.js) with Admin/User roles.
+*   **Framework**: [Next.js](https://nextjs.org/) (App Router)
+*   **Database ORM**: [Prisma](https://www.prisma.io/)
+*   **Database**: PostgreSQL
+*   **Authentication**: [NextAuth.js](https://next-auth.js.org/)
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+*   **UI Components**: [Radix UI](https://www.radix-ui.com/) + Lucide Icons
+*   **Payments**: [Stripe](https://stripe.com/)
+*   **Emails**: [Resend](https://resend.com/) + React Email
+*   **State Management**: Zustand
+*   **AI SDK**: `@modelcontextprotocol/sdk`, Vercel AI SDK
 
----
+## 📦 Installation & Setup
 
-## 💻 Tech Stack
-
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Database**: PostgreSQL
-- **ORM**: [Prisma](https://www.prisma.io/)
-- **Auth**: [Auth.js (NextAuth v5)](https://authjs.dev/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/) & Radix UI
-- **AI / LLMs**: [Vercel AI SDK](https://sdk.vercel.ai/docs), `@ai-sdk/google`
-- **Payments**: Stripe (`@stripe/stripe-js`)
-
----
-
-## ⚙️ Environment Variables
-
-To run this project locally or in production, you must configure your `.env` file. 
-
-```env
-# Database
-DATABASE_URL="postgresql://user:password@host:port/dbname"
-
-# Authentication (Generate with `npx auth secret`)
-AUTH_SECRET="your_auth_secret_here"
-
-# Storefront URL
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# Stripe Payments
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
-STRIPE_SECRET_KEY="sk_test_..."
-
-# AI Workforce (Required for all AI Agents to function)
-GOOGLE_GENERATIVE_AI_API_KEY="your_gemini_api_key"
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd aiecom
 ```
 
----
+### 2. Install dependencies
+```bash
+npm install
+```
 
-## 🛠️ Local Development Setup
+### 3. Environment Variables
+Create a `.env` file in the root directory and configure the following variables:
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/zsdecor"
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd aiecom
-   ```
+# NextAuth
+NEXTAUTH_SECRET="your-super-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
 
-3. **Set up the Database**
-   Configure your `DATABASE_URL` in the `.env` file, then push the schema:
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
+# Resend (Emails)
+RESEND_API_KEY="re_..."
+```
 
-4. **Run the Development Server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) to view the storefront, and `/admin` for the backend.
+### 4. Database Setup
+Push the Prisma schema to your database and generate the Prisma client:
+```bash
+npx prisma db push
+npx prisma generate
+```
 
----
+*(Optional)* Seed the database with initial admin users and settings if you have a seed script:
+```bash
+npx prisma db seed
+```
 
-## ☁️ Deployment
+### 5. Run the Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The Admin dashboard is accessible at `/admin`.
 
-### Using Coolify / Docker
-This application is container-ready. When deploying via Coolify:
-1. Connect your repository.
-2. Set the build command to: `prisma generate && prisma db push --accept-data-loss && next build`
-3. Add all required Environment Variables in the Coolify dashboard **before** triggering the build.
-4. Deploy!
+## 🤖 Connecting the MCP Server to Claude Desktop
 
-### Connecting the MCP Server
-Once deployed to a public URL:
-1. Go to **Claude.ai** -> **Settings** -> **Connectors** -> **Add Custom Connector**.
-2. Enter your deployed SSE endpoint: `https://your-domain.com/api/mcp`.
-3. Claude will now have direct context of your database and can help you run your store autonomously.
+You can manage this e-commerce store using Claude Desktop by connecting the built-in MCP server.
+
+1. Open your Claude Desktop configuration file:
+   * **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+   * **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+2. Add the SSE connection to the config:
+```json
+{
+  "mcpServers": {
+    "zsdecor-store": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/inspector",
+        "http://localhost:3000/api/mcp"
+      ]
+    }
+  }
+}
+```
+*Note: Depending on how you expose SSE locally, you might write a custom script or simply use Claude's built-in fetch if it supports direct SSE URLs.*
+
+## 📜 License
+This project is proprietary and confidential.
