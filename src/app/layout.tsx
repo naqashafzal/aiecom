@@ -88,6 +88,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import Script from "next/script";
+import NextTopLoader from 'nextjs-toploader';
 
 export default async function RootLayout({
   children,
@@ -138,6 +139,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-full flex flex-col">
+        <NextTopLoader color="#000000" showSpinner={false} shadow="0 0 10px #000000,0 0 5px #000000" />
         <Providers session={session}>
           <AnalyticsTracker />
           {children}
