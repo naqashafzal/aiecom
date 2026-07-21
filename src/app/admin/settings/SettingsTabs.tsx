@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload } from "lucide-react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload, Key, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
   const [activeTab, setActiveTab] = useState("general");
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   const [menuLinks, setMenuLinks] = useState<Array<{name: string, url: string, highlight?: boolean}>>(() => {
     try {
       return settings.storefront_main_menu ? JSON.parse(settings.storefront_main_menu) : [
@@ -61,6 +62,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "storefront", name: "Product Pages", icon: LayoutTemplate },
     { id: "emails", name: "Emails", icon: Mail },
     { id: "ads", name: "Advertisements", icon: Megaphone },
+    { id: "ai", name: "AI & Integrations", icon: Bot },
   ];
 
   return (
@@ -410,12 +412,39 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
             
             <div className="space-y-6">
               <div className="border rounded-lg p-4 bg-muted/10 space-y-3">
-                <div className="font-semibold">1. Global Head Script (AdSense Verification)</div>
-                <p className="text-xs text-muted-foreground">Paste your main `&lt;script async src="..."&gt;&lt;/script&gt;` tag here. This loads on every page.</p>
+                <div className="font-semibold">1. Google AdSense Integration (Smart Ad Slots)</div>
+                <p className="text-xs text-muted-foreground">Just paste your Publisher ID and Slot ID here, and the system will automatically inject high-CPM ads intelligently throughout the blog and around the download timer.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Publisher ID</label>
+                    <input 
+                      type="text" 
+                      name="ad_sense_client_id" 
+                      defaultValue={settings.ad_sense_client_id || ""} 
+                      placeholder="e.g. ca-pub-1234567890123456"
+                      className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Default Ad Unit Slot ID</label>
+                    <input 
+                      type="text" 
+                      name="ad_sense_slot_id" 
+                      defaultValue={settings.ad_sense_slot_id || ""} 
+                      placeholder="e.g. 1234567890"
+                      className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="font-semibold">Custom Global Head Script</div>
+                <p className="text-xs text-muted-foreground">If you want to manually paste raw `&lt;script&gt;` tags for other ad networks (like PropellerAds or Media.net), paste them here.</p>
                 <textarea 
                   name="ad_head_script" 
                   defaultValue={settings.ad_head_script || ""} 
-                  placeholder="<script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'></script>"
+                  placeholder="<script async src='...'></script>"
                   className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
                 />
               </div>
@@ -486,6 +515,63 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   placeholder="<!-- Timer Page Ad Unit -->"
                   className="w-full h-24 px-3 py-2 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-xs"
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "ai" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><Bot className="h-5 w-5 text-purple-500" /> AI &amp; Integrations</h2>
+              <p className="text-sm text-muted-foreground mt-1">Configure your AI provider keys. These are stored securely in the database and override any server environment variables.</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Key className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Google Gemini API Key</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Used for AI-powered features: storefront chatbot, admin AI chat, product description generation, blog post generation, and fake review generation.
+                  Get your free key at{" "}
+                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-primary underline">aistudio.google.com</a>.
+                </p>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    name="gemini_api_key"
+                    defaultValue={settings.gemini_api_key || ""}
+                    placeholder="AIza..."
+                    className="w-full h-10 px-3 pr-10 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-2">
+                  ⚠️ Leave blank to use the <code className="font-mono">GOOGLE_GENERATIVE_AI_API_KEY</code> environment variable instead.
+                </p>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <h3 className="font-semibold">AI Model</h3>
+                <p className="text-xs text-muted-foreground">The model used for all AI features (chatbot, agents, descriptions). Defaults to <code className="font-mono">gemini-2.0-flash-lite</code>.</p>
+                <select
+                  name="gemini_model"
+                  defaultValue={settings.gemini_model || "gemini-2.0-flash-lite"}
+                  className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm"
+                >
+                  <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (Most free — recommended)</option>
+                  <option value="gemini-2.0-flash">gemini-2.0-flash (Smarter, good free tier)</option>
+                  <option value="gemini-2.5-flash">gemini-2.5-flash (Best balance, limited free)</option>
+                  <option value="gemini-2.5-pro">gemini-2.5-pro (Most powerful, very limited free)</option>
+                </select>
               </div>
             </div>
           </div>

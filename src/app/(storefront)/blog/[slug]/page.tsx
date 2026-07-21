@@ -3,23 +3,27 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { PluginSlot } from "@/components/plugins/PluginSlot"
+import { AdSlot } from "@/components/ads/AdSlot"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await db.post.findUnique({
-    where: { slug, published: true }
+    where: { slug }
   })
   
-  if (!post) return { title: "Post Not Found" }
-  
+  if (!post) return { title: 'Post Not Found' }
   return {
-    title: `${post.title} | Aura Blog`,
-    description: post.excerpt || post.content.substring(0, 160),
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      images: post.coverImage ? [post.coverImage] : []
+    }
   }
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  
   const post = await db.post.findUnique({
     where: { slug, published: true },
     include: { author: true }
@@ -29,8 +33,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     notFound()
   }
 
+  // Fetch AdSense Settings
+  let adClientId = "ca-pub-placeholder";
+  let adSlotId = "1234567890";
+  try {
+    const settings = await db.setting.findMany({
+      where: { key: { in: ["ad_sense_client_id", "ad_sense_slot_id"] } }
+    });
+    const clientSetting = settings.find(s => s.key === "ad_sense_client_id");
+    const slotSetting = settings.find(s => s.key === "ad_sense_slot_id");
+    if (clientSetting?.value) adClientId = clientSetting.value;
+    if (slotSetting?.value) adSlotId = slotSetting.value;
+  } catch (e) {
+    console.error("Failed to fetch ad settings", e);
+  }
+
   return (
-    <article className="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <article className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
         <Link href="/blog">
           <Button variant="ghost" className="text-muted-foreground hover:text-primary -ml-4">
@@ -73,15 +92,101 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       )}
 
-      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto text-gray-700">
-        {/* Simple rendering for now. For a real app, use next-mdx-remote or marked */}
-        {post.content.split('\n').map((paragraph, index) => {
-          if (!paragraph.trim()) return <br key={index} />
-          if (paragraph.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('# ', '')}</h1>
-          if (paragraph.startsWith('## ')) return <h2 key={index} className="text-2xl font-bold mt-8 mb-4 text-gray-900">{paragraph.replace('## ', '')}</h2>
-          if (paragraph.startsWith('### ')) return <h3 key={index} className="text-xl font-bold mt-6 mb-3 text-gray-900">{paragraph.replace('### ', '')}</h3>
-          return <p key={index} className="mb-4 leading-relaxed">{paragraph}</p>
-        })}
+      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto max-w-5xl text-gray-700">
+        {(() => {
+          // Normalize newlines to \n and split by double (or more) newlines
+          const normalizedContent = post.content.replace(/\r\n/g, '\n');
+          const rawBlocks = normalizedContent.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+          
+          const toc: { id: string; text: string; level: number }[] = [];
+          
+          const parsedBlocks = rawBlocks.map((block) => {
+            const mdHeaderMatch = block.match(/^(#{2,3})\s+(.*)/);
+            if (mdHeaderMatch) {
+              const level = mdHeaderMatch[1].length;
+              const text = mdHeaderMatch[2].replace(/<[^>]+>/g, '');
+              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              toc.push({ id, text, level });
+              return { type: 'header', level, id, html: mdHeaderMatch[2], original: block };
+            }
+            
+            const htmlHeaderMatch = block.match(/^<(h[23])[^>]*>(.*?)<\/\1>/i);
+            if (htmlHeaderMatch) {
+              const level = parseInt(htmlHeaderMatch[1][1]);
+              const rawText = htmlHeaderMatch[2];
+              const text = rawText.replace(/<[^>]+>/g, '');
+              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+              toc.push({ id, text, level });
+              return { type: 'html_header', level, id, html: rawText, original: block };
+            }
+            
+            if (block.trim().match(/^<(div|ul|ol|li|img|blockquote|p|table|iframe|b|i|strong|em|a|h1|h4|h5|h6)/i)) {
+              return { type: 'html', html: block, original: block };
+            }
+            
+            const htmlBlock = block.replace(/\n/g, '<br/>');
+            return { type: 'text', html: htmlBlock, original: block };
+          });
+
+          const middleIndex = Math.floor(parsedBlocks.length / 2);
+
+          return (
+            <>
+              {toc.length > 0 && (
+                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 mb-10 text-gray-900 shadow-sm not-prose">
+                  <h4 className="font-bold mb-4 text-lg">Table of Contents</h4>
+                  <ul className="space-y-3">
+                    {toc.map((item, idx) => (
+                      <li key={idx} className={item.level === 3 ? "ml-6" : ""}>
+                        <a href={`#${item.id}`} className="text-primary hover:underline hover:text-primary/80 transition-colors flex items-start gap-2">
+                          <span className="text-primary/40 mt-1 text-xs">▼</span>
+                          <span>{item.text}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {parsedBlocks.map((block, index) => {
+                let contentNode = null;
+                
+                if (block.type === 'header' || block.type === 'html_header') {
+                  const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
+                  // Let Tailwind typography (prose) handle margins and fonts, only add scroll-mt for anchor links
+                  contentNode = <Tag key={`h-${index}`} id={block.id} className="scroll-mt-24" dangerouslySetInnerHTML={{ __html: block.html }} />;
+                } else if (block.type === 'html') {
+                  contentNode = <div key={`html-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
+                } else {
+                  contentNode = <p key={`text-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
+                }
+
+                const showAd = index > 0 && index % 4 === 0 && Math.abs(index - middleIndex) > 1;
+
+                if (index === middleIndex || showAd) {
+                  return (
+                    <div key={`wrapper-${index}`}>
+                      {contentNode}
+                      {index === middleIndex && (
+                        <div className="my-10 not-prose">
+                          <PluginSlot name="blog_post_middle" />
+                        </div>
+                      )}
+                      {showAd && (
+                        <div className="my-8 not-prose flex flex-col items-center border-y border-gray-100 py-6">
+                          <span className="text-[10px] text-gray-400 uppercase tracking-widest mb-3 font-medium">Advertisement</span>
+                          <AdSlot client={adClientId} slot={adSlotId} className="w-full max-w-[728px] mx-auto min-h-[250px]" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return contentNode;
+              })}
+            </>
+          );
+        })()}
       </div>
 
       <div className="mt-20 pt-8 border-t">

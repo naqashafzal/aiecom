@@ -66,7 +66,7 @@ export default async function AdminDashboard() {
   const retentionRate = totalPurchasingUsers > 0 ? ((returningUsers / totalPurchasingUsers) * 100).toFixed(1) : "0.0";
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-20">
+    <div className="space-y-6 max-w-[1400px] mx-auto pb-20">
       
       {/* Date & Channels Filter */}
       <div className="flex items-center gap-3">

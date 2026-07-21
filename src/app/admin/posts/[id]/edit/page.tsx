@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { revalidatePath } from "next/cache"
+import { RichTextEditor } from "../../RichTextEditor"
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -32,6 +33,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
     const slug = formData.get("slug") as string
     const content = formData.get("content") as string
     const excerpt = formData.get("excerpt") as string
+    const coverImage = formData.get("coverImage") as string
     const published = formData.get("published") === "on"
 
     if (!title || !slug || !content) {
@@ -45,6 +47,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
         slug,
         content,
         excerpt,
+        coverImage,
         published,
       }
     })
@@ -96,6 +99,21 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="space-y-2">
+          <label htmlFor="coverImage" className="text-sm font-medium text-gray-900">Featured Image URL</label>
+          <div className="flex gap-2">
+            <input 
+              type="url" 
+              id="coverImage"
+              name="coverImage" 
+              defaultValue={post.coverImage || ""}
+              placeholder="https://example.com/image.jpg (Optional)"
+              className="flex-1 h-10 px-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5"
+            />
+          </div>
+          <p className="text-xs text-gray-500">You can use the image upload button in the Content editor to generate a URL, then paste it here.</p>
+        </div>
+
+        <div className="space-y-2">
           <label htmlFor="excerpt" className="text-sm font-medium text-gray-900">Excerpt (Short Summary)</label>
           <textarea 
             id="excerpt"
@@ -108,13 +126,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
         <div className="space-y-2">
           <label htmlFor="content" className="text-sm font-medium text-gray-900">Content</label>
-          <textarea 
+          <RichTextEditor 
             id="content"
             name="content" 
             defaultValue={post.content}
             required
-            rows={12}
-            className="w-full p-3 rounded-md border focus:outline-none focus:ring-2 focus:ring-black/5 font-mono text-sm resize-y"
           />
         </div>
 

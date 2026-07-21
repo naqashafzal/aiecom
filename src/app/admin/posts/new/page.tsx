@@ -24,6 +24,7 @@ export default async function NewPostPage() {
     const slug = formData.get("slug") as string
     const content = formData.get("content") as string
     const excerpt = formData.get("excerpt") as string
+    const coverImage = formData.get("coverImage") as string
     const published = formData.get("published") === "on"
 
     if (!title || !slug || !content) {
@@ -36,6 +37,7 @@ export default async function NewPostPage() {
         slug,
         content,
         excerpt,
+        coverImage,
         published,
         authorId: session.user.id
       }

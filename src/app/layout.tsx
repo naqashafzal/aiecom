@@ -32,19 +32,26 @@ export async function generateMetadata(): Promise<Metadata> {
   let storeName = "ZS Decor";
   let fullTitle = "ZS Decor | Premium Ecommerce";
 
+  let adSenseClientId = "";
+  let customHeadScript = "";
+
   try {
     const allSettings = await db.setting.findMany({
-      where: { key: { in: ["storeFavicon", "storeName"] } }
+      where: { key: { in: ["storeFavicon", "storeName", "ad_sense_client_id", "ad_head_script"] } }
     });
     
     const faviconSetting = allSettings.find(s => s.key === "storeFavicon");
     const nameSetting = allSettings.find(s => s.key === "storeName");
+    const adClientSetting = allSettings.find(s => s.key === "ad_sense_client_id");
+    const adScriptSetting = allSettings.find(s => s.key === "ad_head_script");
 
     if (faviconSetting?.value) faviconUrl = faviconSetting.value;
     if (nameSetting?.value) {
       storeName = nameSetting.value;
       fullTitle = `${storeName} | Premium Ecommerce`;
     }
+    if (adClientSetting?.value) adSenseClientId = adClientSetting.value;
+    if (adScriptSetting?.value) customHeadScript = adScriptSetting.value;
   } catch (e) {
     console.error("Failed to fetch settings for metadata", e);
   }
@@ -80,6 +87,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import Script from "next/script";
+import NextTopLoader from 'nextjs-toploader';
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -87,12 +97,49 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
   
+  let adSenseClientId = "";
+  let customHeadScript = "";
+
+  try {
+    const allSettings = await db.setting.findMany({
+      where: { key: { in: ["ad_sense_client_id", "ad_sense_slot_id", "ad_head_script"] } }
+    });
+    const adClientSetting = allSettings.find(s => s.key === "ad_sense_client_id");
+    const adSlotSetting = allSettings.find(s => s.key === "ad_sense_slot_id");
+    const adScriptSetting = allSettings.find(s => s.key === "ad_head_script");
+
+    if (adClientSetting?.value) adSenseClientId = adClientSetting.value;
+    if (adScriptSetting?.value) customHeadScript = adScriptSetting.value;
+    
+    // Using global variables to pass down to client components without prop drilling
+    var defaultSlotId = adSlotSetting?.value || "1234567890";
+  } catch (e) {
+    console.error("Failed to fetch settings for layout", e);
+  }
+  
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${montserrat.variable} h-full antialiased`}
     >
+      <head>
+        {adSenseClientId && <meta name="adsense-client" content={adSenseClientId} />}
+        {defaultSlotId && <meta name="adsense-slot" content={defaultSlotId} />}
+        
+        {adSenseClientId && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseClientId}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
+        {customHeadScript && (
+          <div dangerouslySetInnerHTML={{ __html: customHeadScript }} />
+        )}
+      </head>
       <body className="min-h-full flex flex-col">
+        <NextTopLoader color="#000000" showSpinner={false} shadow="0 0 10px #000000,0 0 5px #000000" />
         <Providers session={session}>
           <AnalyticsTracker />
           {children}

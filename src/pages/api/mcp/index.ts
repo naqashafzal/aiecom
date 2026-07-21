@@ -27,13 +27,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Basic Auth (Optional but highly recommended)
-  // Claude Custom Connectors support sending standard HTTP Headers or OAuth.
-  // For simplicity, you can pass a bearer token.
-  // const authHeader = req.headers.authorization;
-  // if (authHeader !== `Bearer ${process.env.MCP_SECRET}`) {
-  //   return res.status(401).json({ error: 'Unauthorized' });
-  // }
+  // Bearer Token Auth — set MCP_SECRET in your .env and in Claude Connector settings
+  const authHeader = req.headers.authorization;
+  if (process.env.MCP_SECRET && authHeader !== `Bearer ${process.env.MCP_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   const sessionId = req.query.sessionId?.toString() || generateSessionId();
 
