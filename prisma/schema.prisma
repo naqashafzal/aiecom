@@ -552,3 +552,12 @@ model PageView {
   @@index([createdAt])
   @@index([pathname])
 }
+
+model AutoLink {
+  id        String   @id @default(cuid())
+  keyword   String   @unique
+  url       String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

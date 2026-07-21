@@ -38,6 +38,7 @@ const mainNavItems = [
   { name: "Shipping Settings", href: "/admin/settings/shipping", icon: Truck },
   { name: "AI Workforce", href: "/admin/ai-agents", icon: Bot },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
+  { name: "Auto Links", href: "/admin/auto-links", icon: Tags },
   { name: "Plugins", href: "/admin/plugins", icon: Bot },
   { name: "Store Migration", href: "/admin/migration", icon: Import },
 ];

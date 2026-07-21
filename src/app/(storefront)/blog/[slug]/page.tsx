@@ -5,6 +5,8 @@ import { ArrowLeft, Calendar, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PluginSlot } from "@/components/plugins/PluginSlot"
 import { AdSlot } from "@/components/ads/AdSlot"
+import { autoLinkify } from "@/lib/linkify"
+import { marked } from "marked"
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await db.post.findUnique({
@@ -48,8 +50,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     console.error("Failed to fetch ad settings", e);
   }
 
+  // Fetch active AutoLinks
+  const autoLinks = await db.autoLink.findMany({
+    where: { isActive: true },
+  });
+
   return (
-    <article className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <article className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
         <Link href="/blog">
           <Button variant="ghost" className="text-muted-foreground hover:text-primary -ml-4">
@@ -92,40 +99,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       )}
 
-      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto max-w-5xl text-gray-700">
+      <div className="prose prose-lg sm:prose-xl prose-primary mx-auto w-full text-gray-700">
         {(() => {
-          // Normalize newlines to \n and split by double (or more) newlines
-          const normalizedContent = post.content.replace(/\r\n/g, '\n');
-          const rawBlocks = normalizedContent.split(/\n{2,}/).map(b => b.trim()).filter(Boolean);
+          // Parse Markdown to HTML first
+          const rawHtmlContent = marked.parse(post.content || "") as string;
+          
+          // Apply Auto Links to the fully rendered HTML
+          const linkifiedHtml = autoLinkify(rawHtmlContent, autoLinks);
+
+          // Split by paragraphs or double newlines to insert ads
+          // Since marked wraps paragraphs in <p>, we can split by </p>
+          const rawBlocks = linkifiedHtml.split('</p>').map(b => b.trim() ? b + '</p>' : '').filter(Boolean);
           
           const toc: { id: string; text: string; level: number }[] = [];
           
           const parsedBlocks = rawBlocks.map((block) => {
-            const mdHeaderMatch = block.match(/^(#{2,3})\s+(.*)/);
-            if (mdHeaderMatch) {
-              const level = mdHeaderMatch[1].length;
-              const text = mdHeaderMatch[2].replace(/<[^>]+>/g, '');
-              const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-              toc.push({ id, text, level });
-              return { type: 'header', level, id, html: mdHeaderMatch[2], original: block };
-            }
-            
-            const htmlHeaderMatch = block.match(/^<(h[23])[^>]*>(.*?)<\/\1>/i);
+            const htmlHeaderMatch = block.match(/^<(h[1-6])[^>]*>(.*?)<\/\1>/i);
             if (htmlHeaderMatch) {
               const level = parseInt(htmlHeaderMatch[1][1]);
               const rawText = htmlHeaderMatch[2];
               const text = rawText.replace(/<[^>]+>/g, '');
               const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
               toc.push({ id, text, level });
-              return { type: 'html_header', level, id, html: rawText, original: block };
+              
+              // Inject ID into the header for TOC linking
+              const blockWithId = block.replace(/^<(h[1-6])/, `<$1 id="${id}" className="scroll-mt-24"`);
+              return { type: 'html_header', level, id, html: blockWithId, original: block };
             }
             
-            if (block.trim().match(/^<(div|ul|ol|li|img|blockquote|p|table|iframe|b|i|strong|em|a|h1|h4|h5|h6)/i)) {
-              return { type: 'html', html: block, original: block };
-            }
-            
-            const htmlBlock = block.replace(/\n/g, '<br/>');
-            return { type: 'text', html: htmlBlock, original: block };
+            return { type: 'html', html: block, original: block };
           });
 
           const middleIndex = Math.floor(parsedBlocks.length / 2);
@@ -149,17 +151,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               )}
               
               {parsedBlocks.map((block, index) => {
-                let contentNode = null;
-                
-                if (block.type === 'header' || block.type === 'html_header') {
-                  const Tag = `h${block.level}` as keyof JSX.IntrinsicElements;
-                  // Let Tailwind typography (prose) handle margins and fonts, only add scroll-mt for anchor links
-                  contentNode = <Tag key={`h-${index}`} id={block.id} className="scroll-mt-24" dangerouslySetInnerHTML={{ __html: block.html }} />;
-                } else if (block.type === 'html') {
-                  contentNode = <div key={`html-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
-                } else {
-                  contentNode = <p key={`text-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
-                }
+                const contentNode = <div key={`html-${index}`} dangerouslySetInnerHTML={{ __html: block.html }} />;
 
                 const showAd = index > 0 && index % 4 === 0 && Math.abs(index - middleIndex) > 1;
 
@@ -174,8 +166,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       )}
                       {showAd && (
                         <div className="my-8 not-prose flex flex-col items-center border-y border-gray-100 py-6">
-                          <span className="text-[10px] text-gray-400 uppercase tracking-widest mb-3 font-medium">Advertisement</span>
-                          <AdSlot client={adClientId} slot={adSlotId} className="w-full max-w-[728px] mx-auto min-h-[250px]" />
+                          <AdSlot client={adClientId} slot={adSlotId} className="w-full mx-auto min-h-[250px]" />
                         </div>
                       )}
                     </div>
