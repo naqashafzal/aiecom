@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { searchProducts } from "./searchActions";
 import { useRouter } from "next/navigation";
+import { useCurrency } from "@/components/storefront/currency-provider";
 
 export function LiveSearchBar({ 
   placeholder = "Search products...",
@@ -13,6 +14,7 @@ export function LiveSearchBar({
   inputClassName = "w-full h-11 pl-5 pr-14 rounded-full border-2 border-foreground bg-background focus:outline-none focus:border-foreground focus:ring-0 text-sm font-medium",
   buttonClassName = "absolute right-1 top-1 bottom-1 w-14 bg-foreground flex items-center justify-center text-background rounded-full hover:bg-foreground/90 transition-colors"
 }) {
+  const { formatPrice } = useCurrency();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -109,7 +111,7 @@ export function LiveSearchBar({
                   <div className="flex-1 min-w-0 flex flex-col justify-center">
                     <div className="text-sm font-semibold text-gray-900 truncate">{product.name}</div>
                     <div className="text-xs text-gray-500 mt-0.5 font-medium">
-                      ${(product.salePrice || product.price).toFixed(2)}
+                      {formatPrice(product.salePrice || product.price)}
                     </div>
                   </div>
                 </Link>

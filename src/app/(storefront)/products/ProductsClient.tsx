@@ -49,6 +49,16 @@ export default function ProductsClient({
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
   };
 
+  const currencySymbol = (() => {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency })
+        .formatToParts(0)
+        .find(p => p.type === 'currency')?.value || storeCurrency;
+    } catch {
+      return storeCurrency;
+    }
+  })();
+
   const updateFilters = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([key, value]) => {
@@ -160,7 +170,7 @@ export default function ProductsClient({
         <h4 className="font-semibold text-md mb-4 uppercase tracking-wider text-sm text-gray-900">Price Range</h4>
         <div className="flex items-center gap-2 mb-4">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{currencySymbol}</span>
             <input 
               type="number" 
               placeholder="Min" 
@@ -171,7 +181,7 @@ export default function ProductsClient({
           </div>
           <span className="text-gray-400">-</span>
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{currencySymbol}</span>
             <input 
               type="number" 
               placeholder="Max" 
