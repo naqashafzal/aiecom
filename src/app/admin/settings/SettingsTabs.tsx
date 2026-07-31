@@ -527,17 +527,26 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
               <p className="text-sm text-muted-foreground mt-1">Configure your AI provider keys. These are stored securely in the database and override any server environment variables.</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              
+              <div className="border rounded-lg p-4 space-y-3 bg-muted/10">
+                <h3 className="font-semibold text-primary">Active AI Provider</h3>
+                <p className="text-xs text-muted-foreground">Select which AI provider powers the store's features (chatbot, product descriptions, agents).</p>
+                <select
+                  name="ai_provider"
+                  defaultValue={settings.ai_provider || "gemini"}
+                  className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium"
+                >
+                  <option value="gemini">Google Gemini AI</option>
+                  <option value="wavespeed">Wavespeed AI</option>
+                </select>
+              </div>
+
               <div className="border rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Key className="h-4 w-4 text-muted-foreground" />
                   <h3 className="font-semibold">Google Gemini API Key</h3>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Used for AI-powered features: storefront chatbot, admin AI chat, product description generation, blog post generation, and fake review generation.
-                  Get your free key at{" "}
-                  <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-primary underline">aistudio.google.com</a>.
-                </p>
                 <div className="relative">
                   <input
                     type={showApiKey ? "text" : "password"}
@@ -554,14 +563,8 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md p-2">
-                  ⚠️ Leave blank to use the <code className="font-mono">GOOGLE_GENERATIVE_AI_API_KEY</code> environment variable instead.
-                </p>
-              </div>
-
-              <div className="border rounded-lg p-4 space-y-3">
-                <h3 className="font-semibold">AI Model</h3>
-                <p className="text-xs text-muted-foreground">The model used for all AI features (chatbot, agents, descriptions). Defaults to <code className="font-mono">gemini-2.0-flash-lite</code>.</p>
+                
+                <h3 className="font-semibold mt-4">Gemini Model</h3>
                 <select
                   name="gemini_model"
                   defaultValue={settings.gemini_model || "gemini-2.0-flash-lite"}
@@ -571,6 +574,32 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <option value="gemini-2.0-flash">gemini-2.0-flash (Smarter, good free tier)</option>
                   <option value="gemini-2.5-flash">gemini-2.5-flash (Best balance, limited free)</option>
                   <option value="gemini-2.5-pro">gemini-2.5-pro (Most powerful, very limited free)</option>
+                </select>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Key className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Wavespeed AI API Key</h3>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    name="wavespeed_api_key"
+                    defaultValue={settings.wavespeed_api_key || ""}
+                    placeholder="sk-..."
+                    className="w-full h-10 px-3 pr-10 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm"
+                  />
+                </div>
+                
+                <h3 className="font-semibold mt-4">Wavespeed Model</h3>
+                <select
+                  name="wavespeed_model"
+                  defaultValue={settings.wavespeed_model || "wavespeed-1.5-pro"}
+                  className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm"
+                >
+                  <option value="wavespeed-1.5-pro">wavespeed-1.5-pro</option>
+                  <option value="wavespeed-1.5-lite">wavespeed-1.5-lite</option>
                 </select>
               </div>
             </div>

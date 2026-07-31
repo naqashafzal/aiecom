@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.80",
+    "@ai-sdk/openai": "^4.0.17",
     "@ai-sdk/react": "^3.0.197",
     "@auth/prisma-adapter": "^2.11.2",
     "@modelcontextprotocol/sdk": "^1.29.0",

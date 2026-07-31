@@ -44,7 +44,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <form action={updateProduct.bind(null, id)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <form action={updateProduct.bind(null, id)} encType="multipart/form-data" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Main Details */}
         <div className="lg:col-span-2 space-y-6">

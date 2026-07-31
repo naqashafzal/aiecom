@@ -41,7 +41,7 @@ export function ImageUploadPreview({ defaultImageUrl, label = "Product Image" }:
         type="file" 
         accept="image/*" 
         onChange={handleFileChange}
-        className={previewUrl ? "hidden" : "absolute inset-0 w-full h-[200px] opacity-0 cursor-pointer z-10 top-8"} 
+        className={previewUrl ? "absolute inset-0 w-0 h-0 opacity-0 pointer-events-none" : "absolute inset-0 w-full h-[200px] opacity-0 cursor-pointer z-10 top-8"} 
       />
       {!previewUrl && <input type="hidden" name="removeImage" value="true" />}
 
