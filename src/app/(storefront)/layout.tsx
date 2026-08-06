@@ -45,7 +45,9 @@ export default async function StorefrontLayout({
     where: {
       OR: [
         { key: { startsWith: "storefront_" } },
-        { key: { startsWith: "ad_" } }
+        { key: { startsWith: "ad_" } },
+        { key: { startsWith: "home_" } },
+        { key: "whatsappNumber" }
       ]
     }
   });

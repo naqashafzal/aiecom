@@ -12,7 +12,7 @@ import { useCurrency } from "@/components/storefront/currency-provider";
 export function AiChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [addedItems, setAddedItems] = useState<Record<string, boolean>>({});
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setInput, error } = useChat();
   const addItem = useCartStore((state) => state.addItem);
   const { formatPrice } = useCurrency();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -142,6 +142,13 @@ export function AiChat() {
             <div className="flex justify-start">
               <div className="bg-white border rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          )}
+          {error && (
+            <div className="flex justify-center mt-2">
+              <div className="bg-red-50 text-red-500 border border-red-200 rounded-lg px-4 py-2 text-xs text-center">
+                {error.message || "An error occurred connecting to the AI agent. Please check your API key settings."}
               </div>
             </div>
           )}
