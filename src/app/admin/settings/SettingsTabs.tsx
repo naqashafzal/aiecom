@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload, Key, Eye, EyeOff } from "lucide-react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload, Key, Eye, EyeOff, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
@@ -63,6 +63,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "emails", name: "Emails", icon: Mail },
     { id: "ads", name: "Advertisements", icon: Megaphone },
     { id: "ai", name: "AI & Integrations", icon: Bot },
+    { id: "whatsapp", name: "WhatsApp", icon: MessageCircle },
   ];
 
   return (
@@ -109,10 +110,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <div>
                     <label className="block text-sm font-medium mb-1">Support Phone</label>
                     <input type="tel" name="supportPhone" defaultValue={settings.supportPhone || "+1 (800) 123-4567"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium mb-1">WhatsApp Support Number (Include Country Code)</label>
-                    <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. +1234567890" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   </div>
                 </div>
                 <div>
@@ -291,26 +288,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </select>
               </div>
 
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold text-green-600">WhatsApp Order Button (Product Page)</div>
-                  <div className="text-sm text-muted-foreground">Show a "Buy via WhatsApp" button under the add to cart buttons. Ensure WhatsApp Support Number is set in General tab.</div>
-                </div>
-                <select key={settings.storefront_whatsapp_button_enabled} name="storefront_whatsapp_button_enabled" defaultValue={settings.storefront_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <div className="font-semibold text-green-600">WhatsApp Floating Button (Home Page)</div>
-                  <div className="text-sm text-muted-foreground">Show a floating WhatsApp chat button on the home page.</div>
-                </div>
-                <select key={settings.home_whatsapp_button_enabled} name="home_whatsapp_button_enabled" defaultValue={settings.home_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
-                  <option value="true">Enabled</option>
-                  <option value="false">Disabled</option>
-                </select>
               </div>
 
               <div className="border rounded-lg p-4 space-y-4">
@@ -624,6 +601,65 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                   <option value="wavespeed-1.5-lite">wavespeed-1.5-lite</option>
                 </select>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "whatsapp" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><MessageCircle className="h-5 w-5 text-green-500" /> WhatsApp Settings</h2>
+              <p className="text-sm text-muted-foreground mt-1">Configure your WhatsApp support number and customize the integration across your store.</p>
+            </div>
+
+            <div className="space-y-6">
+              
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="font-semibold border-b pb-4 text-green-600">General Configuration</div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">WhatsApp Support Number (Include Country Code)</label>
+                  <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. +1234567890" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <p className="text-xs text-muted-foreground mt-1.5">Required for any WhatsApp buttons to work.</p>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between border-b pb-4">
+                  <div>
+                    <div className="font-semibold">Product Page Button</div>
+                    <div className="text-sm text-muted-foreground">Show a "Buy via WhatsApp" button on product pages.</div>
+                  </div>
+                  <select key={settings.storefront_whatsapp_button_enabled} name="storefront_whatsapp_button_enabled" defaultValue={settings.storefront_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Button Text</label>
+                  <input type="text" name="storefront_whatsapp_button_text" defaultValue={settings.storefront_whatsapp_button_text || "Ask on WhatsApp"} className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Pre-filled Message</label>
+                  <p className="text-xs text-muted-foreground mb-2">Available variables: <code>{"{{productName}}"}</code></p>
+                  <textarea name="storefront_whatsapp_message" defaultValue={settings.storefront_whatsapp_message || "Hi, I'm interested in the {{productName}}. Can you help me?"} rows={2} className="w-full p-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm resize-none"></textarea>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold">Floating Button (Globally)</div>
+                    <div className="text-sm text-muted-foreground">Show a floating WhatsApp chat bubble in the corner of your store.</div>
+                  </div>
+                  <select key={settings.home_whatsapp_button_enabled} name="home_whatsapp_button_enabled" defaultValue={settings.home_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+              </div>
+
             </div>
           </div>
         )}
