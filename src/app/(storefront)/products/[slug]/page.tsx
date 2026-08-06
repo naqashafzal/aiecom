@@ -82,7 +82,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           "ad_product_enabled",
           "ad_product_script",
           "ad_timer_enabled",
-          "ad_timer_script"
+          "ad_timer_script",
+          "storefront_whatsapp_button_enabled",
+          "whatsappNumber",
+          "storefront_whatsapp_button_text",
+          "storefront_whatsapp_message"
         ]
       }
     }
