@@ -288,7 +288,6 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </select>
               </div>
 
-              </div>
 
               <div className="border rounded-lg p-4 space-y-4">
                 <div className="font-semibold border-b pb-4">Product Page Badges / Policies</div>
