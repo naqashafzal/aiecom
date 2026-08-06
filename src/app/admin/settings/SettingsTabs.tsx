@@ -291,6 +291,28 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </select>
               </div>
 
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <div className="font-semibold text-green-600">WhatsApp Order Button (Product Page)</div>
+                  <div className="text-sm text-muted-foreground">Show a "Buy via WhatsApp" button under the add to cart buttons. Ensure WhatsApp Support Number is set in General tab.</div>
+                </div>
+                <select key={settings.storefront_whatsapp_button_enabled} name="storefront_whatsapp_button_enabled" defaultValue={settings.storefront_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                  <option value="true">Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <div className="font-semibold text-green-600">WhatsApp Floating Button (Home Page)</div>
+                  <div className="text-sm text-muted-foreground">Show a floating WhatsApp chat button on the home page.</div>
+                </div>
+                <select key={settings.home_whatsapp_button_enabled} name="home_whatsapp_button_enabled" defaultValue={settings.home_whatsapp_button_enabled || "false"} className="h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium">
+                  <option value="true">Enabled</option>
+                  <option value="false">Disabled</option>
+                </select>
+              </div>
+
               <div className="border rounded-lg p-4 space-y-4">
                 <div className="font-semibold border-b pb-4">Product Page Badges / Policies</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

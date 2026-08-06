@@ -147,7 +147,7 @@ export default async function StorefrontLayout({
         )}
         <Footer />
         {aiEnabled && <AiChat />}
-        {whatsappNumber && <WhatsAppBubble phoneNumber={whatsappNumber} />}
+        {settingsMap["home_whatsapp_button_enabled"] === "true" && whatsappNumber && <WhatsAppBubble phoneNumber={whatsappNumber} />}
       </CurrencyProvider>
     </div>
   );

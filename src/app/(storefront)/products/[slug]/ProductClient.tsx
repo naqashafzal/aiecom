@@ -293,7 +293,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
                 </Button>
               </div>
 
-              {settings?.["whatsappNumber"] && (
+              {settings?.["storefront_whatsapp_button_enabled"] === "true" && settings?.["whatsappNumber"] && (
                 <Button
                   onClick={() => {
                     const num = settings["whatsappNumber"].replace(/[^0-9]/g, "");
