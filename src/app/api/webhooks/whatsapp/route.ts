@@ -47,7 +47,7 @@ export async function POST(req: Request) {
                   endsWith: fromNumber.length > 10 ? fromNumber.substring(fromNumber.length - 10) : fromNumber
                 }
               },
-              status: 'PENDING'
+              status: { in: ['PENDING', 'PROCESSING'] }
             },
             orderBy: { createdAt: 'desc' },
             include: { shippingAddress: true }
