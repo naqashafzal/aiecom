@@ -56,6 +56,26 @@ export async function createProduct(formData: FormData) {
     }
   }
 
+  const videoFile = formData.get("videoFile") as File;
+  const videoLink = formData.get("videoLink") as string;
+  let videoUrl: string | null = null;
+  
+  if (videoFile && videoFile.size > 0) {
+    try {
+      const bytes = await videoFile.arrayBuffer();
+      const safeName = videoFile.name ? videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'video.mp4';
+      const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      videoUrl = `/uploads/${fileName}`;
+    } catch (e) {
+      console.error("Failed to upload video:", e);
+    }
+  } else if (videoLink) {
+    videoUrl = videoLink;
+  }
+
   const storeId = formData.get("storeId") as string;
 
   await db.product.create({
@@ -66,6 +86,7 @@ export async function createProduct(formData: FormData) {
       price,
       salePrice,
       stock,
+      videoUrl,
       status,
       storeId: storeId || null,
       categories: {
@@ -138,6 +159,29 @@ export async function updateProduct(id: string, formData: FormData) {
     where: { productId: id }
   });
 
+  const videoFile = formData.get("videoFile") as File;
+  const videoLink = formData.get("videoLink") as string;
+  const removeVideo = formData.get("removeVideo") === "true";
+  let videoUrl: string | undefined | null = undefined;
+  
+  if (removeVideo) {
+    videoUrl = null;
+  } else if (videoFile && videoFile.size > 0) {
+    try {
+      const bytes = await videoFile.arrayBuffer();
+      const safeName = videoFile.name ? videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'video.mp4';
+      const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+      videoUrl = `/uploads/${fileName}`;
+    } catch (e) {
+      console.error("Failed to upload video:", e);
+    }
+  } else if (videoLink) {
+    videoUrl = videoLink;
+  }
+
   const allImages = [...keepImages, ...newImageUrls];
 
   const storeId = formData.get("storeId") as string;
@@ -150,6 +194,7 @@ export async function updateProduct(id: string, formData: FormData) {
       price,
       salePrice,
       stock,
+      ...(videoUrl !== undefined && { videoUrl }),
       status,
       storeId: storeId || null,
       categories: {

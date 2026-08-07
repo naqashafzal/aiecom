@@ -162,6 +162,7 @@ model Product {
   brandId       String?
   storeId       String?
   stock         Int       @default(0)
+  videoUrl      String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

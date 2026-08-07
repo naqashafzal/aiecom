@@ -24,7 +24,15 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
         url: URL.createObjectURL(file),
         file
       }));
-      setNewImagePreviews(prev => [...prev, ...newPreviews]);
+      
+      setNewImagePreviews(prev => {
+        const updated = [...prev, ...newPreviews];
+        // Sync all accumulated files back to the input element
+        const dataTransfer = new DataTransfer();
+        updated.forEach(p => dataTransfer.items.add(p.file));
+        e.target.files = dataTransfer.files;
+        return updated;
+      });
     }
   };
 
@@ -40,6 +48,15 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
       const updated = [...prev];
       URL.revokeObjectURL(updated[indexToRemove].url);
       updated.splice(indexToRemove, 1);
+      
+      // Sync the remaining files back to the input element
+      const input = document.getElementById("images") as HTMLInputElement;
+      if (input) {
+        const dataTransfer = new DataTransfer();
+        updated.forEach(p => dataTransfer.items.add(p.file));
+        input.files = dataTransfer.files;
+      }
+      
       return updated;
     });
   };

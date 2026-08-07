@@ -141,30 +141,48 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
       </div>
 
       <div className="flex flex-col lg:flex-row gap-12">
-        {/* Image Gallery */}
-        <div className="w-full lg:w-1/2 flex flex-col-reverse lg:flex-row gap-4">
-          <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible no-scrollbar p-1">
-            {images.map((img: string, idx: number) => (
-              <button 
-                key={idx}
-                onClick={() => setActiveImage(idx)}
-                className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
-              >
-                <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="80px" className="object-cover" />
-              </button>
-            ))}
+        {/* Media Section */}
+        <div className="w-full lg:w-1/2 flex flex-col gap-4">
+          {/* Image Gallery */}
+          <div className="flex flex-col-reverse lg:flex-row gap-4">
+            <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible no-scrollbar p-1">
+              {images.map((img: string, idx: number) => (
+                <button 
+                  key={idx}
+                  onClick={() => setActiveImage(idx)}
+                  className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-muted-foreground/30'}`}
+                >
+                  <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="80px" className="object-cover" />
+                </button>
+              ))}
+            </div>
+            <div className="flex-1 aspect-square bg-muted rounded-2xl overflow-hidden relative group">
+              <motion.img 
+                key={activeImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                src={images[activeImage]} 
+                alt={product.name} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+            </div>
           </div>
-          <div className="flex-1 aspect-square bg-muted rounded-2xl overflow-hidden relative group">
-            <motion.img 
-              key={activeImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              src={images[activeImage]} 
-              alt={product.name} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            />
-          </div>
+
+          {/* Product Video */}
+          {product.videoUrl && (
+            <div className="w-full rounded-2xl overflow-hidden border bg-black aspect-video flex items-center justify-center mt-2">
+              {product.videoUrl.includes("youtube.com") || product.videoUrl.includes("youtu.be") ? (
+                <iframe 
+                  src={product.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
+                  className="w-full h-full" 
+                  allowFullScreen
+                />
+              ) : (
+                <video src={product.videoUrl} controls className="w-full h-full object-contain" />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Product Info */}

@@ -5,6 +5,7 @@ import { db } from "@/lib/prisma";
 import { updateProduct } from "../../actions";
 import { notFound } from "next/navigation";
 import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
+import { VideoUploadPreview } from "@/components/admin/VideoUploadPreview";
 import { AiDescriptionButton } from "../../ai-agents/AiDescriptionButton";
 import { getStoreCurrency } from "@/lib/format";
 
@@ -65,6 +66,10 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Media</h2>
             <ImageUploadPreview defaultImageUrls={existingImageUrls} />
+            <div className="pt-4 border-t">
+              <h3 className="text-base font-bold mb-4">Product Video</h3>
+              <VideoUploadPreview defaultVideoUrl={product.videoUrl} />
+            </div>
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">

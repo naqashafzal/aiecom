@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { db } from "@/lib/prisma";
 import { createProduct } from "../../actions";
 import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
+import { VideoUploadPreview } from "@/components/admin/VideoUploadPreview";
 import { AiDescriptionButton } from "../../ai-agents/AiDescriptionButton";
 import { getStoreCurrency } from "@/lib/format";
 
@@ -50,6 +51,10 @@ export default async function NewProductPage() {
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Media</h2>
             <ImageUploadPreview />
+            <div className="pt-4 border-t">
+              <h3 className="text-base font-bold mb-4">Product Video</h3>
+              <VideoUploadPreview />
+            </div>
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
