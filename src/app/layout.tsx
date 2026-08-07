@@ -23,9 +23,9 @@ const montserrat = Montserrat({
   subsets: ["latin"],
 });
 
-import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import { getCachedSettings } from "@/lib/cache";
 
 export async function generateMetadata(): Promise<Metadata> {
   let faviconUrl = "/favicon.ico";
@@ -36,22 +36,15 @@ export async function generateMetadata(): Promise<Metadata> {
   let customHeadScript = "";
 
   try {
-    const allSettings = await db.setting.findMany({
-      where: { key: { in: ["storeFavicon", "storeName", "ad_sense_client_id", "ad_head_script"] } }
-    });
-    
-    const faviconSetting = allSettings.find(s => s.key === "storeFavicon");
-    const nameSetting = allSettings.find(s => s.key === "storeName");
-    const adClientSetting = allSettings.find(s => s.key === "ad_sense_client_id");
-    const adScriptSetting = allSettings.find(s => s.key === "ad_head_script");
+    const settings = await getCachedSettings();
 
-    if (faviconSetting?.value) faviconUrl = faviconSetting.value;
-    if (nameSetting?.value) {
-      storeName = nameSetting.value;
+    if (settings["storeFavicon"]) faviconUrl = settings["storeFavicon"];
+    if (settings["storeName"]) {
+      storeName = settings["storeName"];
       fullTitle = `${storeName} | Premium Ecommerce`;
     }
-    if (adClientSetting?.value) adSenseClientId = adClientSetting.value;
-    if (adScriptSetting?.value) customHeadScript = adScriptSetting.value;
+    if (settings["ad_sense_client_id"]) adSenseClientId = settings["ad_sense_client_id"];
+    if (settings["ad_head_script"]) customHeadScript = settings["ad_head_script"];
   } catch (e) {
     console.error("Failed to fetch settings for metadata", e);
   }
@@ -99,24 +92,18 @@ export default async function RootLayout({
   
   let adSenseClientId = "";
   let customHeadScript = "";
+  var defaultSlotId = "1234567890";
 
   try {
-    const allSettings = await db.setting.findMany({
-      where: { key: { in: ["ad_sense_client_id", "ad_sense_slot_id", "ad_head_script"] } }
-    });
-    const adClientSetting = allSettings.find(s => s.key === "ad_sense_client_id");
-    const adSlotSetting = allSettings.find(s => s.key === "ad_sense_slot_id");
-    const adScriptSetting = allSettings.find(s => s.key === "ad_head_script");
+    const settings = await getCachedSettings();
 
-    if (adClientSetting?.value) adSenseClientId = adClientSetting.value;
-    if (adScriptSetting?.value) customHeadScript = adScriptSetting.value;
-    
-    // Using global variables to pass down to client components without prop drilling
-    var defaultSlotId = adSlotSetting?.value || "1234567890";
+    if (settings["ad_sense_client_id"]) adSenseClientId = settings["ad_sense_client_id"];
+    if (settings["ad_sense_slot_id"]) defaultSlotId = settings["ad_sense_slot_id"];
+    if (settings["ad_head_script"]) customHeadScript = settings["ad_head_script"];
   } catch (e) {
     console.error("Failed to fetch settings for layout", e);
   }
-  
+
   return (
     <html
       lang="en"

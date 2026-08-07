@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
-import { db } from "@/lib/prisma";
 import ProductClient from "./ProductClient";
 import { Metadata, ResolvingMetadata } from "next";
 import { Suspense } from "react";
+import { getProductBySlug, getCachedSettings } from "@/lib/cache";
 
 export const revalidate = 60;
 
@@ -11,10 +11,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = await params;
-  const product = await db.product.findUnique({
-    where: { slug },
-    include: { images: true }
-  });
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -23,7 +20,6 @@ export async function generateMetadata(
   }
 
   const image = product.images?.[0]?.url || "/placeholder.png";
-
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
   const cleanDescription = product.description.replace(/<[^>]*>?/gm, '').substring(0, 160).trim() + '...';
 
@@ -50,52 +46,13 @@ export async function generateMetadata(
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await db.product.findUnique({
-    where: { slug },
-    include: { 
-      images: true,
-      store: true,
-      variants: true,
-      categories: true,
-      reviews: {
-        where: { isApproved: true },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          user: { select: { name: true, image: true } }
-        }
-      }
-    }
-  });
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return notFound();
   }
 
-  const settingsRecords = await db.setting.findMany({
-    where: {
-      key: {
-        in: [
-          "storefront_policy_1_title",
-          "storefront_policy_2_title",
-          "storefront_fake_sales_enabled",
-          "storeCurrency",
-          "ad_product_enabled",
-          "ad_product_script",
-          "ad_timer_enabled",
-          "ad_timer_script",
-          "storefront_whatsapp_button_enabled",
-          "whatsappNumber",
-          "storefront_whatsapp_button_text",
-          "storefront_whatsapp_message"
-        ]
-      }
-    }
-  });
-
-  const settings = settingsRecords.reduce((acc, setting) => {
-    acc[setting.key] = setting.value;
-    return acc;
-  }, {} as Record<string, string>);
+  const settings = await getCachedSettings();
 
   const storeCurrency = settings["storeCurrency"] || "PKR";
   const displayPrice = product.salePrice || product.price;
