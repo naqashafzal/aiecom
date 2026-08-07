@@ -1,6 +1,9 @@
 import { db } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
+export const maxDuration = 300; // Allow up to 5 minutes on Vercel/Next.js
+export const dynamic = "force-dynamic";
+
 function escapeXml(unsafe: string) {
   if (!unsafe) return "";
   return unsafe
@@ -13,11 +16,9 @@ function escapeXml(unsafe: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Dynamically determine the base URL (e.g. https://www.zsdecor.pk)
-    // In production, you might want to hardcode this or use an env variable if request.headers.get('host') is unreliable
-    const host = request.headers.get("host") || "www.zsdecor.pk";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
+    // Force the correct base URL to prevent internal Docker/Nginx hostnames from breaking the feed links
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.zsdecor.pk";
+    if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
 
     // Fetch all active products with their primary image
     const products = await db.product.findMany({
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     for (const product of products) {
       const productUrl = `${baseUrl}/products/${product.slug}`;
-      const imageUrl = product.images[0]?.url 
+      const imageUrl = product.images?.[0]?.url 
         ? (product.images[0].url.startsWith('http') ? product.images[0].url : `${baseUrl}${product.images[0].url}`)
         : `${baseUrl}/placeholder.png`;
       
@@ -51,13 +52,14 @@ export async function GET(request: NextRequest) {
       
       // Google requires specific availability formats
       const availability = product.stock > 0 ? "in_stock" : "out_of_stock";
-      const condition = "new"; // Assuming all products are new
+      const condition = "new";
       
       // Google requires brand, if not available we use the store name
       const brand = product.brand?.name || "ZS Decor";
 
-      // Ensure the description is plain text and escaped properly (strip HTML tags first if necessary)
-      const plainDescription = product.description.replace(/<[^>]+>/g, ' ').substring(0, 5000); // Max 5000 chars
+      // Safely handle descriptions (some might be null or undefined due to legacy data)
+      const rawDescription = product.description || product.name || "";
+      const plainDescription = rawDescription.replace(/<[^>]+>/g, ' ').substring(0, 5000); 
 
       xml += `    <item>
       <g:id>${product.id}</g:id>

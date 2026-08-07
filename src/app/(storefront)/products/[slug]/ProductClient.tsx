@@ -42,6 +42,7 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
   const [reviewComment, setReviewComment] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewMessage, setReviewMessage] = useState<{type: "success" | "error", text: string} | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -156,7 +157,10 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
                 </button>
               ))}
             </div>
-            <div className="flex-1 aspect-square bg-muted rounded-2xl overflow-hidden relative group">
+            <button 
+              onClick={() => setIsLightboxOpen(true)}
+              className="flex-1 aspect-square bg-muted rounded-2xl overflow-hidden relative group cursor-zoom-in border-0 p-0 block w-full text-left"
+            >
               <motion.img 
                 key={activeImage}
                 initial={{ opacity: 0 }}
@@ -166,7 +170,8 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
                 alt={product.name} 
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-            </div>
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+            </button>
           </div>
 
           {/* Product Video */}
@@ -367,31 +372,21 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
 
       {/* Product Description Section */}
       {product.description && (
-        <div className="mt-20">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-center mb-10">
-              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-1" />
-              <h2 className="text-3xl font-extrabold tracking-tight px-6 text-center bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
-                Product Details
-              </h2>
-              <div className="h-px bg-gradient-to-r from-border via-border to-transparent flex-1" />
-            </div>
+        <div className="mt-20 border-t pt-12">
+          <div className="w-full">
+            <h2 className="text-2xl font-bold tracking-tight mb-8">
+              Product Details
+            </h2>
             
-            <div className="bg-card border shadow-xl shadow-primary/5 rounded-3xl p-8 md:p-12 overflow-hidden relative">
-              {/* Subtle background decoration */}
-              <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-              
-              <div 
-                className="relative z-10 text-card-foreground leading-loose text-base md:text-lg prose prose-slate sm:prose-base md:prose-lg dark:prose-invert max-w-none 
-                prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-foreground
-                prose-p:text-muted-foreground prose-p:leading-relaxed
-                prose-a:text-primary prose-a:font-semibold hover:prose-a:text-primary/80
-                prose-img:rounded-2xl prose-img:shadow-md
-                prose-ul:text-muted-foreground prose-li:marker:text-primary/50"
-                dangerouslySetInnerHTML={{ __html: product.description }}
-              />
-            </div>
+            <div 
+              className="text-foreground leading-loose text-base md:text-lg prose prose-slate sm:prose-base md:prose-lg dark:prose-invert max-w-none w-full
+              prose-headings:font-bold prose-headings:text-foreground
+              prose-p:text-muted-foreground
+              prose-a:text-primary hover:prose-a:text-primary/80
+              prose-img:rounded-xl
+              prose-ul:text-muted-foreground"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
           </div>
         </div>
       )}
@@ -539,6 +534,71 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal for Full Image */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 sm:p-8 backdrop-blur-sm"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          <button 
+            className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-3 transition-all z-50"
+            onClick={() => setIsLightboxOpen(false)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+          
+          {images.length > 1 && (
+            <>
+              <button 
+                className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-4 transition-all z-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImage(prev => prev === 0 ? images.length - 1 : prev - 1);
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+              <button 
+                className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full p-4 transition-all z-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveImage(prev => prev === images.length - 1 ? 0 : prev + 1);
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+            </>
+          )}
+
+          <div className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center">
+            <img 
+              src={images[activeImage]} 
+              alt={product.name}
+              className="max-w-full max-h-full object-contain rounded-md shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          
+          {/* Thumbnails in Lightbox */}
+          {images.length > 1 && (
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-full px-4 py-2 bg-black/50 rounded-2xl backdrop-blur-md">
+              {images.map((img: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveImage(idx);
+                  }}
+                  className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-white scale-110' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                >
+                  <Image src={img} alt={`Thumbnail ${idx}`} fill sizes="64px" className="object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
