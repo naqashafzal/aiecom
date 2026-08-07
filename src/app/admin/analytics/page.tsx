@@ -1,5 +1,5 @@
 import { db } from "@/lib/prisma";
-import { DollarSign, ArrowUpRight, TrendingUp, Users, ShoppingCart, Activity, Globe, Link as LinkIcon } from "lucide-react";
+import { DollarSign, ArrowUpRight, TrendingUp, Users, ShoppingCart, Activity, Globe, Link as LinkIcon, Search } from "lucide-react";
 import { subDays, format, startOfDay, endOfDay } from "date-fns";
 import AnalyticsChart from "@/components/admin/AnalyticsChart";
 import { getFormatPrice, getStoreCurrency } from "@/lib/format";
@@ -128,28 +128,47 @@ export default async function AdminAnalyticsPage() {
     }
   });
 
-  const recentPageViews = await db.pageView.findMany({
+  // Advanced Traffic Intelligence (Last 30 Days)
+  const thirtyDaysAgo = subDays(new Date(), 30);
+  
+  const pageViews30Days = await db.pageView.findMany({
     where: {
-      createdAt: { gte: thirtyMinsAgo }
+      createdAt: { gte: thirtyDaysAgo }
     },
-    include: { visitor: true },
-    orderBy: { createdAt: 'desc' },
-    take: 50
+    include: { visitor: true }
   });
 
   const sources: Record<string, number> = {};
   const countries: Record<string, number> = {};
+  const searchKeywords: Record<string, number> = {};
   
-  recentPageViews.forEach(pv => {
+  pageViews30Days.forEach(pv => {
     const src = pv.referrer && pv.referrer.length > 0 ? pv.referrer : "Direct";
     sources[src] = (sources[src] || 0) + 1;
     
-    const country = pv.visitor.country || "Unknown";
+    const country = pv.visitor?.country || "Unknown";
     countries[country] = (countries[country] || 0) + 1;
+
+    // Search Keywords Extraction
+    try {
+      if (pv.url.includes('?')) {
+        const urlParams = new URLSearchParams(pv.url.split('?')[1]);
+        const q = urlParams.get('q') || urlParams.get('search') || urlParams.get('query');
+        if (q) {
+          const keyword = q.toLowerCase().trim();
+          if (keyword.length > 0) {
+            searchKeywords[keyword] = (searchKeywords[keyword] || 0) + 1;
+          }
+        }
+      }
+    } catch (e) {
+      // Ignored
+    }
   });
 
-  const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topKeywords = Object.entries(searchKeywords).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
   // --- Customer Intelligence ---
   const allPaidOrders = await db.order.findMany({
@@ -288,11 +307,14 @@ export default async function AdminAnalyticsPage() {
           </div>
         </div>
 
-        {/* Live Traffic Details */}
+        {/* Traffic Details */}
         <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow lg:col-span-1">
-          <div className="flex items-center gap-2 mb-4 text-[#202223]">
-            <Globe className="h-5 w-5 text-blue-500" />
-            <h2 className="text-lg font-bold">Top Countries</h2>
+          <div className="flex items-center justify-between mb-4 text-[#202223]">
+            <div className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-blue-500" />
+              <h2 className="text-lg font-bold">Top Countries</h2>
+            </div>
+            <span className="text-xs text-muted-foreground bg-gray-100 px-2 py-1 rounded">30 Days</span>
           </div>
           <div className="space-y-4">
             {topCountries.length > 0 ? topCountries.map(([country, count]) => (
@@ -301,13 +323,32 @@ export default async function AdminAnalyticsPage() {
                 <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
               </div>
             )) : (
-              <div className="text-sm text-muted-foreground">No active visitors.</div>
+              <div className="text-sm text-muted-foreground">No visitor data.</div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-6 mb-4 text-[#202223]">
-            <LinkIcon className="h-5 w-5 text-purple-500" />
-            <h2 className="text-lg font-bold">Top Sources</h2>
+          <div className="flex items-center justify-between mt-6 mb-4 text-[#202223]">
+            <div className="flex items-center gap-2">
+              <Search className="h-5 w-5 text-orange-500" />
+              <h2 className="text-lg font-bold">Top Search Queries</h2>
+            </div>
+          </div>
+          <div className="space-y-4">
+            {topKeywords.length > 0 ? topKeywords.map(([keyword, count]) => (
+              <div key={keyword} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground truncate max-w-[150px]">"{keyword}"</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
+              </div>
+            )) : (
+              <div className="text-sm text-muted-foreground">No search queries tracked yet.</div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-6 mb-4 text-[#202223]">
+            <div className="flex items-center gap-2">
+              <LinkIcon className="h-5 w-5 text-purple-500" />
+              <h2 className="text-lg font-bold">Top Sources</h2>
+            </div>
           </div>
           <div className="space-y-4">
             {topSources.length > 0 ? topSources.map(([source, count]) => (
