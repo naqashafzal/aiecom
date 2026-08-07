@@ -151,6 +151,46 @@ export default async function AdminAnalyticsPage() {
   const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 3);
   const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 3);
 
+  // --- Customer Intelligence ---
+  const allPaidOrders = await db.order.findMany({
+    where: { paymentStatus: 'PAID' },
+    include: { user: true }
+  });
+
+  const customerSpend: Record<string, { email: string, name: string, totalSpend: number, orderCount: number }> = {};
+  
+  allPaidOrders.forEach(order => {
+    // Group by email to catch guest checkouts and registered users together
+    const email = order.email || order.user?.email || "Unknown";
+    const name = order.user?.name || "Guest";
+    
+    if (email !== "Unknown") {
+      if (!customerSpend[email]) {
+        customerSpend[email] = { email, name, totalSpend: 0, orderCount: 0 };
+      }
+      customerSpend[email].totalSpend += (order.grandTotal || 0);
+      customerSpend[email].orderCount += 1;
+    }
+  });
+
+  const uniqueCustomersCount = Object.keys(customerSpend).length;
+  const lifetimeValue = uniqueCustomersCount > 0 ? (revenue / uniqueCustomersCount) : 0;
+  
+  const vipCustomers = Object.values(customerSpend)
+    .sort((a, b) => b.totalSpend - a.totalSpend)
+    .slice(0, 5);
+
+  let newCustomers = 0;
+  let returningCustomers = 0;
+  
+  Object.values(customerSpend).forEach(customer => {
+    if (customer.orderCount > 1) {
+      returningCustomers++;
+    } else {
+      newCustomers++;
+    }
+  });
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-20">
       <div>
@@ -335,6 +375,60 @@ export default async function AdminAnalyticsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Customer Intelligence */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#202223]">Customer Retention</h2>
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Users className="h-5 w-5 text-blue-600" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="p-4 border rounded-lg bg-gray-50/50">
+              <p className="text-sm font-medium text-muted-foreground">New Customers</p>
+              <h3 className="text-2xl font-bold mt-1 text-blue-600">{newCustomers}</h3>
+              <p className="text-xs text-muted-foreground mt-1">First-time buyers</p>
+            </div>
+            <div className="p-4 border rounded-lg bg-gray-50/50">
+              <p className="text-sm font-medium text-muted-foreground">Returning</p>
+              <h3 className="text-2xl font-bold mt-1 text-indigo-600">{returningCustomers}</h3>
+              <p className="text-xs text-muted-foreground mt-1">Repeat buyers</p>
+            </div>
+          </div>
+          <div className="p-4 bg-indigo-50/50 border border-indigo-100 rounded-lg">
+            <h4 className="font-semibold text-sm text-indigo-900">Customer Lifetime Value (LTV)</h4>
+            <p className="text-xs text-indigo-700 mt-1 mb-2">The average total revenue generated per unique customer.</p>
+            <span className="text-2xl font-bold text-indigo-700">{formatPrice(lifetimeValue)}</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-bold mb-4 text-[#202223]">Top VIP Customers</h2>
+          <div className="space-y-4">
+            {vipCustomers.length > 0 ? vipCustomers.map((customer, index) => (
+              <div key={customer.email} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${index === 0 ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' : 'bg-gray-100 text-gray-600'}`}>
+                    #{index + 1}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm truncate max-w-[120px]" title={customer.name}>{customer.name}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[120px]" title={customer.email}>{customer.email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-sm text-green-600">{formatPrice(customer.totalSpend)}</p>
+                  <p className="text-xs text-muted-foreground">{customer.orderCount} orders</p>
+                </div>
+              </div>
+            )) : (
+              <div className="text-center py-6 text-sm text-muted-foreground">No customer purchase data available yet.</div>
+            )}
+          </div>
         </div>
       </div>
     </div>
