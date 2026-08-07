@@ -349,15 +349,28 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
 
       {/* Product Description Section */}
       {product.description && (
-        <div className="mt-16 border-t pt-12">
-          <div className="max-w-4xl">
-            <h2 className="text-2xl font-bold tracking-tight mb-6 flex items-center gap-3">
-              Product Description
-              <div className="flex-1 h-px bg-border" />
-            </h2>
-            <div className="bg-muted/20 rounded-2xl p-6 md:p-8">
+        <div className="mt-20">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center justify-center mb-10">
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent flex-1" />
+              <h2 className="text-3xl font-extrabold tracking-tight px-6 text-center bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
+                Product Details
+              </h2>
+              <div className="h-px bg-gradient-to-r from-border via-border to-transparent flex-1" />
+            </div>
+            
+            <div className="bg-card border shadow-xl shadow-primary/5 rounded-3xl p-8 md:p-12 overflow-hidden relative">
+              {/* Subtle background decoration */}
+              <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+              
               <div 
-                className="text-muted-foreground leading-relaxed text-base prose prose-sm sm:prose-base dark:prose-invert max-w-none"
+                className="relative z-10 text-card-foreground leading-loose text-base md:text-lg prose prose-slate sm:prose-base md:prose-lg dark:prose-invert max-w-none 
+                prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-foreground
+                prose-p:text-muted-foreground prose-p:leading-relaxed
+                prose-a:text-primary prose-a:font-semibold hover:prose-a:text-primary/80
+                prose-img:rounded-2xl prose-img:shadow-md
+                prose-ul:text-muted-foreground prose-li:marker:text-primary/50"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </div>
