@@ -118,5 +118,5 @@ If you don't know the answer or a tool fails, admit it gracefully.`,
     },
   });
 
-  return result.toTextStreamResponse();
+  return result.toDataStreamResponse();
 }

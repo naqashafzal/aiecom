@@ -7,7 +7,7 @@ import { Sparkles, ArrowUpRight, Loader2, Bot, User, Maximize2, Minimize2, X } f
 import { Button } from '@/components/ui/button';
 
 export default function AdminChatAgent() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: '/api/admin-chat',
   });
   
@@ -128,7 +128,12 @@ export default function AdminChatAgent() {
       </div>
 
       {/* Input Area */}
-      <div className="p-3 bg-white border-t border-[#e1e3e5] rounded-b-xl">
+      <div className="p-3 bg-white border-t border-[#e1e3e5] rounded-b-xl flex flex-col gap-2">
+        {error && (
+          <div className="text-xs text-red-500 bg-red-50 p-2 rounded-md border border-red-100 flex items-center justify-between">
+            <span>⚠️ {error.message || "Failed to connect to Omni-Agent API"}</span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             value={input}
