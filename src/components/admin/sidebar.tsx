@@ -17,7 +17,8 @@ import {
   Import,
   Star,
   Truck,
-  Mail
+  Mail,
+  Link2
 } from "lucide-react";
 
 const mainNavItems = [
@@ -39,6 +40,7 @@ const mainNavItems = [
   { name: "AI Workforce", href: "/admin/ai-agents", icon: Bot },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
   { name: "Auto Links", href: "/admin/auto-links", icon: Tags },
+  { name: "SEO Redirects", href: "/admin/redirects", icon: Link2 },
   { name: "Plugins", href: "/admin/plugins", icon: Bot },
   { name: "Store Migration", href: "/admin/migration", icon: Import },
 ];
