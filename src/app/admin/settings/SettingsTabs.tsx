@@ -614,10 +614,32 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
             <div className="space-y-6">
               
               <div className="border rounded-lg p-4 space-y-4">
-                <div className="font-semibold border-b pb-4 text-green-600">General Configuration</div>
+                <div className="font-semibold border-b pb-4 text-green-600">Meta WhatsApp Cloud API</div>
+                <p className="text-sm text-muted-foreground">Configure the official Meta API for automated order confirmations via WhatsApp.</p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">WhatsApp API Token</label>
+                    <input type={showApiKey ? "text" : "password"} name="whatsapp_api_token" defaultValue={settings.whatsapp_api_token || ""} placeholder="EAAG..." className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Phone Number ID</label>
+                      <input type="text" name="whatsapp_phone_number_id" defaultValue={settings.whatsapp_phone_number_id || ""} placeholder="e.g. 123456789012345" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Webhook Verify Token</label>
+                      <input type={showApiKey ? "text" : "password"} name="whatsapp_webhook_verify_token" defaultValue={settings.whatsapp_webhook_verify_token || ""} placeholder="Create a secure random string" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-4">
+                <div className="font-semibold border-b pb-4 text-green-600">Storefront Buttons (Click to Chat)</div>
                 <div>
                   <label className="block text-sm font-medium mb-1">WhatsApp Support Number (Include Country Code)</label>
-                  <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. +1234567890" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. 923001234567" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
                   <p className="text-xs text-muted-foreground mt-1.5">Required for any WhatsApp buttons to work.</p>
                 </div>
               </div>

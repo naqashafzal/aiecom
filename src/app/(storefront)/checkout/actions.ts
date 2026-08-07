@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 export async function getPaymentSettings() {
   const settingsRecords = await db.setting.findMany({
     where: {
@@ -270,7 +271,20 @@ export async function processCheckout(data: {
       console.log("Email failed", e);
     }
 
-    // 5. Create Database Notifications & Dispatch Expo Push Notifications to Admins
+    // 5. Send WhatsApp Order Confirmation
+    try {
+      if (data.shipping.phone) {
+        const orderNumberText = order.orderNumber ? order.orderNumber.toString() : order.id.substring(0, 8);
+        await sendWhatsAppMessage(
+          data.shipping.phone,
+          `Hi ${data.shipping.firstName}! Thank you for your order #${orderNumberText} from ZS Decor for ${data.currencyCode || 'Rs.'} ${data.totals.grandTotal}. Please reply *YES* to confirm your order, or *NO* to cancel.`
+        );
+      }
+    } catch (waError) {
+      console.log("WhatsApp message failed", waError);
+    }
+
+    // 6. Create Database Notifications & Dispatch Expo Push Notifications to Admins
     try {
       const admins = await db.user.findMany({
         where: { role: 'ADMIN' }
