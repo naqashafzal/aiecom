@@ -71,9 +71,11 @@ export default async function AdminAnalyticsPage() {
   });
 
   const categoryRevenue: Record<string, { name: string, total: number }> = {};
+  const productRevenue: Record<string, { id: string, name: string, image: string, revenue: number, units: number }> = {};
   let totalCategoryRevenue = 0;
 
   paidOrderItems.forEach(item => {
+    // Categories
     const catName = item.product?.categories?.[0]?.name || "Uncategorized";
     if (!categoryRevenue[catName]) {
       categoryRevenue[catName] = { name: catName, total: 0 };
@@ -81,6 +83,22 @@ export default async function AdminAnalyticsPage() {
     const itemTotal = (item.price || 0) * (item.quantity || 1);
     categoryRevenue[catName].total += itemTotal;
     totalCategoryRevenue += itemTotal;
+
+    // Products
+    if (item.product) {
+      const prodId = item.productId;
+      if (!productRevenue[prodId]) {
+        productRevenue[prodId] = {
+          id: item.product.id,
+          name: item.product.name,
+          image: item.product.images?.[0]?.url || "/placeholder.png",
+          revenue: 0,
+          units: 0
+        };
+      }
+      productRevenue[prodId].revenue += itemTotal;
+      productRevenue[prodId].units += (item.quantity || 1);
+    }
   });
 
   const topCategories = Object.values(categoryRevenue)
@@ -90,6 +108,10 @@ export default async function AdminAnalyticsPage() {
       ...cat,
       percentage: totalCategoryRevenue > 0 ? Math.round((cat.total / totalCategoryRevenue) * 100) : 0
     }));
+
+  const topProducts = Object.values(productRevenue)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
 
   const colors = ["bg-blue-500", "bg-purple-500", "bg-green-500"];
 
@@ -281,6 +303,38 @@ export default async function AdminAnalyticsPage() {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Top Performing Products */}
+      <div className="bg-white rounded-xl border shadow-sm p-6 hover:shadow-md transition-shadow">
+        <h2 className="text-lg font-bold mb-4 text-[#202223]">Top Performing Products</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+              <tr>
+                <th className="px-4 py-3 rounded-tl-lg">Product</th>
+                <th className="px-4 py-3 text-right">Units Sold</th>
+                <th className="px-4 py-3 text-right rounded-tr-lg">Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topProducts.length > 0 ? topProducts.map((prod) => (
+                <tr key={prod.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 flex items-center gap-3">
+                    <img src={prod.image} alt={prod.name} className="w-10 h-10 rounded-md object-cover border" />
+                    <span className="font-medium truncate max-w-[200px] sm:max-w-[400px]" title={prod.name}>{prod.name}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right font-medium">{prod.units}</td>
+                  <td className="px-4 py-3 text-right font-bold text-green-600">{formatPrice(prod.revenue)}</td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">No product data available yet.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
