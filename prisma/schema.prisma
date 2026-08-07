@@ -562,3 +562,12 @@ model AutoLink {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Redirect {
+  id             String   @id @default(cuid())
+  sourceUrl      String   @unique
+  destinationUrl String
+  isAutomatic    Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
