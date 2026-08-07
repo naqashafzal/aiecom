@@ -25,7 +25,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   // Need to bind the product ID to the updateProduct action
   const updateProductWithId = updateProduct.bind(null, product.id);
 
-  const primaryImageUrl = product.images?.[0]?.url;
+  const existingImageUrls = product.images?.map(img => img.url) || [];
 
   const aiSetting = await db.setting.findUnique({ where: { key: "aiInventoryAgent" } });
   const aiEnabled = aiSetting?.value === "true";
@@ -64,7 +64,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Media</h2>
-            <ImageUploadPreview defaultImageUrl={primaryImageUrl} />
+            <ImageUploadPreview defaultImageUrls={existingImageUrls} />
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">

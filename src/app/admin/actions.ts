@@ -30,27 +30,29 @@ export async function createProduct(formData: FormData) {
     counter++;
   }
 
-  const imageFile = formData.get("image") as File;
-  let imageUrl: string | null = null;
+  const imageFiles = formData.getAll("images") as File[];
+  let imageUrls: string[] = [];
   
   let uploadErrorMsg = "";
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const bytes = await imageFile.arrayBuffer();
-      const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-      const fileName = `${Date.now()}-${safeName}`;
-      
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+  for (const imageFile of imageFiles) {
+    if (imageFile && imageFile.size > 0) {
+      try {
+        const bytes = await imageFile.arrayBuffer();
+        const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+        const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
+        
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+        
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+        imageUrls.push(`/uploads/${fileName}`);
+      } catch (uploadError: any) {
+        console.error("Failed to upload image during product creation:", uploadError);
+        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
       }
-      
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-      imageUrl = `/uploads/${fileName}`;
-    } catch (uploadError: any) {
-      console.error("Failed to upload image during product creation:", uploadError);
-      uploadErrorMsg = `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
     }
   }
 
@@ -69,11 +71,11 @@ export async function createProduct(formData: FormData) {
       categories: {
         connect: categoryIds.map(id => ({ id }))
       },
-      images: imageUrl ? {
-        create: {
-          url: imageUrl,
-          isPrimary: true
-        }
+      images: imageUrls.length > 0 ? {
+        create: imageUrls.map((url, idx) => ({
+          url,
+          isPrimary: idx === 0
+        }))
       } : undefined
     }
   });
@@ -103,39 +105,40 @@ export async function updateProduct(id: string, formData: FormData) {
     throw new Error("Missing required fields");
   }
 
-  const imageFile = formData.get("image") as File;
-  const removeImage = formData.get("removeImage") === "true";
+  const imageFiles = formData.getAll("images") as File[];
+  const keepImages = formData.getAll("keepImages") as string[];
   
-  let imageUrl: string | null = null;
-  
+  let newImageUrls: string[] = [];
   let uploadErrorMsg = "";
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const bytes = await imageFile.arrayBuffer();
-      const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-      const fileName = `${Date.now()}-${safeName}`;
-      
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+
+  for (const imageFile of imageFiles) {
+    if (imageFile && imageFile.size > 0) {
+      try {
+        const bytes = await imageFile.arrayBuffer();
+        const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
+        const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
+        
+        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+        
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
+        newImageUrls.push(`/uploads/${fileName}`);
+      } catch (uploadError: any) {
+        console.error("Failed to upload image during product update:", uploadError);
+        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
       }
-      
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-      imageUrl = `/uploads/${fileName}`;
-    } catch (uploadError: any) {
-      console.error("Failed to upload image during product update:", uploadError);
-      uploadErrorMsg = `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
     }
   }
 
-  // Handle image updates
-  if (imageUrl || removeImage) {
-    // Delete existing images first
-    await db.productImage.deleteMany({
-      where: { productId: id }
-    });
-  }
+  // Delete existing images so we can recreate them in the correct order
+  await db.productImage.deleteMany({
+    where: { productId: id }
+  });
+
+  const allImages = [...keepImages, ...newImageUrls];
 
   const storeId = formData.get("storeId") as string;
 
@@ -152,14 +155,12 @@ export async function updateProduct(id: string, formData: FormData) {
       categories: {
         set: categoryIds.map(id => ({ id }))
       },
-      ...(imageUrl ? {
-        images: {
-          create: {
-            url: imageUrl,
-            isPrimary: true
-          }
-        }
-      } : {})
+      images: {
+        create: allImages.map((url, idx) => ({
+          url,
+          isPrimary: idx === 0
+        }))
+      }
     }
   });
 
