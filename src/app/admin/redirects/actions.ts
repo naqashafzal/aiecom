@@ -34,7 +34,11 @@ export async function processRedirectsXml(formData: FormData) {
   // Get all products to try to find matches
   const products = await db.product.findMany({ select: { slug: true, name: true, id: true } });
   
-  let addedCount = 0;
+  // Pre-fetch all existing redirects to avoid 9000+ individual DB queries
+  const existingRedirects = await db.redirect.findMany({ select: { sourceUrl: true } });
+  const existingSet = new Set(existingRedirects.map(r => r.sourceUrl));
+  
+  const newRedirectsData = [];
 
   for (const urlStr of urls) {
     try {
@@ -42,10 +46,7 @@ export async function processRedirectsXml(formData: FormData) {
       const path = urlStr.startsWith('http') ? new URL(urlStr).pathname : urlStr;
       
       if (!path || path === "/") continue;
-
-      // Check if already mapped
-      const existing = await db.redirect.findUnique({ where: { sourceUrl: path } });
-      if (existing) continue;
+      if (existingSet.has(path)) continue;
 
       // Auto-match logic
       // Split path into words
@@ -69,18 +70,28 @@ export async function processRedirectsXml(formData: FormData) {
       }
 
       if (bestMatch && highestScore > 0) {
-        await db.redirect.create({
-          data: {
-            sourceUrl: path,
-            destinationUrl: `/products/${bestMatch.slug}`,
-            isAutomatic: true
-          }
+        newRedirectsData.push({
+          sourceUrl: path,
+          destinationUrl: `/products/${bestMatch.slug}`,
+          isAutomatic: true
         });
-        addedCount++;
+        // Add to set to avoid duplicates in the same file
+        existingSet.add(path);
       }
     } catch (e) {
       // Ignore invalid URLs
     }
+  }
+
+  // Bulk insert in chunks of 1000 to handle 9000+ items safely and instantly
+  let addedCount = 0;
+  for (let i = 0; i < newRedirectsData.length; i += 1000) {
+    const chunk = newRedirectsData.slice(i, i + 1000);
+    const result = await db.redirect.createMany({
+      data: chunk,
+      skipDuplicates: true
+    });
+    addedCount += result.count;
   }
 
   revalidatePath("/admin/redirects");

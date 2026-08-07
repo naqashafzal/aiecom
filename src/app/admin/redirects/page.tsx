@@ -1,6 +1,7 @@
 import { db } from "@/lib/prisma";
-import { processRedirectsXml, deleteRedirect, createManualRedirect } from "./actions";
-import { Upload, Plus, Trash2, ArrowRight } from "lucide-react";
+import { deleteRedirect } from "./actions";
+import { Trash2, ArrowRight } from "lucide-react";
+import { XMLUploaderForm, ManualRedirectForm } from "./ClientForms";
 
 export default async function RedirectsPage() {
   const redirects = await db.redirect.findMany({
@@ -15,64 +16,26 @@ export default async function RedirectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* XML Uploader */}
-        <div className="bg-background rounded-xl border shadow-sm p-6">
+        <div className="bg-background rounded-xl border shadow-sm p-6 flex flex-col">
           <h2 className="text-lg font-bold mb-2">Smart XML Auto-Matcher</h2>
           <p className="text-sm text-muted-foreground mb-6">
             Upload your 404 links (Sitemap XML, CSV, or a text file). 
             The system will automatically find the best matching products and save permanent 301 redirects.
           </p>
-          
-          <form action={processRedirectsXml} className="space-y-4">
-            <div className="border-2 border-dashed rounded-xl p-8 text-center hover:bg-muted/50 transition-colors relative flex flex-col items-center justify-center">
-              <Upload className="h-8 w-8 text-muted-foreground mb-3" />
-              <p className="text-sm font-medium mb-1">Click or drag file to upload</p>
-              <p className="text-xs text-muted-foreground">XML, CSV, or TXT</p>
-              <input 
-                type="file" 
-                name="xmlFile" 
-                accept=".xml,.txt,.csv" 
-                required
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-              />
-            </div>
-            <button type="submit" className="w-full bg-primary text-primary-foreground h-10 rounded-md font-medium hover:bg-primary/90 transition-colors">
-              Process File & Auto-Match
-            </button>
-          </form>
+          <div className="flex-1">
+            <XMLUploaderForm />
+          </div>
         </div>
 
         {/* Manual Redirect */}
-        <div className="bg-background rounded-xl border shadow-sm p-6">
+        <div className="bg-background rounded-xl border shadow-sm p-6 flex flex-col">
           <h2 className="text-lg font-bold mb-2">Add Manual Redirect</h2>
           <p className="text-sm text-muted-foreground mb-6">
             Create a custom 301 redirect rule manually.
           </p>
-
-          <form action={createManualRedirect} className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold mb-1">Broken Link (Source)</label>
-              <input 
-                type="text" 
-                name="sourceUrl" 
-                required
-                placeholder="e.g. /old-category/blue-shoes" 
-                className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" 
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold mb-1">Destination</label>
-              <input 
-                type="text" 
-                name="destinationUrl" 
-                required
-                placeholder="e.g. /products/nike-blue-shoes" 
-                className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" 
-              />
-            </div>
-            <button type="submit" className="w-full bg-secondary text-secondary-foreground h-10 rounded-md font-medium hover:bg-secondary/80 transition-colors flex items-center justify-center gap-2">
-              <Plus className="h-4 w-4" /> Add Redirect
-            </button>
-          </form>
+          <div className="flex-1">
+            <ManualRedirectForm />
+          </div>
         </div>
       </div>
 
