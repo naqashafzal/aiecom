@@ -1,12 +1,27 @@
 import { db } from "@/lib/prisma";
 import { deleteRedirect } from "./actions";
-import { Trash2, ArrowRight } from "lucide-react";
+import { Trash2, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { XMLUploaderForm, ManualRedirectForm } from "./ClientForms";
+import Link from "next/link";
 
-export default async function RedirectsPage() {
-  const redirects = await db.redirect.findMany({
-    orderBy: { createdAt: "desc" }
-  });
+export default async function RedirectsPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Number(searchParams?.page) || 1;
+  const pageSize = 20;
+
+  const [redirects, totalCount] = await Promise.all([
+    db.redirect.findMany({
+      orderBy: { createdAt: "desc" },
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
+    }),
+    db.redirect.count()
+  ]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -42,7 +57,7 @@ export default async function RedirectsPage() {
       {/* Redirects List */}
       <div className="bg-background rounded-xl border shadow-sm overflow-hidden">
         <div className="p-6 border-b">
-          <h2 className="text-lg font-bold">Active Redirects ({redirects.length})</h2>
+          <h2 className="text-lg font-bold">Active Redirects ({totalCount})</h2>
         </div>
         
         {redirects.length === 0 ? (
@@ -93,6 +108,34 @@ export default async function RedirectsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t bg-muted/20">
+            <div className="text-sm text-muted-foreground">
+              Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to <span className="font-medium">{Math.min(currentPage * pageSize, totalCount)}</span> of <span className="font-medium">{totalCount}</span> results
+            </div>
+            <div className="flex items-center gap-2">
+              <Link 
+                href={`/admin/redirects?page=${Math.max(1, currentPage - 1)}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-md border bg-background hover:bg-muted transition-colors ${currentPage <= 1 ? 'pointer-events-none opacity-50' : ''}`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Link>
+              
+              <div className="text-sm font-medium px-2">
+                Page {currentPage} of {totalPages}
+              </div>
+
+              <Link 
+                href={`/admin/redirects?page=${Math.min(totalPages, currentPage + 1)}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-md border bg-background hover:bg-muted transition-colors ${currentPage >= totalPages ? 'pointer-events-none opacity-50' : ''}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         )}
       </div>
