@@ -18,7 +18,7 @@ export default async function RedirectsPage() {
         <div className="bg-background rounded-xl border shadow-sm p-6">
           <h2 className="text-lg font-bold mb-2">Smart XML Auto-Matcher</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Upload your 404 links (Sitemap XML or a text file with one URL per line). 
+            Upload your 404 links (Sitemap XML, CSV, or a text file). 
             The system will automatically find the best matching products and save permanent 301 redirects.
           </p>
           
@@ -26,11 +26,11 @@ export default async function RedirectsPage() {
             <div className="border-2 border-dashed rounded-xl p-8 text-center hover:bg-muted/50 transition-colors relative flex flex-col items-center justify-center">
               <Upload className="h-8 w-8 text-muted-foreground mb-3" />
               <p className="text-sm font-medium mb-1">Click or drag file to upload</p>
-              <p className="text-xs text-muted-foreground">XML or TXT</p>
+              <p className="text-xs text-muted-foreground">XML, CSV, or TXT</p>
               <input 
                 type="file" 
                 name="xmlFile" 
-                accept=".xml,.txt" 
+                accept=".xml,.txt,.csv" 
                 required
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
               />

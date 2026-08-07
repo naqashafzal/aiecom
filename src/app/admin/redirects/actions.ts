@@ -19,10 +19,12 @@ export async function processRedirectsXml(formData: FormData) {
     urls.push(match[1]);
   }
   
-  // Fallback: if it's just a text file with one URL per line
+  // Fallback: handle CSV or flat text file
   if (urls.length === 0) {
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && (l.startsWith('http') || l.startsWith('/')));
-    urls.push(...lines);
+    // Split by newlines or commas, remove quotes
+    const cells = text.split(/[\r\n,]+/).map(cell => cell.replace(/^["']|["']$/g, '').trim());
+    const validUrls = cells.filter(l => l && (l.startsWith('http') || l.startsWith('/')));
+    urls.push(...validUrls);
   }
 
   if (urls.length === 0) {
