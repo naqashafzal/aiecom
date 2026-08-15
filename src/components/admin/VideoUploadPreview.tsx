@@ -26,6 +26,8 @@ export function VideoUploadPreview({ defaultVideoUrl }: VideoUploadPreviewProps)
     setVideoPreviewUrl(null);
     setIsRemoved(true);
     setVideoLink("");
+    const input = document.getElementById("videoFile") as HTMLInputElement;
+    if (input) input.value = "";
   };
 
   const isYoutube = (url: string) => url.includes("youtube.com") || url.includes("youtu.be");
@@ -34,20 +36,19 @@ export function VideoUploadPreview({ defaultVideoUrl }: VideoUploadPreviewProps)
     <div className="space-y-4">
       {isRemoved && <input type="hidden" name="removeVideo" value="true" />}
       
-      {!videoPreviewUrl && !videoLink && (
-        <div className="border-2 border-dashed rounded-xl p-6 text-center hover:bg-muted/50 transition-colors relative flex flex-col items-center justify-center">
-          <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
-          <p className="text-sm font-medium mb-1">Click to upload a video</p>
-          <p className="text-xs text-muted-foreground mb-3">MP4, WEBM up to 50MB</p>
-          <input 
-            type="file" 
-            name="videoFile" 
-            accept="video/*" 
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
-          />
-        </div>
-      )}
+      <div className={`border-2 border-dashed rounded-xl p-6 text-center hover:bg-muted/50 transition-colors relative flex-col items-center justify-center ${!videoPreviewUrl && !videoLink ? 'flex' : 'hidden'}`}>
+        <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+        <p className="text-sm font-medium mb-1">Click to upload a video</p>
+        <p className="text-xs text-muted-foreground mb-3">MP4, WEBM up to 50MB</p>
+        <input 
+          id="videoFile"
+          type="file" 
+          name="videoFile" 
+          accept="video/*" 
+          onChange={handleFileChange}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+        />
+      </div>
 
       {/* Or external link */}
       {!videoPreviewUrl && (
