@@ -53,8 +53,30 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
                  const displayPrice = product.salePrice || product.price;
                  return (
                    <Link href={`/products/${product.slug}`} key={product.id} className="flex flex-col group">
-                     <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg">
-                       <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
+                     <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg group">
+                       {product.videoUrl ? (
+                         <>
+                           <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center bg-black">
+                             {(() => {
+                               const url = product.videoUrl;
+                               if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                                 return <iframe src={url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/") + "?autoplay=1&mute=1&controls=0&loop=1"} className="w-full h-full scale-[1.35]" allowFullScreen />;
+                               }
+                               if (url.includes("tiktok.com")) {
+                                 const match = url.match(/video\/(\d+)/);
+                                 return <iframe src={match ? `https://www.tiktok.com/embed/v2/${match[1]}` : url} className="w-full h-full scale-[1.1]" allowFullScreen />;
+                               }
+                               if (url.includes("facebook.com") || url.includes("fb.watch")) {
+                                 return <iframe src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`} className="w-full h-full" style={{ border: "none", overflow: "hidden" }} allowFullScreen />;
+                               }
+                               return <video src={url} autoPlay muted loop playsInline className="w-full h-full object-cover" />;
+                             })()}
+                           </div>
+                           <div className="absolute inset-0 z-20" />
+                         </>
+                       ) : (
+                         <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
+                       )}
                      </div>
                      <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-1 group-hover:underline">{product.name}</h4>
                      <span className="text-[#E53238] font-black text-lg mb-0.5">{formatPrice(displayPrice)}</span>
@@ -84,8 +106,30 @@ export async function DealsSection({ settings, storeCurrency = "USD" }: { settin
                  const discount = product.salePrice ? Math.round((1 - product.salePrice / product.price) * 100) : 10;
                  return (
                    <Link href={`/products/${product.slug}`} key={product.id} className="flex flex-col group">
-                     <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg">
-                       <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
+                     <div className="relative aspect-square bg-[#F5F5F5] overflow-hidden mb-3 rounded-lg group">
+                       {product.videoUrl ? (
+                         <>
+                           <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center bg-black">
+                             {(() => {
+                               const url = product.videoUrl;
+                               if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                                 return <iframe src={url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/") + "?autoplay=1&mute=1&controls=0&loop=1"} className="w-full h-full scale-[1.35]" allowFullScreen />;
+                               }
+                               if (url.includes("tiktok.com")) {
+                                 const match = url.match(/video\/(\d+)/);
+                                 return <iframe src={match ? `https://www.tiktok.com/embed/v2/${match[1]}` : url} className="w-full h-full scale-[1.1]" allowFullScreen />;
+                               }
+                               if (url.includes("facebook.com") || url.includes("fb.watch")) {
+                                 return <iframe src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`} className="w-full h-full" style={{ border: "none", overflow: "hidden" }} allowFullScreen />;
+                               }
+                               return <video src={url} autoPlay muted loop playsInline className="w-full h-full object-cover" />;
+                             })()}
+                           </div>
+                           <div className="absolute inset-0 z-20" />
+                         </>
+                       ) : (
+                         <Image src={image} alt={product.name} fill sizes="(max-width: 768px) 33vw, 15vw" className="object-cover group-hover:scale-105 transition-transform" />
+                       )}
                      </div>
                      <h4 className="text-[13px] text-[#444] line-clamp-2 leading-snug mb-1 group-hover:underline">{product.name}</h4>
                      <span className="text-[#222] font-black text-lg mb-0.5">{formatPrice(displayPrice)}</span>

@@ -30,7 +30,27 @@ export function VideoUploadPreview({ defaultVideoUrl }: VideoUploadPreviewProps)
     if (input) input.value = "";
   };
 
-  const isYoutube = (url: string) => url.includes("youtube.com") || url.includes("youtu.be");
+  const isEmbeddable = (url: string) => {
+    return url.includes("youtube.com") || 
+           url.includes("youtu.be") || 
+           url.includes("tiktok.com") || 
+           url.includes("facebook.com") || 
+           url.includes("fb.watch");
+  };
+
+  const getEmbedUrl = (url: string) => {
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+      return url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/");
+    }
+    if (url.includes("tiktok.com")) {
+      const match = url.match(/video\/(\d+)/);
+      return match ? `https://www.tiktok.com/embed/v2/${match[1]}` : url;
+    }
+    if (url.includes("facebook.com") || url.includes("fb.watch")) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`;
+    }
+    return url;
+  };
 
   return (
     <div className="space-y-4">
@@ -62,7 +82,7 @@ export function VideoUploadPreview({ defaultVideoUrl }: VideoUploadPreviewProps)
               setVideoLink(e.target.value);
               setIsRemoved(false);
             }}
-            placeholder="https://www.youtube.com/watch?v=..." 
+            placeholder="https://www.youtube.com/watch?v=... or TikTok/Facebook URL" 
             className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" 
           />
         </div>
@@ -73,11 +93,13 @@ export function VideoUploadPreview({ defaultVideoUrl }: VideoUploadPreviewProps)
         <div className="relative border rounded-xl overflow-hidden aspect-video bg-black flex items-center justify-center group">
           {videoPreviewUrl ? (
             <video src={videoPreviewUrl} controls className="w-full h-full object-contain" />
-          ) : isYoutube(videoLink) ? (
+          ) : isEmbeddable(videoLink) ? (
             <iframe 
-              src={videoLink.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
-              className="w-full h-full" 
+              src={getEmbedUrl(videoLink)} 
+              className="w-full h-full"
+              style={{ border: "none", overflow: "hidden" }}
               allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
             />
           ) : (
             <div className="text-white text-center p-4">

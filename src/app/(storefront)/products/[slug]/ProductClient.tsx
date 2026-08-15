@@ -177,15 +177,41 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
           {/* Product Video */}
           {product.videoUrl && (
             <div className="w-full rounded-2xl overflow-hidden border bg-black aspect-video flex items-center justify-center mt-2">
-              {product.videoUrl.includes("youtube.com") || product.videoUrl.includes("youtu.be") ? (
-                <iframe 
-                  src={product.videoUrl.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
-                  className="w-full h-full" 
-                  allowFullScreen
-                />
-              ) : (
-                <video src={product.videoUrl} controls className="w-full h-full object-contain" />
-              )}
+              {(() => {
+                const url = product.videoUrl;
+                if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                  return (
+                    <iframe 
+                      src={url.replace("watch?v=", "embed/").replace("youtu.be/", "youtube.com/embed/")} 
+                      className="w-full h-full" 
+                      allowFullScreen
+                    />
+                  );
+                }
+                if (url.includes("tiktok.com")) {
+                  const match = url.match(/video\/(\d+)/);
+                  const src = match ? `https://www.tiktok.com/embed/v2/${match[1]}` : url;
+                  return (
+                    <iframe 
+                      src={src} 
+                      className="w-full h-full" 
+                      allowFullScreen
+                    />
+                  );
+                }
+                if (url.includes("facebook.com") || url.includes("fb.watch")) {
+                  return (
+                    <iframe 
+                      src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`} 
+                      className="w-full h-full"
+                      style={{ border: "none", overflow: "hidden" }}
+                      allowFullScreen
+                      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                    />
+                  );
+                }
+                return <video src={url} controls className="w-full h-full object-contain" />;
+              })()}
             </div>
           )}
         </div>
