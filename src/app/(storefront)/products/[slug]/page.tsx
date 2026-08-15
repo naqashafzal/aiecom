@@ -90,7 +90,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     productJsonLd.aggregateRating = {
       "@type": "AggregateRating",
       ratingValue: averageRating,
-      reviewCount: product.reviews.length
+      reviewCount: product.reviews.length,
+      bestRating: "5",
+      worstRating: "1"
     };
 
     productJsonLd.review = product.reviews.map(rev => ({
@@ -103,7 +105,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       author: {
         "@type": "Person",
         name: rev.user?.name || "Anonymous"
-      }
+      },
+      reviewBody: rev.comment,
+      datePublished: new Date(rev.createdAt).toISOString().split('T')[0]
     }));
   }
 
