@@ -335,9 +335,9 @@ export default async function AdminAnalyticsPage() {
           </div>
           <div className="space-y-4">
             {topKeywords.length > 0 ? topKeywords.map(([keyword, count]) => (
-              <div key={keyword} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
-                <span className="font-medium text-muted-foreground truncate max-w-[150px]">"{keyword}"</span>
-                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
+              <div key={keyword} className="flex justify-between items-start gap-2 text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground break-all">"{keyword}"</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold shrink-0">{count}</span>
               </div>
             )) : (
               <div className="text-sm text-muted-foreground">No search queries tracked yet.</div>
@@ -352,9 +352,9 @@ export default async function AdminAnalyticsPage() {
           </div>
           <div className="space-y-4">
             {topSources.length > 0 ? topSources.map(([source, count]) => (
-              <div key={source} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
-                <span className="font-medium text-muted-foreground truncate max-w-[150px]">{source}</span>
-                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold">{count}</span>
+              <div key={source} className="flex justify-between items-start gap-2 text-sm border-b pb-2 last:border-0 last:pb-0">
+                <span className="font-medium text-muted-foreground break-all">{source}</span>
+                <span className="bg-slate-100 px-2 py-0.5 rounded-full font-semibold shrink-0">{count}</span>
               </div>
             )) : (
               <div className="text-sm text-muted-foreground">No traffic sources recorded.</div>
