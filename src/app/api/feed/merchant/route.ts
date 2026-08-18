@@ -29,7 +29,9 @@ export async function GET(request: NextRequest) {
         images: {
           take: 1
         },
-        brand: true
+        brand: true,
+        categories: true,
+        variants: true
       }
     });
 
@@ -47,33 +49,65 @@ export async function GET(request: NextRequest) {
         ? (product.images[0].url.startsWith('http') ? product.images[0].url : `${baseUrl}${product.images[0].url}`)
         : `${baseUrl}/placeholder.png`;
       
-      const price = product.price.toFixed(2);
-      const salePrice = product.salePrice ? product.salePrice.toFixed(2) : null;
-      
-      // Google requires specific availability formats
-      const availability = product.stock > 0 ? "in_stock" : "out_of_stock";
       const condition = "new";
       
       // Google requires brand, if not available we use the store name
       const brand = product.brand?.name || "ZS Decor";
 
+      // Map categories
+      const productType = product.categories?.length > 0 
+        ? product.categories.map(c => c.name).join(" > ") 
+        : "";
+
       // Safely handle descriptions (some might be null or undefined due to legacy data)
       const rawDescription = product.description || product.name || "";
       const plainDescription = rawDescription.replace(/<[^>]+>/g, ' ').substring(0, 5000); 
 
-      xml += `    <item>
-      <g:id>${product.id}</g:id>
-      <g:title>${escapeXml(product.name)}</g:title>
-      <g:description>${escapeXml(plainDescription)}</g:description>
-      <g:link>${escapeXml(productUrl)}</g:link>
+      const generateItemXml = (
+        id: string, 
+        title: string, 
+        price: number, 
+        salePrice: number | null, 
+        stock: number,
+        itemGroupId?: string
+      ) => {
+        const formattedPrice = price.toFixed(2);
+        const formattedSalePrice = salePrice ? salePrice.toFixed(2) : null;
+        const availability = stock > 0 ? "in_stock" : "out_of_stock";
+        
+        let itemXml = `    <item>
+      <g:id>${id}</g:id>
+      <title><![CDATA[${title}]]></title>
+      <description><![CDATA[${plainDescription}]]></description>
+      <link>${escapeXml(productUrl)}</link>
       <g:image_link>${escapeXml(imageUrl)}</g:image_link>
       <g:condition>${condition}</g:condition>
       <g:availability>${availability}</g:availability>
-      <g:price>${price} PKR</g:price>
-      ${salePrice ? `<g:sale_price>${salePrice} PKR</g:sale_price>` : ''}
+      <g:price>${formattedPrice} PKR</g:price>
+      ${formattedSalePrice ? `<g:sale_price>${formattedSalePrice} PKR</g:sale_price>` : ''}
       <g:brand>${escapeXml(brand)}</g:brand>
-    </item>
+      <g:identifier_exists>no</g:identifier_exists>
 `;
+        if (productType) {
+          itemXml += `      <g:product_type><![CDATA[${productType}]]></g:product_type>\n`;
+        }
+        if (itemGroupId) {
+          itemXml += `      <g:item_group_id>${itemGroupId}</g:item_group_id>\n`;
+        }
+        itemXml += `    </item>\n`;
+        return itemXml;
+      };
+
+      if (product.variants && product.variants.length > 0) {
+        for (const variant of product.variants) {
+          const variantTitle = `${product.name} - ${variant.name}`;
+          const vPrice = variant.price !== null ? variant.price : product.price;
+          const vSalePrice = variant.price !== null ? null : product.salePrice;
+          xml += generateItemXml(variant.id, variantTitle, vPrice, vSalePrice, variant.stock, product.id);
+        }
+      } else {
+        xml += generateItemXml(product.id, product.name, product.price, product.salePrice, product.stock);
+      }
     }
 
     xml += `  </channel>
@@ -82,7 +116,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(xml, {
       status: 200,
       headers: {
-        "Content-Type": "application/xml; charset=utf-8",
+        "Content-Type": "application/rss+xml; charset=utf-8",
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400"
       }
     });
