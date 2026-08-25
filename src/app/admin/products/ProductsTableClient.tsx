@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Edit, Trash2, Tag, Percent, ArrowUpCircle, PackageSearch, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,27 @@ export default function ProductsTableClient({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('query') || '');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const currentQuery = searchParams.get('query') || '';
+      
+      if (searchTerm !== currentQuery) {
+        params.set('page', '1');
+        if (searchTerm) {
+          params.set('query', searchTerm);
+        } else {
+          params.delete('query');
+        }
+        router.push(`?${params.toString()}`);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, searchParams, router]);
 
   const handleSortSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const [sort, order] = e.target.value.split('-');
@@ -90,6 +111,8 @@ export default function ProductsTableClient({
           <input
             type="text"
             placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full h-9 pl-9 pr-4 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
           />
         </div>

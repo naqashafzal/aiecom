@@ -5,7 +5,7 @@ import { db } from "@/lib/prisma";
 import ProductsTableClient from "./ProductsTableClient";
 import { getStoreCurrency } from "@/lib/format";
 
-export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ page?: string, sort?: string, order?: 'asc' | 'desc' }> }) {
+export default async function AdminProductsPage({ searchParams }: { searchParams: Promise<{ page?: string, sort?: string, order?: 'asc' | 'desc', query?: string }> }) {
   const storeCurrency = await getStoreCurrency();
   const params = await searchParams;
   const page = parseInt(params?.page || '1', 10);
@@ -13,14 +13,24 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
   
   const sort = params?.sort || 'createdAt';
   const order = params?.order || 'desc';
+  const query = params?.query || '';
 
-  const totalProducts = await db.product.count();
+  const where: any = {};
+  if (query) {
+    where.OR = [
+      { name: { contains: query, mode: 'insensitive' } },
+      { description: { contains: query, mode: 'insensitive' } },
+    ];
+  }
+
+  const totalProducts = await db.product.count({ where });
   const totalPages = Math.ceil(totalProducts / pageSize);
 
   const orderBy: any = {};
   orderBy[sort] = order;
 
   const products = await db.product.findMany({
+    where,
     include: {
       categories: true,
       images: true,
