@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
 
@@ -17,6 +17,16 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
   // Newly selected local files for preview
   const [newImagePreviews, setNewImagePreviews] = useState<{ url: string; file: File }[]>([]);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      const dataTransfer = new DataTransfer();
+      newImagePreviews.forEach(p => dataTransfer.items.add(p.file));
+      inputRef.current.files = dataTransfer.files;
+    }
+  }, [newImagePreviews]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
@@ -25,14 +35,7 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
         file
       }));
       
-      setNewImagePreviews(prev => {
-        const updated = [...prev, ...newPreviews];
-        // Sync all accumulated files back to the input element
-        const dataTransfer = new DataTransfer();
-        updated.forEach(p => dataTransfer.items.add(p.file));
-        e.target.files = dataTransfer.files;
-        return updated;
-      });
+      setNewImagePreviews(prev => [...prev, ...newPreviews]);
     }
   };
 
@@ -48,15 +51,6 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
       const updated = [...prev];
       URL.revokeObjectURL(updated[indexToRemove].url);
       updated.splice(indexToRemove, 1);
-      
-      // Sync the remaining files back to the input element
-      const input = document.getElementById("images") as HTMLInputElement;
-      if (input) {
-        const dataTransfer = new DataTransfer();
-        updated.forEach(p => dataTransfer.items.add(p.file));
-        input.files = dataTransfer.files;
-      }
-      
       return updated;
     });
   };
@@ -131,6 +125,7 @@ export function ImageUploadPreview({ defaultImageUrls = [], label = "Product Ima
         {/* Upload Button */}
         <div className="border-2 border-dashed rounded-xl relative hover:bg-muted/50 transition-colors aspect-square flex flex-col items-center justify-center cursor-pointer min-h-[120px]">
           <input 
+            ref={inputRef}
             id="images" 
             name="images" 
             type="file" 
