@@ -7,7 +7,8 @@ import { Filter, Heart, Star, ShoppingCart, SlidersHorizontal, ChevronDown, X, C
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Pagination } from "@/components/ui/pagination";
+import { fetchProductsPage } from "./actions";
+import { useEffect } from "react";
 
 export default function ProductsClient({ 
   initialProducts, 
@@ -44,6 +45,37 @@ export default function ProductsClient({
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [minPrice, setMinPrice] = useState<string>(initialMinPrice ? String(initialMinPrice) : "");
   const [maxPrice, setMaxPrice] = useState<string>(initialMaxPrice ? String(initialMaxPrice) : "");
+
+  const [products, setProducts] = useState(initialProducts);
+  const [localPage, setLocalPage] = useState(currentPage);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  useEffect(() => {
+    setProducts(initialProducts);
+    setLocalPage(currentPage);
+  }, [initialProducts, currentPage]);
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true);
+    try {
+      const nextPage = localPage + 1;
+      const newProducts = await fetchProductsPage({
+        page: nextPage,
+        search: initialSearch,
+        category: initialCategory,
+        sort: initialSort,
+        minPrice: initialMinPrice,
+        maxPrice: initialMaxPrice,
+        inStock: initialInStock
+      });
+      setProducts(prev => [...prev, ...newProducts]);
+      setLocalPage(nextPage);
+    } catch (error) {
+      console.error("Failed to load more products:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: storeCurrency }).format(price);
@@ -114,51 +146,55 @@ export default function ProductsClient({
   };
 
   const SidebarContent = () => (
-    <div className="space-y-8">
-      {/* Clear Filters & Search */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg flex items-center">
-          <SlidersHorizontal className="mr-2 h-5 w-5" /> Filters
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-2">
+        <h3 className="font-bold text-lg flex items-center text-gray-900">
+          <SlidersHorizontal className="mr-2 h-5 w-5 text-primary" /> Filters
         </h3>
-        <button 
-          onClick={clearFilters}
-          className="text-sm font-semibold text-primary hover:underline"
-        >
-          Clear All
-        </button>
+        {(initialCategory !== "All" && initialCategory) || minPrice || maxPrice || initialInStock ? (
+          <button 
+            onClick={clearFilters}
+            className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-full"
+          >
+            Clear All
+          </button>
+        ) : null}
       </div>
 
       {initialSearch && (
-        <div className="bg-muted p-3 rounded-md flex items-center justify-between">
+        <div className="bg-primary/5 border border-primary/20 p-3 rounded-xl flex items-center justify-between transition-all hover:bg-primary/10">
           <div className="text-sm">
-            <span className="text-muted-foreground">Search:</span> <span className="font-bold">"{initialSearch}"</span>
+            <span className="text-muted-foreground">Search:</span> <span className="font-bold text-primary">"{initialSearch}"</span>
           </div>
-          <button onClick={() => updateFilters({ search: null })} className="text-muted-foreground hover:text-black">
+          <button onClick={() => updateFilters({ search: null })} className="text-muted-foreground hover:text-red-500 transition-colors p-1 rounded-full hover:bg-white">
             <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
       {/* Categories */}
-      <div className="border-t pt-6">
-        <h4 className="font-semibold text-md mb-4 uppercase tracking-wider text-sm text-gray-900">Categories</h4>
-        <div className="space-y-3">
-          <label className="flex items-center gap-3 cursor-pointer group">
-            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${initialCategory === "All" || !initialCategory ? 'bg-primary border-primary text-primary-foreground' : 'border-gray-300 group-hover:border-primary'}`}>
-              {(initialCategory === "All" || !initialCategory) && <Check className="h-3 w-3" />}
+      <div className="pt-2">
+        <h4 className="font-bold mb-4 text-sm text-gray-900 flex items-center justify-between">
+          Categories
+        </h4>
+        <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+            <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${initialCategory === "All" || !initialCategory ? 'bg-primary border-primary text-primary-foreground scale-105 shadow-sm' : 'border-gray-300 group-hover:border-primary/50'}`}>
+              {(initialCategory === "All" || !initialCategory) && <Check className="h-3.5 w-3.5" />}
             </div>
             <input type="radio" name="category" checked={initialCategory === "All" || !initialCategory} onChange={() => handleCategoryChange("All")} className="hidden" />
-            <span className={`text-sm ${initialCategory === "All" || !initialCategory ? 'font-semibold text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>All Products</span>
+            <span className={`text-sm flex-1 ${initialCategory === "All" || !initialCategory ? 'font-medium text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>All Products</span>
           </label>
           {categories.map((cat) => {
             const isActive = initialCategory === cat.slug || initialCategory === cat.name;
             return (
-              <label key={cat.id} className="flex items-center gap-3 cursor-pointer group">
-                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isActive ? 'bg-primary border-primary text-primary-foreground' : 'border-gray-300 group-hover:border-primary'}`}>
-                  {isActive && <Check className="h-3 w-3" />}
+              <label key={cat.id} className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${isActive ? 'bg-primary border-primary text-primary-foreground scale-105 shadow-sm' : 'border-gray-300 group-hover:border-primary/50'}`}>
+                  {isActive && <Check className="h-3.5 w-3.5" />}
                 </div>
                 <input type="radio" name="category" checked={isActive} onChange={() => handleCategoryChange(cat.slug)} className="hidden" />
-                <span className={`text-sm ${isActive ? 'font-semibold text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>{cat.name}</span>
+                <span className={`text-sm flex-1 ${isActive ? 'font-medium text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>{cat.name}</span>
               </label>
             );
           })}
@@ -167,44 +203,44 @@ export default function ProductsClient({
 
       {/* Price Range */}
       <div className="border-t pt-6">
-        <h4 className="font-semibold text-md mb-4 uppercase tracking-wider text-sm text-gray-900">Price Range</h4>
-        <div className="flex items-center gap-2 mb-4">
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{currencySymbol}</span>
+        <h4 className="font-bold mb-4 text-sm text-gray-900">Price Range</h4>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="relative flex-1 group">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm group-focus-within:text-primary transition-colors">{currencySymbol}</span>
             <input 
               type="number" 
               placeholder="Min" 
               value={minPrice}
               onChange={(e) => setMinPrice(e.target.value)}
-              className="w-full h-10 pl-7 pr-3 rounded-md border border-input text-sm focus:border-primary focus:outline-none transition-colors"
+              className="w-full h-11 pl-7 pr-3 rounded-xl border border-input text-sm bg-gray-50 hover:bg-white focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
             />
           </div>
-          <span className="text-gray-400">-</span>
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">{currencySymbol}</span>
+          <span className="text-gray-300 font-medium">-</span>
+          <div className="relative flex-1 group">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm group-focus-within:text-primary transition-colors">{currencySymbol}</span>
             <input 
               type="number" 
               placeholder="Max" 
               value={maxPrice}
               onChange={(e) => setMaxPrice(e.target.value)}
-              className="w-full h-10 pl-7 pr-3 rounded-md border border-input text-sm focus:border-primary focus:outline-none transition-colors"
+              className="w-full h-11 pl-7 pr-3 rounded-xl border border-input text-sm bg-gray-50 hover:bg-white focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
             />
           </div>
         </div>
-        <Button onClick={applyPriceFilter} variant="outline" className="w-full text-xs font-semibold h-9 shadow-sm">
-          Apply Price
+        <Button onClick={applyPriceFilter} variant="default" className="w-full text-xs font-bold h-10 rounded-xl shadow-sm hover:shadow-md transition-all">
+          Apply Price Filter
         </Button>
       </div>
 
       {/* Availability */}
       <div className="border-t pt-6">
-        <h4 className="font-semibold text-md mb-4 uppercase tracking-wider text-sm text-gray-900">Availability</h4>
-        <label className="flex items-center gap-3 cursor-pointer group">
-          <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${initialInStock ? 'bg-primary border-primary text-primary-foreground' : 'border-gray-300 group-hover:border-primary'}`}>
-            {initialInStock && <Check className="h-3 w-3" />}
+        <h4 className="font-bold mb-4 text-sm text-gray-900">Availability</h4>
+        <label className="flex items-center gap-3 cursor-pointer group p-2 rounded-lg hover:bg-gray-50 transition-colors -ml-2">
+          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 ${initialInStock ? 'bg-primary border-primary text-primary-foreground scale-105 shadow-sm' : 'border-gray-300 group-hover:border-primary/50'}`}>
+            {initialInStock && <Check className="h-3.5 w-3.5" />}
           </div>
           <input type="checkbox" checked={!!initialInStock} onChange={(e) => handleInStockChange(e.target.checked)} className="hidden" />
-          <span className={`text-sm ${initialInStock ? 'font-semibold text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>In Stock Only</span>
+          <span className={`text-sm ${initialInStock ? 'font-medium text-gray-900' : 'text-gray-600 group-hover:text-gray-900'}`}>In Stock Only</span>
         </label>
       </div>
     </div>
@@ -241,7 +277,7 @@ export default function ProductsClient({
             </div>
           </div>
           <span className="text-sm font-medium text-muted-foreground block text-center sm:hidden">
-            Showing {initialProducts.length} of {totalProducts} products
+            Showing {products.length} of {totalProducts} products
           </span>
         </div>
 
@@ -266,11 +302,10 @@ export default function ProductsClient({
           </div>
         </aside>
 
-        {/* Product Grid */}
         <div className="flex-1">
           <div className="mb-6 hidden lg:flex items-center justify-between bg-white border border-gray-100 p-4 rounded-xl shadow-sm">
             <span className="text-sm font-medium text-muted-foreground">
-              Showing <strong className="text-gray-900">{initialProducts.length}</strong> of <strong className="text-gray-900">{totalProducts}</strong> products
+              Showing <strong className="text-gray-900">{products.length}</strong> of <strong className="text-gray-900">{totalProducts}</strong> products
             </span>
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold text-gray-700">Sort By:</span>
@@ -287,7 +322,7 @@ export default function ProductsClient({
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-            {initialProducts.map((product) => {
+            {products.map((product: any) => {
               const image = product.images?.[0]?.url || "/placeholder.png";
               const displayPrice = product.salePrice || product.price;
 
@@ -342,7 +377,7 @@ export default function ProductsClient({
             })}
           </div>
           
-          {initialProducts.length === 0 && (
+          {products.length === 0 && (
             <div className="text-center py-32 bg-gray-50 rounded-2xl border border-gray-100 mt-6">
               <h2 className="text-2xl font-bold mb-3 text-gray-900">No products found</h2>
               <p className="text-muted-foreground mb-6">Try adjusting your filters or search criteria.</p>
@@ -352,9 +387,16 @@ export default function ProductsClient({
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="mt-12 mb-8">
-              <Pagination totalPages={totalPages} currentPage={currentPage} />
+
+          {localPage < totalPages && (
+            <div className="mt-12 mb-8 flex justify-center">
+              <Button 
+                onClick={handleLoadMore} 
+                disabled={isLoadingMore}
+                className="px-8 py-6 rounded-full font-semibold shadow-md min-w-[200px]"
+              >
+                {isLoadingMore ? "Loading..." : "Load More"}
+              </Button>
             </div>
           )}
         </div>

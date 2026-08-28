@@ -22,35 +22,27 @@ export default async function CatchAll({ params }: { params: { catchAll: string[
   let recommendations: any[] = [];
 
   if (words.length > 0) {
-    // Find products that match the keywords
-    const products = await db.product.findMany({ 
-      select: { 
+    const orConditions = words.map(w => ({
+      name: { contains: w, mode: 'insensitive' as const }
+    }));
+
+    recommendations = await db.product.findMany({
+      where: {
+        status: "ACTIVE",
+        OR: orConditions
+      },
+      take: 4,
+      select: {
         id: true,
-        name: true, 
-        slug: true, 
+        name: true,
+        slug: true,
         price: true,
         salePrice: true,
         images: {
           take: 1
         }
-      },
-      where: {
-        status: "ACTIVE"
       }
     });
-    
-    // Simple relevance scoring
-    const scoredProducts = products.map(p => {
-      let score = 0;
-      const targetString = `${p.name.toLowerCase()} ${p.slug.toLowerCase()}`;
-      for (const w of words) {
-        if (targetString.includes(w)) score++;
-      }
-      return { ...p, score };
-    }).filter(p => p.score > 0);
-
-    // Sort by score descending and take top 4
-    recommendations = scoredProducts.sort((a, b) => b.score - a.score).slice(0, 4);
   }
 
   // If no specific recommendations were found, just fetch the newest/featured products

@@ -25,7 +25,7 @@ export default async function AdminReviewsPage({
       take: limit
     }),
     db.review.count(),
-    db.product.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } })
+    db.product.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' }, take: 100 })
   ]);
 
   const totalPages = Math.ceil(total / limit);

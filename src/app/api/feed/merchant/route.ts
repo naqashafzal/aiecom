@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all active products with their primary image
     const products = await db.product.findMany({
+      take: 5000,
       where: {
         status: "ACTIVE"
       },
