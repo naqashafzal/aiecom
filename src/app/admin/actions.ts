@@ -566,3 +566,33 @@ export async function markAllNotificationsAsRead() {
   });
   revalidatePath("/admin");
 }
+
+import { v2 as cloudinary } from 'cloudinary';
+
+export async function testCloudinaryConnection(cloudinaryUrl: string) {
+  try {
+    if (!cloudinaryUrl) {
+      return { success: false, error: "Cloudinary URL is required." };
+    }
+    
+    // Check if the URL starts with cloudinary://
+    if (!cloudinaryUrl.startsWith("cloudinary://")) {
+      return { success: false, error: "Invalid Cloudinary URL format. It must start with 'cloudinary://'." };
+    }
+
+    // Temporarily configure cloudinary with this url to test it
+    cloudinary.config({
+      secure: true
+    });
+    
+    process.env.CLOUDINARY_URL = cloudinaryUrl;
+
+    const result = await cloudinary.api.ping();
+    if (result && result.status === 'ok') {
+      return { success: true };
+    }
+    return { success: false, error: "Failed to connect to Cloudinary." };
+  } catch (e: any) {
+    return { success: false, error: e.message || "An unknown error occurred" };
+  }
+}

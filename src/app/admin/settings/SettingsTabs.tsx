@@ -730,6 +730,40 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                     {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                
+                <div className="pt-2">
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    className="h-9"
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      const cloudinaryUrl = (document.querySelector('input[name="cloudinary_url"]') as HTMLInputElement).value;
+                      
+                      if (!cloudinaryUrl) return alert("Please enter your Cloudinary API Environment Variable to test.");
+                      
+                      btn.disabled = true;
+                      btn.innerText = "Testing...";
+                      
+                      try {
+                        const { testCloudinaryConnection } = await import('../actions');
+                        const res = await testCloudinaryConnection(cloudinaryUrl);
+                        if (res.success) {
+                          alert("Connection successful! Cloudinary is working perfectly.");
+                        } else {
+                          alert("Connection failed: " + res.error);
+                        }
+                      } catch (err: any) {
+                        alert("Error: " + err.message);
+                      } finally {
+                        btn.disabled = false;
+                        btn.innerText = "Test Connection";
+                      }
+                    }}
+                  >
+                    Test Connection
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
