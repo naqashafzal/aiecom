@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Edit, Trash2, Tag, Percent, ArrowUpCircle, PackageSearch, Search, Filter } from "lucide-react";
+import { Edit, Trash2, Tag, Percent, ArrowUpCircle, PackageSearch, Search, Filter, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -213,6 +213,11 @@ export default function ProductsTableClient({
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
+                    <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-muted-foreground hover:text-primary">
+                      <Link href={`/products/${product.slug}`} target="_blank">
+                        <ExternalLink className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-muted-foreground hover:text-primary">
                       <Link href={`/admin/products/${product.id}`}>
                         <Edit className="h-4 w-4" />

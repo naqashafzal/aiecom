@@ -123,3 +123,17 @@ export async function saveSeoMetadata(id: string, type: "PRODUCT" | "CATEGORY" |
   revalidatePath("/admin/seo");
   return { success: true };
 }
+
+export async function bulkGenerateSeoMetadata(ids: string[], type: "PRODUCT" | "CATEGORY" | "PAGE" | "POST") {
+  const results = [];
+  for (const id of ids) {
+    try {
+      const res = await generateSeoMetadata(id, type);
+      results.push({ id, ...res });
+    } catch (e) {
+      console.error(`Failed bulk generation for ${id}:`, e);
+      results.push({ id, success: false, error: String(e) });
+    }
+  }
+  return { success: true, results };
+}

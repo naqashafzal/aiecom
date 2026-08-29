@@ -2,7 +2,7 @@ import { db } from "@/lib/prisma";
 import { SeoDashboardClient } from "./SeoDashboardClient";
 
 export default async function SeoDashboardPage() {
-  const [products, categories, pages, posts] = await Promise.all([
+  const [products, categories, pages, posts, settingsData] = await Promise.all([
     db.product.findMany({
       select: { id: true, name: true, slug: true, metaTitle: true, metaDescription: true },
       orderBy: { createdAt: "desc" }
@@ -18,8 +18,14 @@ export default async function SeoDashboardPage() {
     db.post.findMany({
       select: { id: true, title: true, slug: true, metaTitle: true, metaDescription: true },
       orderBy: { createdAt: "desc" }
-    })
+    }),
+    db.setting.findMany()
   ]);
+
+  const settings: Record<string, string> = {};
+  settingsData.forEach(s => {
+    settings[s.key] = s.value;
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -35,6 +41,7 @@ export default async function SeoDashboardPage() {
         categories={categories}
         pages={pages}
         posts={posts}
+        settings={settings}
       />
     </div>
   );

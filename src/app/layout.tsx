@@ -35,14 +35,25 @@ export async function generateMetadata(): Promise<Metadata> {
   let adSenseClientId = "";
   let customHeadScript = "";
 
+  let defaultDescription = "Experience the next generation of modern, fast, and engaging ecommerce. Shop premium products directly from top vendors.";
+  let ogImage = "";
+  let twitterHandle = "";
+
   try {
     const settings = await getCachedSettings();
 
     if (settings["storeFavicon"]) faviconUrl = settings["storeFavicon"];
-    if (settings["storeName"]) {
-      storeName = settings["storeName"];
-      fullTitle = `${storeName} | Premium Ecommerce`;
-    }
+    
+    // Global SEO Settings
+    if (settings["seo_site_name"]) storeName = settings["seo_site_name"];
+    else if (settings["storeName"]) storeName = settings["storeName"];
+    
+    fullTitle = `${storeName} | Premium Ecommerce`;
+    
+    if (settings["seo_default_description"]) defaultDescription = settings["seo_default_description"];
+    if (settings["seo_og_image"]) ogImage = settings["seo_og_image"];
+    if (settings["seo_twitter_handle"]) twitterHandle = settings["seo_twitter_handle"];
+
     if (settings["ad_sense_client_id"]) adSenseClientId = settings["ad_sense_client_id"];
     if (settings["ad_head_script"]) customHeadScript = settings["ad_head_script"];
   } catch (e) {
@@ -57,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
       default: fullTitle,
       template: `%s | ${storeName}`,
     },
-    description: "Experience the next generation of modern, fast, and engaging ecommerce. Shop premium products directly from top vendors.",
+    description: defaultDescription,
     keywords: ["ecommerce", "shopping", "premium", "electronics", "fashion"],
     icons: {
       icon: faviconUrl,
@@ -69,13 +80,16 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "en_US",
       url: appUrl,
       title: fullTitle,
-      description: "Experience the next generation of modern, fast, and engaging ecommerce.",
+      description: defaultDescription,
       siteName: storeName,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
-      description: "Experience the next generation of modern, fast, and engaging ecommerce.",
+      description: defaultDescription,
+      creator: twitterHandle,
+      images: ogImage ? [ogImage] : undefined,
     },
   };
 }
@@ -93,6 +107,8 @@ export default async function RootLayout({
   let adSenseClientId = "";
   let customHeadScript = "";
   var defaultSlotId = "1234567890";
+  let jsonLdEnabled = true;
+  let storeName = "ZS Decor";
 
   try {
     const settings = await getCachedSettings();
@@ -100,6 +116,9 @@ export default async function RootLayout({
     if (settings["ad_sense_client_id"]) adSenseClientId = settings["ad_sense_client_id"];
     if (settings["ad_sense_slot_id"]) defaultSlotId = settings["ad_sense_slot_id"];
     if (settings["ad_head_script"]) customHeadScript = settings["ad_head_script"];
+    if (settings["seo_jsonld_enabled"]) jsonLdEnabled = settings["seo_jsonld_enabled"] === "true";
+    if (settings["seo_site_name"]) storeName = settings["seo_site_name"];
+    else if (settings["storeName"]) storeName = settings["storeName"];
   } catch (e) {
     console.error("Failed to fetch settings for layout", e);
   }
@@ -123,6 +142,24 @@ export default async function RootLayout({
         )}
         {customHeadScript && (
           <div dangerouslySetInnerHTML={{ __html: customHeadScript }} />
+        )}
+        {jsonLdEnabled && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": storeName,
+                "url": process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": `${process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app"}/products?query={search_term_string}`,
+                  "query-input": "required name=search_term_string"
+                }
+              })
+            }}
+          />
         )}
       </head>
       <body className="min-h-full flex flex-col">
