@@ -4,8 +4,7 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
-import fs from "fs";
-import path from "path";
+import { uploadFile } from "@/lib/storage";
 
 export async function createProduct(formData: FormData) {
   const name = formData.get("name") as string;
@@ -37,21 +36,11 @@ export async function createProduct(formData: FormData) {
   for (const imageFile of imageFiles) {
     if (imageFile && imageFile.size > 0) {
       try {
-        const bytes = await imageFile.arrayBuffer();
-        const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-        const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
-        
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-        
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        
-        fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-        imageUrls.push(`/uploads/${fileName}`);
+        const url = await uploadFile(imageFile, "image");
+        imageUrls.push(url);
       } catch (uploadError: any) {
         console.error("Failed to upload image during product creation:", uploadError);
-        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
+        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message}`;
       }
     }
   }
@@ -62,13 +51,7 @@ export async function createProduct(formData: FormData) {
   
   if (videoFile && videoFile.size > 0) {
     try {
-      const bytes = await videoFile.arrayBuffer();
-      const safeName = videoFile.name ? videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'video.mp4';
-      const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-      videoUrl = `/uploads/${fileName}`;
+      videoUrl = await uploadFile(videoFile, "video");
     } catch (e) {
       console.error("Failed to upload video:", e);
     }
@@ -135,21 +118,11 @@ export async function updateProduct(id: string, formData: FormData) {
   for (const imageFile of imageFiles) {
     if (imageFile && imageFile.size > 0) {
       try {
-        const bytes = await imageFile.arrayBuffer();
-        const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-        const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
-        
-        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-        
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        
-        fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-        newImageUrls.push(`/uploads/${fileName}`);
+        const url = await uploadFile(imageFile, "image");
+        newImageUrls.push(url);
       } catch (uploadError: any) {
         console.error("Failed to upload image during product update:", uploadError);
-        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message} - Stack: ${uploadError.stack}`;
+        uploadErrorMsg += `\n\n[DEBUG UPLOAD ERROR]: ${uploadError.message}`;
       }
     }
   }
@@ -168,13 +141,7 @@ export async function updateProduct(id: string, formData: FormData) {
     videoUrl = null;
   } else if (videoFile && videoFile.size > 0) {
     try {
-      const bytes = await videoFile.arrayBuffer();
-      const safeName = videoFile.name ? videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'video.mp4';
-      const fileName = `${Date.now()}-${Math.floor(Math.random()*1000)}-${safeName}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-      fs.writeFileSync(path.join(uploadDir, fileName), new Uint8Array(bytes));
-      videoUrl = `/uploads/${fileName}`;
+      videoUrl = await uploadFile(videoFile, "video");
     } catch (e) {
       console.error("Failed to upload video:", e);
     }
@@ -323,13 +290,11 @@ export async function createCategory(formData: FormData) {
   let imageId = null;
   const imageFile = formData.get("image") as File;
   if (imageFile && imageFile.size > 0) {
-    const bytes = await imageFile.arrayBuffer();
-    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-    const fileName = `${Date.now()}-cat-${safeName}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
-    imageId = `/uploads/${fileName}`;
+    try {
+      imageId = await uploadFile(imageFile, "image");
+    } catch (e) {
+      console.error("Category image upload failed", e);
+    }
   }
 
   await db.category.create({
@@ -362,13 +327,11 @@ export async function updateCategory(id: string, formData: FormData) {
   if (removeImage) {
     updateData.imageId = null;
   } else if (imageFile && imageFile.size > 0) {
-    const bytes = await imageFile.arrayBuffer();
-    const safeName = imageFile.name ? imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_') : 'image.jpg';
-    const fileName = `${Date.now()}-cat-${safeName}`;
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), Buffer.from(bytes));
-    updateData.imageId = `/uploads/${fileName}`;
+    try {
+      updateData.imageId = await uploadFile(imageFile, "image");
+    } catch (e) {
+      console.error("Category image upload failed", e);
+    }
   }
 
   await db.category.update({

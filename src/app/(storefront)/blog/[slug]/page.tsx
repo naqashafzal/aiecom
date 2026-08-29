@@ -14,10 +14,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   })
   
   if (!post) return { title: 'Post Not Found' }
+  
+  const cleanDescription = (post.excerpt || post.content.replace(/<[^>]*>?/gm, '').substring(0, 160).trim() + '...');
+
   return {
-    title: post.title,
-    description: post.excerpt,
+    title: post.metaTitle || post.title,
+    description: post.metaDescription || cleanDescription,
     openGraph: {
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || cleanDescription,
       images: post.coverImage ? [post.coverImage] : []
     }
   }

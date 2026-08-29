@@ -130,6 +130,8 @@ model Category {
   name        String
   slug        String     @unique
   description String?
+  metaTitle   String?
+  metaDescription String?  @db.Text
   imageId     String?
   parentId    String?
   parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
@@ -154,6 +156,8 @@ model Product {
   name          String
   slug          String    @unique
   description   String    @db.Text
+  metaTitle     String?
+  metaDescription String? @db.Text
   specifications Json?
   price         Float
   salePrice     Float?
@@ -462,6 +466,8 @@ model Post {
   slug        String    @unique
   content     String    @db.Text
   excerpt     String?   @db.Text
+  metaTitle   String?
+  metaDescription String? @db.Text
   coverImage  String?
   published   Boolean   @default(false)
   authorId    String
@@ -475,6 +481,8 @@ model Page {
   title       String
   slug        String   @unique
   content     String   @db.Text
+  metaTitle   String?
+  metaDescription String? @db.Text
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -21,24 +21,27 @@ export async function generateMetadata(
 
   const image = product.images?.[0]?.url || "/placeholder.png";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://zsdecor-ecom.vercel.app";
-  const cleanDescription = product.description.replace(/<[^>]*>?/gm, '').substring(0, 160).trim() + '...';
+  const defaultDescription = product.description.replace(/<[^>]*>?/gm, '').substring(0, 160).trim() + '...';
+  
+  const seoTitle = product.metaTitle || product.name;
+  const seoDescription = product.metaDescription || defaultDescription;
 
   return {
-    title: product.name,
-    description: cleanDescription,
+    title: seoTitle,
+    description: seoDescription,
     alternates: {
       canonical: `${appUrl}/products/${product.slug}`,
     },
     openGraph: {
-      title: product.name,
-      description: cleanDescription,
+      title: seoTitle,
+      description: seoDescription,
       images: [image],
       url: `${appUrl}/products/${product.slug}`,
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
-      description: cleanDescription,
+      title: seoTitle,
+      description: seoDescription,
       images: [image],
     },
   };

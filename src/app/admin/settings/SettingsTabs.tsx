@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload, Key, Eye, EyeOff, MessageCircle } from "lucide-react";
+import { Store, CreditCard, LayoutTemplate, Bot, CheckCircle2, Megaphone, Mail, Upload, Key, Eye, EyeOff, MessageCircle, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function SettingsTabs({ settings, saveAction }: { settings: Record<string, string>, saveAction: any }) {
@@ -64,6 +64,7 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
     { id: "ads", name: "Advertisements", icon: Megaphone },
     { id: "ai", name: "AI & Integrations", icon: Bot },
     { id: "whatsapp", name: "WhatsApp", icon: MessageCircle },
+    { id: "storage", name: "File Storage", icon: Cloud },
   ];
 
   return (
@@ -681,6 +682,55 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 </div>
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {activeTab === "storage" && (
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6 animate-in fade-in duration-300">
+            <div>
+              <h2 className="text-lg font-bold flex items-center gap-2"><Cloud className="h-5 w-5 text-blue-500" /> File Storage Configuration</h2>
+              <p className="text-sm text-muted-foreground mt-1">Configure where uploaded images and videos are stored. Cloudinary is highly recommended for production.</p>
+            </div>
+
+            <div className="space-y-6">
+              
+              <div className="border rounded-lg p-4 space-y-3 bg-muted/10">
+                <h3 className="font-semibold text-primary">Active Storage Provider</h3>
+                <p className="text-xs text-muted-foreground">Select the active provider for new uploads. Changing this will not move existing files.</p>
+                <select
+                  name="storage_provider"
+                  defaultValue={settings.storage_provider || "local"}
+                  className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm font-medium"
+                >
+                  <option value="local">Local Filesystem (Current Server)</option>
+                  <option value="cloudinary">Cloudinary (Free CDN)</option>
+                </select>
+              </div>
+
+              <div className="border rounded-lg p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Key className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold">Cloudinary API Environment Variable</h3>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2">You can find your API Environment variable in your Cloudinary Dashboard under Settings.</p>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? "text" : "password"}
+                    name="cloudinary_url"
+                    defaultValue={settings.cloudinary_url || ""}
+                    placeholder="cloudinary://API_KEY:API_SECRET@CLOUD_NAME"
+                    className="w-full h-10 px-3 pr-10 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none font-mono text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

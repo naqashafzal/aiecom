@@ -2,6 +2,38 @@ import { db } from "@/lib/prisma";
 import ProductsClient from "./ProductsClient";
 import { Suspense } from "react";
 import { Prisma } from "@prisma/client";
+import { Metadata, ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+  { searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const params = await searchParams;
+  const categoryParam = typeof params.category === 'string' ? params.category : null;
+
+  if (categoryParam && categoryParam !== "All") {
+    const category = await db.category.findFirst({
+      where: {
+        OR: [
+          { slug: categoryParam },
+          { name: categoryParam }
+        ]
+      }
+    });
+
+    if (category) {
+      return {
+        title: category.metaTitle || `${category.name} Products`,
+        description: category.metaDescription || category.description || `Browse our selection of ${category.name} products.`,
+      };
+    }
+  }
+
+  return {
+    title: "All Products",
+    description: "Browse our complete catalog of products.",
+  };
+}
 
 export default async function ProductsPage({
   searchParams
