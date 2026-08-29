@@ -565,10 +565,10 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
                 <h3 className="font-semibold mt-4">Gemini Model</h3>
                 <select
                   name="gemini_model"
-                  defaultValue={settings.gemini_model || "gemini-2.0-flash-lite"}
+                  defaultValue={settings.gemini_model || "gemini-3.5-flash-lite"}
                   className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none text-sm"
                 >
-                  <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (Most free — recommended)</option>
+                  <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Most free — recommended)</option>
                   <option value="gemini-2.0-flash">gemini-2.0-flash (Smarter, good free tier)</option>
                   <option value="gemini-2.5-flash">gemini-2.5-flash (Best balance, limited free)</option>
                   <option value="gemini-2.5-pro">gemini-2.5-pro (Most powerful, very limited free)</option>

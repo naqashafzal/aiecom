@@ -6,7 +6,7 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { db } from "@/lib/prisma";
 
-export const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash-lite";
+export const DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite";
 export const DEFAULT_WAVESPEED_MODEL = "wavespeed-1.5-pro"; // Example default model
 
 /** Returns a model instance using the configured provider + API key + model from DB or env */
