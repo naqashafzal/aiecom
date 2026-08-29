@@ -8,6 +8,7 @@ import { ImageUploadPreview } from "@/components/admin/ImageUploadPreview";
 import { VideoUploadPreview } from "@/components/admin/VideoUploadPreview";
 import { AiDescriptionButton } from "../../ai-agents/AiDescriptionButton";
 import { getStoreCurrency } from "@/lib/format";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const storeCurrency = await getStoreCurrency();
@@ -136,9 +137,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           <Button variant="outline" type="button" asChild className="px-6 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive border-transparent shadow-none">
             <Link href="/admin/products"><X className="mr-2 h-4 w-4" /> Discard</Link>
           </Button>
-          <Button type="submit" className="px-8 rounded-full shadow-lg shadow-primary/25">
-            <Save className="mr-2 h-4 w-4" /> Save Changes
-          </Button>
+          <SubmitButton />
         </div>
       </form>
       
