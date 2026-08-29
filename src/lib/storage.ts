@@ -36,9 +36,18 @@ export async function uploadFile(file: File, type: "image" | "video" = "image"):
   // 2. Cloudinary Upload
   if (provider === "cloudinary" && cloudinaryUrl) {
     // We configure Cloudinary globally or per request
-    cloudinary.config({
-      cloudinary_url: cloudinaryUrl
-    });
+    try {
+      const urlObj = new URL(cloudinaryUrl);
+      cloudinary.config({
+        cloud_name: urlObj.hostname,
+        api_key: urlObj.username,
+        api_secret: urlObj.password,
+        secure: true
+      });
+    } catch (e) {
+      console.error("Invalid Cloudinary URL format", e);
+      throw new Error("Invalid Cloudinary URL in settings");
+    }
 
     // Cloudinary accepts Base64 Data URIs directly
     const buffer = Buffer.from(bytes);

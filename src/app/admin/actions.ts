@@ -580,12 +580,14 @@ export async function testCloudinaryConnection(cloudinaryUrl: string) {
       return { success: false, error: "Invalid Cloudinary URL format. It must start with 'cloudinary://'." };
     }
 
-    // Temporarily configure cloudinary with this url to test it
+    // Parse cloudinary://key:secret@cloudname
+    const urlObj = new URL(cloudinaryUrl);
     cloudinary.config({
+      cloud_name: urlObj.hostname,
+      api_key: urlObj.username,
+      api_secret: urlObj.password,
       secure: true
     });
-    
-    process.env.CLOUDINARY_URL = cloudinaryUrl;
 
     const result = await cloudinary.api.ping();
     if (result && result.status === 'ok') {
