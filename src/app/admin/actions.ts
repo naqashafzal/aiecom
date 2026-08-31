@@ -632,7 +632,6 @@ export async function testResendApi(apiKey: string, fromAddress: string, toAddre
 export async function getAdminNotifications() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-  const session = await auth();
   if (!session?.user?.id) return [];
 
   // Since admins can see all notifications meant for admins, maybe we just fetch by userId.
@@ -657,7 +656,6 @@ export async function markNotificationAsRead(id: string) {
 export async function markAllNotificationsAsRead() {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-  const session = await auth();
   if (!session?.user?.id) return;
 
   await db.notification.updateMany({
@@ -700,5 +698,6 @@ export async function testCloudinaryConnection(cloudinaryUrl: string) {
     return { success: false, error: e.message || "An unknown error occurred" };
   }
 }
+
 
 
