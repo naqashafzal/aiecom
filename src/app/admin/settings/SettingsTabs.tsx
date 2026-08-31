@@ -639,9 +639,15 @@ export default function SettingsTabs({ settings, saveAction }: { settings: Recor
               <div className="border rounded-lg p-4 space-y-4">
                 <div className="font-semibold border-b pb-4 text-green-600">Storefront Buttons (Click to Chat)</div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">WhatsApp Support Number (Include Country Code)</label>
-                  <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. 923001234567" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
-                  <p className="text-xs text-muted-foreground mt-1.5">Required for any WhatsApp buttons to work.</p>
+                  <label className="block text-sm font-medium mb-1">WhatsApp Support Number 1 (Include Country Code)</label>
+                  <input type="tel" name="whatsappNumber" defaultValue={settings.whatsappNumber || ""} placeholder="e.g. 923001234567" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none mb-2" />
+                  <input type="text" name="whatsappNumberLabel" defaultValue={settings.whatsappNumberLabel || "Sales & Support"} placeholder="Label (e.g. Sales)" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <p className="text-xs text-muted-foreground mt-1.5 mb-4">Primary number for WhatsApp buttons.</p>
+
+                  <label className="block text-sm font-medium mb-1">WhatsApp Support Number 2 (Optional)</label>
+                  <input type="tel" name="whatsappNumber2" defaultValue={settings.whatsappNumber2 || ""} placeholder="e.g. 923001234568" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none mb-2" />
+                  <input type="text" name="whatsappNumber2Label" defaultValue={settings.whatsappNumber2Label || "General Inquiries"} placeholder="Label (e.g. Support)" className="w-full h-10 px-3 rounded-md border bg-background focus:ring-2 focus:ring-primary outline-none" />
+                  <p className="text-xs text-muted-foreground mt-1.5">If provided, the chat bubble will open a menu showing both options.</p>
                 </div>
               </div>
 

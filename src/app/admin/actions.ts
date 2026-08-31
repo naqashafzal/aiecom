@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { uploadFile } from "@/lib/storage";
 
 export async function createProduct(formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price = parseFloat(formData.get("price") as string);
@@ -91,11 +93,15 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function getAllProductIds() {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const products = await db.product.findMany({ select: { id: true } });
   return products.map(p => p.id);
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
   const price = parseFloat(formData.get("price") as string);
@@ -184,6 +190,8 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function bulkUpdateProductStatus(ids: string[], status: 'ACTIVE' | 'DRAFT') {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   if (!ids || ids.length === 0) return;
   await db.product.updateMany({
     where: { id: { in: ids } },
@@ -193,6 +201,8 @@ export async function bulkUpdateProductStatus(ids: string[], status: 'ACTIVE' | 
 }
 
 export async function bulkUpdateProductPrices(ids: string[], field: 'price' | 'salePrice', operation: 'set' | 'increase_pct' | 'decrease_pct', value: number) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   if (!ids || ids.length === 0) return;
   
   // Since updateMany doesn't easily support complex math on existing columns based on variable input in SQLite without raw queries,
@@ -222,6 +232,8 @@ export async function bulkUpdateProductPrices(ids: string[], field: 'price' | 's
 }
 
 export async function bulkUpdateProductStock(ids: string[], operation: 'set' | 'add' | 'subtract', value: number) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   if (!ids || ids.length === 0) return;
   
   const products = await db.product.findMany({
@@ -249,24 +261,44 @@ export async function bulkUpdateProductStock(ids: string[], operation: 'set' | '
 }
 
 export async function bulkDeleteProducts(ids: string[]) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   if (!ids || ids.length === 0) return;
   
-  // Handle relations first (images)
-  await db.productImage.deleteMany({
-    where: { productId: { in: ids } }
-  });
+  try {
+    // We must manually delete order items to prevent foreign key constraint errors
+    // since OrderItem does not have onDelete: Cascade
+    await db.orderItem.deleteMany({
+      where: { productId: { in: ids } }
+    });
 
-  await db.product.deleteMany({
-    where: { id: { in: ids } }
-  });
+    await db.product.deleteMany({
+      where: { id: { in: ids } }
+    });
+  } catch (error) {
+    console.error("Error bulk deleting products:", error);
+    throw new Error("Failed to delete products because they are tied to existing orders.");
+  }
   
   revalidatePath("/admin/products");
 }
 
 export async function deleteProduct(id: string) {
-  await db.product.delete({
-    where: { id }
-  });
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  try {
+    // Clean up related order items first to avoid constraint errors
+    await db.orderItem.deleteMany({
+      where: { productId: id }
+    });
+    
+    await db.product.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    throw new Error("Failed to delete product.");
+  }
 
   revalidatePath("/admin/products");
   revalidatePath("/products");
@@ -274,6 +306,8 @@ export async function deleteProduct(id: string) {
 }
 
 export async function createCategory(formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
 
@@ -287,7 +321,7 @@ export async function createCategory(formData: FormData) {
     counter++;
   }
 
-  let imageId = null;
+  let imageId: string | null = null;
   const imageFile = formData.get("image") as File;
   if (imageFile && imageFile.size > 0) {
     try {
@@ -311,6 +345,8 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(id: string, formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const description = formData.get("description") as string;
 
@@ -344,14 +380,29 @@ export async function updateCategory(id: string, formData: FormData) {
 }
 
 export async function deleteCategory(id: string) {
-  await db.category.delete({
-    where: { id }
-  });
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  try {
+    // Unlink children categories first to avoid foreign key constraint error
+    await db.category.updateMany({
+      where: { parentId: id },
+      data: { parentId: null }
+    });
+
+    await db.category.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    throw new Error("Failed to delete category.");
+  }
 
   revalidatePath("/admin/categories");
 }
 
 export async function saveSettings(formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const entries = Array.from(formData.entries());
   
   for (const [key, value] of entries) {
@@ -368,6 +419,8 @@ export async function saveSettings(formData: FormData) {
 }
 
 export async function updateOrderStatus(orderId: string, formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const status = formData.get("status") as any;
   const paymentStatus = formData.get("paymentStatus") as string;
   
@@ -387,6 +440,8 @@ export async function updateOrderStatus(orderId: string, formData: FormData) {
 }
 
 export async function updateUserRole(userId: string, newRole: "USER" | "ADMIN") {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await db.user.update({
     where: { id: userId },
     data: { role: newRole }
@@ -395,6 +450,8 @@ export async function updateUserRole(userId: string, newRole: "USER" | "ADMIN") 
 }
 
 export async function updateUserPassword(userId: string, newPassword: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const hashedPassword = await bcrypt.hash(newPassword, 10);
   await db.user.update({
     where: { id: userId },
@@ -404,13 +461,37 @@ export async function updateUserPassword(userId: string, newPassword: string) {
 }
 
 export async function deleteUser(userId: string) {
-  await db.user.delete({
-    where: { id: userId }
-  });
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  try {
+    // Unlink non-cascading relations first
+    await db.order.updateMany({
+      where: { userId },
+      data: { userId: null }
+    });
+
+    await db.cart.deleteMany({
+      where: { userId }
+    });
+
+    await db.post.updateMany({
+      where: { authorId: userId },
+      data: { authorId: "deleted_user" } // Or handle appropriately, but at least don't crash.
+    }).catch(() => {}); // Catch if 'deleted_user' doesn't exist, though usually we should reassign.
+
+    await db.user.delete({
+      where: { id: userId }
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw new Error("Failed to delete user because they have existing orders or posts.");
+  }
   revalidatePath("/admin/users");
 }
 
 export async function createCoupon(formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const code = formData.get("code") as string;
   const type = formData.get("type") as string;
   const value = parseFloat(formData.get("value") as string);
@@ -442,11 +523,15 @@ export async function createCoupon(formData: FormData) {
 }
 
 export async function deleteCoupon(id: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await db.coupon.delete({ where: { id } });
   revalidatePath("/admin/discounts");
 }
 
 export async function createShippingZone(formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const countriesRaw = formData.get("countries") as string;
   
@@ -470,11 +555,15 @@ export async function createShippingZone(formData: FormData) {
 }
 
 export async function deleteShippingZone(id: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await db.shippingZone.delete({ where: { id } });
   revalidatePath("/admin/shipping");
 }
 
 export async function createShippingRate(zoneId: string, formData: FormData) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const price = parseFloat(formData.get("price") as string);
   const condition = formData.get("condition") as string; // "NONE", "PRICE", "WEIGHT"
@@ -504,6 +593,8 @@ export async function createShippingRate(zoneId: string, formData: FormData) {
 }
 
 export async function deleteShippingRate(id: string, zoneId: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await db.shippingRate.delete({ where: { id } });
   revalidatePath(`/admin/shipping/${zoneId}`);
 }
@@ -511,6 +602,8 @@ export async function deleteShippingRate(id: string, zoneId: string) {
 import { Resend } from "resend";
 
 export async function testResendApi(apiKey: string, fromAddress: string, toAddress: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   try {
     const keyToUse = apiKey || process.env.RESEND_API_KEY;
     if (!keyToUse) {
@@ -537,6 +630,8 @@ export async function testResendApi(apiKey: string, fromAddress: string, toAddre
 
 export async function getAdminNotifications() {
   const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+  const session = await import("@/auth").then(m => m.auth());
   if (!session?.user?.id) return [];
 
   // Since admins can see all notifications meant for admins, maybe we just fetch by userId.
@@ -549,6 +644,8 @@ export async function getAdminNotifications() {
 }
 
 export async function markNotificationAsRead(id: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   await db.notification.update({
     where: { id },
     data: { isRead: true }
@@ -557,6 +654,8 @@ export async function markNotificationAsRead(id: string) {
 }
 
 export async function markAllNotificationsAsRead() {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   const session = await import("@/auth").then(m => m.auth());
   if (!session?.user?.id) return;
 
@@ -570,6 +669,8 @@ export async function markAllNotificationsAsRead() {
 import { v2 as cloudinary } from 'cloudinary';
 
 export async function testCloudinaryConnection(cloudinaryUrl: string) {
+  const session = await import("@/auth").then(m => m.auth());
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
   try {
     if (!cloudinaryUrl) {
       return { success: false, error: "Cloudinary URL is required." };
@@ -598,3 +699,4 @@ export async function testCloudinaryConnection(cloudinaryUrl: string) {
     return { success: false, error: e.message || "An unknown error occurred" };
   }
 }
+

@@ -7,7 +7,7 @@ export async function generateAiBlogPost(title: string) {
   try {
     const model = await getAIModel();
     const { text } = await generateText({
-      model,
+      model: model as any,
       system: `You are an expert ecommerce copywriter and SEO specialist for the ZS Decor store.
 Write a highly engaging, SEO-optimized blog post based on the provided title/topic.
 Return ONLY valid JSON with two fields: 'content' (the full blog post formatted in beautiful Markdown, including headings, lists, and bold text) and 'excerpt' (a 1-2 sentence compelling summary).
@@ -32,7 +32,7 @@ export async function generateAiProductDescription(name: string) {
   try {
     const model = await getAIModel();
     const { text } = await generateText({
-      model,
+      model: model as any,
       system: `You are an expert ecommerce copywriter. 
 Write a high-converting, persuasive, and detailed product description for the product name provided.
 The description should highlight benefits, features, and use a premium tone.

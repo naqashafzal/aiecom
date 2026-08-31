@@ -54,64 +54,52 @@ export default async function AdminAnalyticsPage() {
     });
   }
 
-  // Real data for Top Categories
-  const paidOrderItems = await db.orderItem.findMany({
-    where: {
-      order: {
-        paymentStatus: 'PAID'
-      }
-    },
-    include: {
-      product: {
-        include: {
-          categories: true
-        }
-      }
-    }
-  });
+  // Real data for Top Categories and Products
+  // Using queryRaw to avoid pulling all order items into memory
+  const categoryRevenueRaw = await db.$queryRaw<any[]>`
+    SELECT c.name, SUM(oi.price * oi.quantity) as total
+    FROM "OrderItem" oi
+    JOIN "Order" o ON oi."orderId" = o.id
+    JOIN "_CategoryToProduct" ctp ON oi."productId" = ctp."B"
+    JOIN "Category" c ON ctp."A" = c.id
+    WHERE o."paymentStatus" = 'PAID'
+    GROUP BY c.name
+    ORDER BY total DESC
+    LIMIT 3
+  `;
 
-  const categoryRevenue: Record<string, { name: string, total: number }> = {};
-  const productRevenue: Record<string, { id: string, name: string, image: string, revenue: number, units: number }> = {};
   let totalCategoryRevenue = 0;
-
-  paidOrderItems.forEach(item => {
-    // Categories
-    const catName = item.product?.categories?.[0]?.name || "Uncategorized";
-    if (!categoryRevenue[catName]) {
-      categoryRevenue[catName] = { name: catName, total: 0 };
-    }
-    const itemTotal = (item.price || 0) * (item.quantity || 1);
-    categoryRevenue[catName].total += itemTotal;
-    totalCategoryRevenue += itemTotal;
-
-    // Products
-    if (item.product) {
-      const prodId = item.productId;
-      if (!productRevenue[prodId]) {
-        productRevenue[prodId] = {
-          id: item.product.id,
-          name: item.product.name,
-          image: item.product.images?.[0]?.url || "/placeholder.png",
-          revenue: 0,
-          units: 0
-        };
-      }
-      productRevenue[prodId].revenue += itemTotal;
-      productRevenue[prodId].units += (item.quantity || 1);
-    }
+  const topCategories = categoryRevenueRaw.map(row => {
+    const total = Number(row.total || 0);
+    totalCategoryRevenue += total;
+    return { name: row.name || "Uncategorized", total, percentage: 0 };
   });
 
-  const topCategories = Object.values(categoryRevenue)
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 3)
-    .map(cat => ({
-      ...cat,
-      percentage: totalCategoryRevenue > 0 ? Math.round((cat.total / totalCategoryRevenue) * 100) : 0
-    }));
+  if (totalCategoryRevenue > 0) {
+    topCategories.forEach(cat => {
+      cat.percentage = Math.round((cat.total / totalCategoryRevenue) * 100);
+    });
+  }
 
-  const topProducts = Object.values(productRevenue)
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5);
+  const productRevenueRaw = await db.$queryRaw<any[]>`
+    SELECT p.id, p.name, SUM(oi.price * oi.quantity) as revenue, SUM(oi.quantity) as units, 
+           (SELECT url FROM "ProductImage" pi WHERE pi."productId" = p.id LIMIT 1) as image
+    FROM "OrderItem" oi
+    JOIN "Order" o ON oi."orderId" = o.id
+    JOIN "Product" p ON oi."productId" = p.id
+    WHERE o."paymentStatus" = 'PAID'
+    GROUP BY p.id, p.name
+    ORDER BY revenue DESC
+    LIMIT 5
+  `;
+
+  const topProducts = productRevenueRaw.map(row => ({
+    id: row.id,
+    name: row.name,
+    image: row.image || "/placeholder.png",
+    revenue: Number(row.revenue || 0),
+    units: Number(row.units || 0)
+  }));
 
   const colors = ["bg-blue-500", "bg-purple-500", "bg-green-500"];
 
@@ -131,82 +119,93 @@ export default async function AdminAnalyticsPage() {
   // Advanced Traffic Intelligence (Last 30 Days)
   const thirtyDaysAgo = subDays(new Date(), 30);
   
-  const pageViews30Days = await db.pageView.findMany({
-    where: {
-      createdAt: { gte: thirtyDaysAgo }
-    },
-    include: { visitor: true }
+  const topSourcesRaw = await db.pageView.groupBy({
+    by: ['referrer'],
+    where: { createdAt: { gte: thirtyDaysAgo } },
+    _count: { referrer: true },
+    orderBy: { _count: { referrer: 'desc' } },
+    take: 5
   });
 
-  const sources: Record<string, number> = {};
-  const countries: Record<string, number> = {};
-  const searchKeywords: Record<string, number> = {};
-  
-  pageViews30Days.forEach(pv => {
-    const src = pv.referrer && pv.referrer.length > 0 ? pv.referrer : "Direct";
-    sources[src] = (sources[src] || 0) + 1;
-    
-    const country = pv.visitor?.country || "Unknown";
-    countries[country] = (countries[country] || 0) + 1;
+  const topSources = topSourcesRaw.map(s => [s.referrer || "Direct", s._count.referrer]);
 
-    // Search Keywords Extraction
+  const topCountriesRaw = await db.$queryRaw<any[]>`
+    SELECT v.country, COUNT(p.id) as count
+    FROM "PageView" p
+    JOIN "Visitor" v ON p."visitorId" = v.id
+    WHERE p."createdAt" >= ${thirtyDaysAgo}
+    GROUP BY v.country
+    ORDER BY count DESC
+    LIMIT 5
+  `;
+  const topCountries = topCountriesRaw.map(c => [c.country || "Unknown", Number(c.count || 0)]);
+
+  // For keywords, we just extract from a limited set of recent searches to save memory
+  const recentSearches = await db.pageView.findMany({
+    where: {
+      createdAt: { gte: thirtyDaysAgo },
+      url: { contains: '?' }
+    },
+    select: { url: true },
+    take: 5000,
+    orderBy: { createdAt: 'desc' }
+  });
+
+  const searchKeywords: Record<string, number> = {};
+  recentSearches.forEach(pv => {
     try {
-      if (pv.url.includes('?')) {
-        const urlParams = new URLSearchParams(pv.url.split('?')[1]);
-        const q = urlParams.get('q') || urlParams.get('search') || urlParams.get('query');
-        if (q) {
-          const keyword = q.toLowerCase().trim();
-          if (keyword.length > 0) {
-            searchKeywords[keyword] = (searchKeywords[keyword] || 0) + 1;
-          }
+      const urlParams = new URLSearchParams(pv.url.split('?')[1]);
+      const q = urlParams.get('q') || urlParams.get('search') || urlParams.get('query');
+      if (q) {
+        const keyword = q.toLowerCase().trim();
+        if (keyword.length > 0) {
+          searchKeywords[keyword] = (searchKeywords[keyword] || 0) + 1;
         }
       }
     } catch (e) {
       // Ignored
     }
   });
-
-  const topSources = Object.entries(sources).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const topCountries = Object.entries(countries).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  
   const topKeywords = Object.entries(searchKeywords).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
   // --- Customer Intelligence ---
-  const allPaidOrders = await db.order.findMany({
-    where: { paymentStatus: 'PAID' },
-    include: { user: true }
-  });
+  const customerSpendRaw = await db.$queryRaw<any[]>`
+    SELECT 
+      COALESCE(u.email, o.email, 'Unknown') as email, 
+      COALESCE(u.name, 'Guest') as name, 
+      SUM(o."grandTotal") as "totalSpend", 
+      COUNT(o.id) as "orderCount"
+    FROM "Order" o
+    LEFT JOIN "User" u ON o."userId" = u.id
+    WHERE o."paymentStatus" = 'PAID'
+    GROUP BY COALESCE(u.email, o.email, 'Unknown'), COALESCE(u.name, 'Guest')
+    ORDER BY "totalSpend" DESC
+  `;
 
-  const customerSpend: Record<string, { email: string, name: string, totalSpend: number, orderCount: number }> = {};
-  
-  allPaidOrders.forEach(order => {
-    // Group by email to catch guest checkouts and registered users together
-    const email = order.email || order.user?.email || "Unknown";
-    const name = order.user?.name || "Guest";
-    
-    if (email !== "Unknown") {
-      if (!customerSpend[email]) {
-        customerSpend[email] = { email, name, totalSpend: 0, orderCount: 0 };
-      }
-      customerSpend[email].totalSpend += (order.grandTotal || 0);
-      customerSpend[email].orderCount += 1;
-    }
-  });
-
-  const uniqueCustomersCount = Object.keys(customerSpend).length;
+  const uniqueCustomersCount = customerSpendRaw.filter(c => c.email !== 'Unknown').length;
   const lifetimeValue = uniqueCustomersCount > 0 ? (revenue / uniqueCustomersCount) : 0;
   
-  const vipCustomers = Object.values(customerSpend)
-    .sort((a, b) => b.totalSpend - a.totalSpend)
-    .slice(0, 5);
+  const vipCustomers = customerSpendRaw
+    .filter(c => c.email !== 'Unknown')
+    .slice(0, 5)
+    .map(c => ({
+      email: c.email,
+      name: c.name,
+      totalSpend: Number(c.totalSpend || 0),
+      orderCount: Number(c.orderCount || 0)
+    }));
 
   let newCustomers = 0;
   let returningCustomers = 0;
   
-  Object.values(customerSpend).forEach(customer => {
-    if (customer.orderCount > 1) {
-      returningCustomers++;
-    } else {
-      newCustomers++;
+  customerSpendRaw.forEach(customer => {
+    if (customer.email !== 'Unknown') {
+      if (Number(customer.orderCount || 0) > 1) {
+        returningCustomers++;
+      } else {
+        newCustomers++;
+      }
     }
   });
 

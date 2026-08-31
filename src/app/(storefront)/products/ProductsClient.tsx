@@ -92,7 +92,7 @@ export default function ProductsClient({
   })();
 
   const updateFilters = (updates: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams?.toString() || "");
     Object.entries(updates).forEach(([key, value]) => {
       if (value === null) {
         params.delete(key);
@@ -130,7 +130,7 @@ export default function ProductsClient({
   const clearFilters = () => {
     setMinPrice("");
     setMaxPrice("");
-    router.push(pathname);
+    router.push(pathname || "/products");
   };
 
   const handleAddToCart = (product: any) => {

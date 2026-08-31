@@ -22,7 +22,7 @@ export default async function StorefrontLayout({
   const storeCurrency = currencySetting?.value || "USD";
 
   const menuSetting = await db.setting.findUnique({ where: { key: "storefront_main_menu" } });
-  let menuLinks = [];
+  let menuLinks: { name: string; url: string; highlight?: boolean }[] = [];
   try {
     if (menuSetting?.value) {
       menuLinks = JSON.parse(menuSetting.value);
@@ -47,7 +47,10 @@ export default async function StorefrontLayout({
         { key: { startsWith: "storefront_" } },
         { key: { startsWith: "ad_" } },
         { key: { startsWith: "home_" } },
-        { key: "whatsappNumber" }
+        { key: "whatsappNumber" },
+        { key: "whatsappNumber2" },
+        { key: "whatsappNumberLabel" },
+        { key: "whatsappNumber2Label" }
       ]
     }
   });
@@ -149,7 +152,14 @@ export default async function StorefrontLayout({
         )}
         <Footer />
         {aiEnabled && <AiChat />}
-        {settingsMap["home_whatsapp_button_enabled"] === "true" && whatsappNumber && <WhatsAppBubble phoneNumber={whatsappNumber} />}
+        {settingsMap["home_whatsapp_button_enabled"] === "true" && (whatsappNumber || settingsMap["whatsappNumber2"]) && (
+          <WhatsAppBubble 
+            phoneNumber={whatsappNumber} 
+            phoneNumber2={settingsMap["whatsappNumber2"]}
+            label1={settingsMap["whatsappNumberLabel"]}
+            label2={settingsMap["whatsappNumber2Label"]}
+          />
+        )}
       </CurrencyProvider>
     </div>
   );
