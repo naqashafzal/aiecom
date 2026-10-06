@@ -82,7 +82,8 @@ export async function createProduct(formData: FormData) {
       salePrice,
       stock,
       videoUrl,
-      status,`n      isNonRefundable: formData.get("isNonRefundable") === "true",
+      status,
+      isNonRefundable: formData.get("isNonRefundable") === "true",
       storeId: storeId || null,
       categories: {
         connect: categoryIds.map(id => ({ id }))
@@ -238,7 +239,8 @@ export async function updateProduct(id: string, formData: FormData) {
       salePrice,
       stock,
       ...(videoUrl !== undefined && { videoUrl }),
-      status,`n      isNonRefundable: formData.get("isNonRefundable") === "true",
+      status,
+      isNonRefundable: formData.get("isNonRefundable") === "true",
       storeId: storeId || null,
       categories: {
         set: categoryIds.map(id => ({ id }))
