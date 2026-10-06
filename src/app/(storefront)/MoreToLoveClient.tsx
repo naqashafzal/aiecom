@@ -112,7 +112,6 @@ export function MoreToLoveClient({ initialProducts, title, storeCurrency }: { in
                   <span className="text-black font-black text-lg">{formatPrice(displayPrice)}</span>
                 </div>
                 <div className="flex items-center gap-1 mt-auto">
-                  <span className="bg-[#FFF0F1] text-[#E53238] text-[10px] font-bold px-1 rounded-sm">Free shipping</span>
                   <span className="text-[#999] text-[11px] ml-auto">{sold}+ sold</span>
                 </div>
               </div>
