@@ -241,12 +241,19 @@ export default function ProductClient({ product, settings, initialIsWishlisted }
 
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">{product.name}</h1>
           
-          {mounted && showFakeSales && fakeSales.sold > 0 && (
-            <div className="flex items-center gap-2 text-red-500 bg-red-500/10 w-fit px-3 py-1.5 rounded-full mb-4">
-              <Flame className="h-4 w-4 fill-red-500" />
-              <span className="font-semibold text-sm">{fakeSales.sold} sold in last {fakeSales.hours} hours</span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {product.isNonRefundable && (
+              <div className="flex items-center gap-1.5 text-orange-600 bg-orange-600/10 w-fit px-3 py-1.5 rounded-full">
+                <span className="font-semibold text-sm">Non-Refundable</span>
+              </div>
+            )}
+            {mounted && showFakeSales && fakeSales.sold > 0 && (
+              <div className="flex items-center gap-1.5 text-red-500 bg-red-500/10 w-fit px-3 py-1.5 rounded-full">
+                <Flame className="h-4 w-4 fill-red-500" />
+                <span className="font-semibold text-sm">{fakeSales.sold} sold in last {fakeSales.hours} hours</span>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-4 mb-6">
             <div className="text-3xl font-black text-primary">{formatPrice(displayPrice)}</div>

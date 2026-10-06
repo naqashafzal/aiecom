@@ -16,6 +16,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       items: {
         include: {
           product: true,
+          variant: true,
         }
       },
       user: true,
@@ -66,7 +67,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     <span className="text-xs text-muted-foreground">IMG</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium text-sm">{item.product?.name || "Unknown Product"}</h4>
+                    <h4 className="font-medium text-sm">
+                      {item.product?.name || "Unknown Product"}
+                      {item.variant && <span className="ml-2 text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{item.variant.name}</span>}
+                    </h4>
                     <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                   </div>
                   <div className="font-medium text-sm text-right">

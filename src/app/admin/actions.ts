@@ -63,6 +63,15 @@ export async function createProduct(formData: FormData) {
   }
 
   const storeId = formData.get("storeId") as string;
+  const variantsDataStr = formData.get("variantsData") as string;
+  let variants: any[] = [];
+  if (variantsDataStr) {
+    try {
+      variants = JSON.parse(variantsDataStr);
+    } catch (e) {
+      console.error("Failed to parse variants", e);
+    }
+  }
 
   await db.product.create({
     data: {
@@ -73,7 +82,7 @@ export async function createProduct(formData: FormData) {
       salePrice,
       stock,
       videoUrl,
-      status,
+      status,`n      isNonRefundable: formData.get("isNonRefundable") === "true",
       storeId: storeId || null,
       categories: {
         connect: categoryIds.map(id => ({ id }))
@@ -82,6 +91,15 @@ export async function createProduct(formData: FormData) {
         create: imageUrls.map((url, idx) => ({
           url,
           isPrimary: idx === 0
+        }))
+      } : undefined,
+      variants: variants.length > 0 ? {
+        create: variants.map(v => ({
+          name: v.name,
+          sku: v.sku,
+          price: v.price,
+          stock: v.stock,
+          attributes: v.attributes
         }))
       } : undefined
     }
@@ -159,6 +177,57 @@ export async function updateProduct(id: string, formData: FormData) {
   const allImages = [...keepImages, ...newImageUrls];
 
   const storeId = formData.get("storeId") as string;
+  const variantsDataStr = formData.get("variantsData") as string;
+  let variants: any[] = [];
+  if (variantsDataStr) {
+    try {
+      variants = JSON.parse(variantsDataStr);
+    } catch (e) {
+      console.error("Failed to parse variants", e);
+    }
+  }
+
+  // Get existing variants
+  const existingVariants = await db.productVariant.findMany({ where: { productId: id } });
+  const incomingVariantIds = variants.map(v => v.id).filter(Boolean);
+  
+  // Delete variants that are no longer present
+  const variantsToDelete = existingVariants.filter(ev => !incomingVariantIds.includes(ev.id));
+  for (const v of variantsToDelete) {
+    try {
+      await db.productVariant.delete({ where: { id: v.id } });
+    } catch (e) {
+      // If it fails (e.g. tied to an order), just leave it or mark as inactive (though we don't have active field)
+      console.warn("Could not delete variant, likely tied to orders", e);
+    }
+  }
+
+  // Update or create variants
+  for (const v of variants) {
+    if (v.id) {
+      await db.productVariant.update({
+        where: { id: v.id },
+        data: {
+          name: v.name,
+          sku: v.sku,
+          price: v.price,
+          stock: v.stock,
+          attributes: v.attributes
+        }
+      });
+    } else {
+      await db.productVariant.create({
+        data: {
+          productId: id,
+          name: v.name,
+          sku: v.sku,
+          price: v.price,
+          stock: v.stock,
+          attributes: v.attributes
+        }
+      });
+    }
+  }
 
   await db.product.update({
     where: { id },
@@ -169,7 +238,7 @@ export async function updateProduct(id: string, formData: FormData) {
       salePrice,
       stock,
       ...(videoUrl !== undefined && { videoUrl }),
-      status,
+      status,`n      isNonRefundable: formData.get("isNonRefundable") === "true",
       storeId: storeId || null,
       categories: {
         set: categoryIds.map(id => ({ id }))
@@ -698,6 +767,7 @@ export async function testCloudinaryConnection(cloudinaryUrl: string) {
     return { success: false, error: e.message || "An unknown error occurred" };
   }
 }
+
 
 
 

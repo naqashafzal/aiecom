@@ -162,6 +162,7 @@ model Product {
   price         Float
   salePrice     Float?
   isFeatured    Boolean   @default(false)
+  isNonRefundable Boolean @default(false)
   status        String    @default("ACTIVE") // DRAFT, ACTIVE, ARCHIVED
   brandId       String?
   storeId       String?

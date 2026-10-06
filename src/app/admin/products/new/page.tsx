@@ -8,6 +8,7 @@ import { VideoUploadPreview } from "@/components/admin/VideoUploadPreview";
 import { AiDescriptionButton } from "../../ai-agents/AiDescriptionButton";
 import { getStoreCurrency } from "@/lib/format";
 import { SubmitButton } from "@/components/admin/SubmitButton";
+import { ProductVariantsManager } from "@/components/admin/ProductVariantsManager";
 
 export default async function NewProductPage() {
   const categories = await db.category.findMany();
@@ -59,6 +60,12 @@ export default async function NewProductPage() {
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
+            <h2 className="text-lg font-bold">Variants</h2>
+            <p className="text-sm text-muted-foreground mb-4">Add variants if this product comes in multiple versions, like different sizes or shapes.</p>
+            <ProductVariantsManager />
+          </div>
+
+          <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
             <h2 className="text-lg font-bold">Pricing</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -89,6 +96,10 @@ export default async function NewProductPage() {
               <option value="ACTIVE">Active</option>
               <option value="DRAFT">Draft</option>
             </select>
+            <div className="flex items-center gap-2 pt-2">
+              <input type="checkbox" id="isNonRefundable" name="isNonRefundable" value="true" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+              <label htmlFor="isNonRefundable" className="text-sm font-medium">Non-Refundable</label>
+            </div>
           </div>
 
           <div className="bg-background rounded-xl border shadow-sm p-6 space-y-6">
