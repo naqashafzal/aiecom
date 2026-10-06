@@ -248,6 +248,30 @@ export const ElegantThemeSchema: SectionSchema[] = [
       { id: "bg", label: "Background Color", type: "color", default: "#111111" },
       { id: "textColor", label: "Text Color", type: "color", default: "#FFFFFF" }
     ]
+  },
+  {
+    type: "elegant_video_banner",
+    name: "Video Banner",
+    icon: "Video",
+    fields: [
+      { id: "videoUrl", label: "Video URL (MP4)", type: "url", default: "https://cdn.pixabay.com/vimeo/328637770/people-22927.mp4?width=1280&hash=f51dd73cefa80e609386c9d749962a9c182cdff0" },
+      { id: "title", label: "Title", type: "text", default: "THE ART OF DESIGN" },
+      { id: "subtitle", label: "Subtitle", type: "text", default: "Experience the new collection" }
+    ]
+  },
+  {
+    type: "elegant_testimonials",
+    name: "Testimonials",
+    icon: "Quote",
+    fields: [
+      { id: "title", label: "Section Title", type: "text", default: "WHAT THEY SAY" },
+      { id: "quote1", label: "Quote 1", type: "textarea", default: "“An absolute masterpiece of design and comfort. I've never experienced anything quite like it.”" },
+      { id: "author1", label: "Author 1", type: "text", default: "- VOGUE" },
+      { id: "quote2", label: "Quote 2", type: "textarea", default: "“The attention to detail is unparalleled. This brand sets a new standard for modern luxury.”" },
+      { id: "author2", label: "Author 2", type: "text", default: "- GQ MAGAZINE" },
+      { id: "quote3", label: "Quote 3", type: "textarea", default: "“Timeless, elegant, and effortlessly sophisticated. A must-have for the curated home.”" },
+      { id: "author3", label: "Author 3", type: "text", default: "- ELLE DECOR" }
+    ]
   }
 ];
 
@@ -357,17 +381,21 @@ export const defaultElegantConfig: ThemeConfig = {
   order: [
     "elegant_hero_default", 
     "elegant_features_default",
-    "elegant_categories_default", 
+    "elegant_categories_default",
+    "elegant_video_banner_default",
     "elegant_story_default",
     "elegant_best_sellers_default",
+    "elegant_testimonials_default",
     "elegant_newsletter_default"
   ],
   sections: {
     "elegant_hero_default": { type: "elegant_hero", settings: {}, block_order: [], blocks: {} },
     "elegant_features_default": { type: "elegant_features", settings: {}, block_order: [], blocks: {} },
     "elegant_categories_default": { type: "elegant_categories", settings: {}, block_order: [], blocks: {} },
+    "elegant_video_banner_default": { type: "elegant_video_banner", settings: {}, block_order: [], blocks: {} },
     "elegant_story_default": { type: "elegant_story", settings: {}, block_order: [], blocks: {} },
     "elegant_best_sellers_default": { type: "elegant_best_sellers", settings: {}, block_order: [], blocks: {} },
+    "elegant_testimonials_default": { type: "elegant_testimonials", settings: {}, block_order: [], blocks: {} },
     "elegant_newsletter_default": { type: "elegant_newsletter", settings: {}, block_order: [], blocks: {} }
   }
 };

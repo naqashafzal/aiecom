@@ -13,7 +13,9 @@ import {
   ElegantBestSellersSection,
   ElegantStorySection,
   ElegantFeaturesSection,
-  ElegantNewsletterSection
+  ElegantNewsletterSection,
+  ElegantVideoBannerSection,
+  ElegantTestimonialsSection
 } from "./ElegantSectionsClient";
 
 
@@ -93,6 +95,10 @@ export default async function ElegantHome() {
         return <ElegantStorySection key={id} settings={section.settings} />;
       case "elegant_features":
         return <ElegantFeaturesSection key={id} settings={section.settings} />;
+      case "elegant_video_banner":
+        return <ElegantVideoBannerSection key={id} settings={section.settings} />;
+      case "elegant_testimonials":
+        return <ElegantTestimonialsSection key={id} settings={section.settings} />;
       case "elegant_newsletter":
         return <ElegantNewsletterSection key={id} settings={section.settings} />;
       case "custom_builder":

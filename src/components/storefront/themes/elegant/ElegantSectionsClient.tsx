@@ -306,3 +306,85 @@ export function ElegantNewsletterSection({ settings }: { settings: Record<string
     </div>
   );
 }
+
+// 7. Elegant Video Banner
+export function ElegantVideoBannerSection({ settings }: { settings: Record<string, any> }) {
+  const videoUrl = settings["videoUrl"] || "https://cdn.pixabay.com/vimeo/328637770/people-22927.mp4?width=1280&hash=f51dd73cefa80e609386c9d749962a9c182cdff0";
+  const title = settings["title"] || "THE ART OF DESIGN";
+  const subtitle = settings["subtitle"] || "Experience the new collection";
+
+  return (
+    <div className="relative w-full h-[60vh] overflow-hidden bg-black flex items-center justify-center my-12">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover opacity-60"
+        src={videoUrl}
+      />
+      <div className="absolute inset-0 bg-black/20" />
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1 }}
+        className="relative z-10 text-center px-4 flex flex-col items-center"
+      >
+        <h2 className="text-3xl md:text-5xl lg:text-6xl text-white font-serif tracking-[0.2em] uppercase mb-4 drop-shadow-md">
+          {title}
+        </h2>
+        <p className="text-sm md:text-base text-white/90 font-light tracking-widest uppercase drop-shadow-sm">
+          {subtitle}
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+// 8. Elegant Testimonials
+export function ElegantTestimonialsSection({ settings }: { settings: Record<string, any> }) {
+  const title = settings["title"] || "WHAT THEY SAY";
+  const q1 = settings["quote1"] || "“An absolute masterpiece of design and comfort. I've never experienced anything quite like it.”";
+  const a1 = settings["author1"] || "- VOGUE";
+  const q2 = settings["quote2"] || "“The attention to detail is unparalleled. This brand sets a new standard for modern luxury.”";
+  const a2 = settings["author2"] || "- GQ MAGAZINE";
+  const q3 = settings["quote3"] || "“Timeless, elegant, and effortlessly sophisticated. A must-have for the curated home.”";
+  const a3 = settings["author3"] || "- ELLE DECOR";
+
+  const testimonials = [
+    { quote: q1, author: a1 },
+    { quote: q2, author: a2 },
+    { quote: q3, author: a3 },
+  ];
+
+  return (
+    <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-24 bg-white border-b border-gray-100">
+      <div className="flex flex-col items-center mb-16">
+        <h2 className="text-2xl md:text-3xl font-serif text-center tracking-[0.15em] uppercase text-gray-900 mb-4">
+          {title}
+        </h2>
+        <div className="w-12 h-[1px] bg-gray-400"></div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 lg:gap-16">
+        {testimonials.map((t, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.15, duration: 0.8 }}
+            className="flex flex-col items-center text-center px-4"
+          >
+            <p className="text-lg md:text-xl font-serif text-gray-700 italic leading-relaxed mb-6">
+              {t.quote}
+            </p>
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-gray-900">
+              {t.author}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
